@@ -1,0 +1,595 @@
+{% extends 'monitor/base.html' %}
+
+{% block title %}SOC Operations Command — SentinelML{% endblock %}
+
+{% block extra_head %}
+<!-- Leaflet.js for Interactive Cyber Threat Map -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+  .leaflet-container {
+    background: #070c18 !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+  }
+  .leaflet-popup-content-wrapper, .leaflet-popup-tip {
+    background: #0d1527 !important;
+    color: #f1f5f9 !important;
+    border: 1px solid rgba(56, 189, 248, 0.35) !important;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.6) !important;
+    border-radius: 8px !important;
+  }
+  .pulse-marker {
+    display: block;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    position: relative;
+  }
+  .pulse-marker::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    animation: marker-pulse 2s infinite ease-out;
+  }
+  .pulse-marker.critical { background: #ff4d6d; box-shadow: 0 0 10px #ff4d6d; }
+  .pulse-marker.critical::after { border: 2px solid #ff4d6d; }
+  .pulse-marker.high { background: #fb923c; box-shadow: 0 0 10px #fb923c; }
+  .pulse-marker.high::after { border: 2px solid #fb923c; }
+  .pulse-marker.medium { background: #facc15; box-shadow: 0 0 10px #facc15; }
+  .pulse-marker.medium::after { border: 2px solid #facc15; }
+  .pulse-marker.low { background: #38bdf8; box-shadow: 0 0 10px #38bdf8; }
+  .pulse-marker.low::after { border: 2px solid #38bdf8; }
+  @keyframes marker-pulse {
+    0% { transform: scale(0.6); opacity: 1; }
+    100% { transform: scale(2.2); opacity: 0; }
+  }
+  .new-row-pulse {
+    animation: row-highlight 3s ease-out;
+  }
+  @keyframes row-highlight {
+    0% { background: rgba(56, 189, 248, 0.35); }
+    100% { background: transparent; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- SOC Command Header -->
+<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 1.25rem;">
+  <div>
+    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+      <span class="badge badge-cyan"><i class="fa-solid fa-satellite-dish"></i> AUTONOMOUS TELEMETRY</span>
+      <span style="font-size: 0.8rem; color: var(--text-muted);" class="font-mono">NODE ID: SOC-SENTINEL-01</span>
+    </div>
+    <h1 class="font-hud" style="font-size: 2rem; font-weight: 800; color: var(--text-primary); letter-spacing: 0.02em;">
+      Security Operations Command Center
+    </h1>
+    <p style="color: var(--text-secondary); font-size: 0.95rem; margin-top: 0.25rem;">
+      Intent-Centric Multi-Layer Fusion (ICMF) &bull; Autonomous threat hunting &bull; Predictive attack-stage forecasting
+    </p>
+  </div>
+  <div style="display: flex; align-items: center; gap: 0.75rem;">
+    <a href="{% url 'attack_simulator' %}" class="btn-outline">
+      <i class="fa-solid fa-play" style="color: var(--accent-cyan);"></i>
+      <span>Attack Simulator</span>
+    </a>
+    <a href="{% url 'threat_hunting' %}" class="btn-primary">
+      <i class="fa-solid fa-radar"></i>
+      <span>Threat Hunting Center</span>
+    </a>
+  </div>
+</div>
+
+<!-- Primary Telemetry KPI Cards -->
+<div class="grid-cards">
+  
+  <!-- Total Requests -->
+  <div class="stat-card hud-card" style="border-left: 4px solid var(--accent-cyan);">
+    <div class="label">
+      <span>Total Ingested Telemetry</span>
+      <i class="fa-solid fa-globe" style="color: var(--accent-cyan); font-size: 1rem;"></i>
+    </div>
+    <div class="value animate-counter" data-target="{{ total_requests }}">{{ total_requests }}</div>
+    <div class="sub-meta">
+      <span style="color: var(--accent-cyan); font-weight: 600;">Live HTTP Traffic Stream</span>
+      <span>&bull;</span>
+      <span>100% Ingested</span>
+    </div>
+    <div class="cyber-meter-track">
+      <div class="cyber-meter-fill" style="width: 100%; background: linear-gradient(90deg, var(--accent-cyan), #0284c7);"></div>
+    </div>
+  </div>
+
+  <!-- Intercepted Malicious Requests -->
+  <div class="stat-card hud-card" style="border-left: 4px solid var(--accent-red);">
+    <div class="label">
+      <span>Malicious Threats Intercepted</span>
+      <i class="fa-solid fa-shield-virus" style="color: var(--accent-red); font-size: 1rem;"></i>
+    </div>
+    <div class="value animate-counter" data-target="{{ malicious_total }}" style="color: var(--accent-red);">{{ malicious_total }}</div>
+    <div class="sub-meta">
+      <span style="color: var(--accent-red); font-weight: 700;">OWASP Threat Vectors</span>
+      <span>&bull;</span>
+      <span>SQLi / Brute / Recon / XSS / LFI</span>
+    </div>
+    <div class="cyber-meter-track">
+      <div class="cyber-meter-fill" style="width: {% if total_requests > 0 %}{% widthratio malicious_total total_requests 100 %}{% else %}0{% endif %}%; background: linear-gradient(90deg, var(--accent-red), #ff758f);"></div>
+    </div>
+  </div>
+
+  <!-- Flagged Attacker Profiles -->
+  <div class="stat-card hud-card" style="border-left: 4px solid var(--accent-amber);">
+    <div class="label">
+      <span>Tracked Attacker Profiles</span>
+      <i class="fa-solid fa-user-ninja" style="color: var(--accent-amber); font-size: 1rem;"></i>
+    </div>
+    <div class="value animate-counter" data-target="{{ flagged_ips_count }}" style="color: var(--accent-amber);">{{ flagged_ips_count }}</div>
+    <div class="sub-meta">
+      <span style="color: var(--accent-amber); font-weight: 600;">{{ critical_ips_count }} Critical Risk Tiers</span>
+    </div>
+    <div class="cyber-meter-track">
+      <div class="cyber-meter-fill" style="width: 80%; background: linear-gradient(90deg, var(--accent-amber), #fde047);"></div>
+    </div>
+  </div>
+
+  <!-- Quarantined IPs -->
+  <div class="stat-card hud-card" style="border-left: 4px solid var(--accent-purple);">
+    <div class="label">
+      <span>Quarantined / Blocked IPs</span>
+      <i class="fa-solid fa-ban" style="color: var(--accent-purple); font-size: 1rem;"></i>
+    </div>
+    <div class="value animate-counter" data-target="{{ blocked_ips_count }}" style="color: var(--accent-purple);">{{ blocked_ips_count }}</div>
+    <div class="sub-meta">
+      <span class="badge badge-critical" style="font-size: 0.68rem; padding: 0.15rem 0.45rem;">FIREWALL ENFORCED</span>
+      <span>Auto & Manual</span>
+    </div>
+    <div class="cyber-meter-track">
+      <div class="cyber-meter-fill" style="width: 90%; background: linear-gradient(90deg, var(--accent-purple), #d8b4fe);"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Predictive Alerts & Threat Hunt Radar Grid -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 1.5rem; margin-bottom: 2.25rem;">
+  
+  <!-- Active Predictive Alerts -->
+  <div class="cyber-card hud-card" style="border-top: 3px solid var(--accent-cyan);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <h3 class="font-hud" style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--accent-cyan);"></i> Active Predictive Threat Forecasts
+      </h3>
+      <span class="badge badge-cyan">{{ active_alerts|length }} FORECASTS</span>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+      {% for alert in active_alerts %}
+      <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.85rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+          <span class="font-mono" style="font-weight: 700; font-size: 0.88rem; color: var(--accent-cyan);">
+            <i class="fa-solid fa-user-secret"></i> {{ alert.target_ip }}
+          </span>
+          <span class="badge {% if alert.confidence == 'CRITICAL' %}badge-critical{% elif alert.confidence == 'HIGH' %}badge-high{% else %}badge-medium{% endif %}" style="font-size: 0.65rem;">
+            {{ alert.confidence }} CONFIDENCE
+          </span>
+        </div>
+        <div style="font-size: 0.88rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.25rem;">
+          Targeting: <span style="color: var(--accent-amber);">{{ alert.predicted_asset }}</span> &bull; Next: {{ alert.predicted_stage }}
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4;">
+          {{ alert.reasoning|truncatewords:20 }}
+        </div>
+      </div>
+      {% empty %}
+      <div style="text-align: center; color: var(--text-muted); padding: 1.5rem;">
+        <i class="fa-solid fa-circle-check" style="color: var(--accent-emerald); font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
+        <div>No high-severity predictive threat escalations active.</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Active Threat Hunting Discoveries -->
+  <div class="cyber-card hud-card" style="border-top: 3px solid var(--accent-purple);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <h3 class="font-hud" style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fa-solid fa-radar" style="color: var(--accent-purple);"></i> Autonomous Threat Hunt Discoveries
+      </h3>
+      <a href="{% url 'threat_hunting' %}" class="btn-outline btn-sm">View All Hunts</a>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+      {% for finding in active_findings %}
+      <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.85rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+          <span class="font-mono" style="font-weight: 700; font-size: 0.85rem; color: var(--accent-purple);">
+            {{ finding.get_hunt_type_display }}
+          </span>
+          <span class="badge {% if finding.severity == 'CRITICAL' %}badge-critical{% elif finding.severity == 'HIGH' %}badge-high{% else %}badge-medium{% endif %}" style="font-size: 0.65rem;">
+            {{ finding.severity }}
+          </span>
+        </div>
+        <div style="font-size: 0.82rem; color: var(--text-primary); margin-bottom: 0.3rem;">
+          {{ finding.description }}
+        </div>
+        <div style="font-size: 0.75rem; color: var(--accent-emerald); font-weight: 600;" class="font-mono">
+          <i class="fa-solid fa-wrench"></i> {{ finding.mitigation_action }}
+        </div>
+      </div>
+      {% empty %}
+      <div style="text-align: center; color: var(--text-muted); padding: 1.5rem;">
+        <i class="fa-solid fa-shield-check" style="color: var(--accent-emerald); font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
+        <div>Autonomous hunter has cleared all recent telemetry.</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+
+<!-- Interactive Global Cyber Threat Map -->
+<div class="cyber-card hud-card" style="margin-bottom: 2.25rem; border-top: 3px solid var(--accent-cyan);">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+    <div>
+      <h2 class="font-hud" style="font-size: 1.2rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fa-solid fa-earth-americas" style="color: var(--accent-cyan);"></i> Global Adversary Threat Map & Geo-Intelligence
+      </h2>
+      <span style="font-size: 0.8rem; color: var(--text-muted);" class="font-mono">LIVE IP GEOLOCATION SENSOR GRID</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <div id="liveStreamBadge" class="system-status-pill" style="border-color: rgba(34, 197, 94, 0.4);">
+        <span class="pulse-dot" style="background: var(--accent-emerald);"></span>
+        <span style="color: var(--accent-emerald); font-weight: 700;">LIVE TELEMETRY STREAMING</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="threatMap" style="width: 100%; height: 380px; border-radius: 8px; border: 1px solid var(--border-color); overflow: hidden;"></div>
+</div>
+
+<!-- Attack Vector Categorization Grid -->
+<div style="margin-bottom: 2.25rem;">
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+    <h2 class="font-hud" style="font-size: 1.2rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.6rem;">
+      <i class="fa-solid fa-chart-pie" style="color: var(--accent-cyan);"></i> OWASP Vector Signature Breakdown
+    </h2>
+    <span class="font-mono" style="font-size: 0.8rem; color: var(--text-muted);">ICMF MULTI-VECTOR CORE</span>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem;">
+
+    <!-- SQLi -->
+    <div class="cyber-card hud-card" style="border-top: 3px solid var(--accent-red);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary);"><i class="fa-solid fa-bug" style="color: var(--accent-red);"></i> SQL Injection</h4>
+        <span class="badge badge-critical">SQLi</span>
+      </div>
+      <div class="code-font animate-counter" data-target="{{ sqli_count }}" style="font-size: 1.85rem; font-weight: 800; color: var(--accent-red); margin-bottom: 0.25rem;">{{ sqli_count }}</div>
+      <div style="font-size: 0.78rem; color: var(--text-muted);">Union, Boolean & Tautology</div>
+    </div>
+
+    <!-- Brute Force -->
+    <div class="cyber-card hud-card" style="border-top: 3px solid var(--accent-amber);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary);"><i class="fa-solid fa-key" style="color: var(--accent-amber);"></i> Brute Force</h4>
+        <span class="badge badge-high">AUTH</span>
+      </div>
+      <div class="code-font animate-counter" data-target="{{ brute_force_count }}" style="font-size: 1.85rem; font-weight: 800; color: var(--accent-amber); margin-bottom: 0.25rem;">{{ brute_force_count }}</div>
+      <div style="font-size: 0.78rem; color: var(--text-muted);">Credential stuffing & guessing</div>
+    </div>
+
+    <!-- Recon -->
+    <div class="cyber-card hud-card" style="border-top: 3px solid var(--accent-purple);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary);"><i class="fa-solid fa-radar" style="color: var(--accent-purple);"></i> Reconnaissance</h4>
+        <span class="badge badge-medium">RECON</span>
+      </div>
+      <div class="code-font animate-counter" data-target="{{ recon_count }}" style="font-size: 1.85rem; font-weight: 800; color: var(--accent-purple); margin-bottom: 0.25rem;">{{ recon_count }}</div>
+      <div style="font-size: 0.78rem; color: var(--text-muted);">Path fuzzing & 404 triggers</div>
+    </div>
+
+    <!-- XSS -->
+    <div class="cyber-card hud-card" style="border-top: 3px solid var(--accent-cyan);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary);"><i class="fa-solid fa-code" style="color: var(--accent-cyan);"></i> XSS Injections</h4>
+        <span class="badge badge-cyan">XSS</span>
+      </div>
+      <div class="code-font animate-counter" data-target="{{ xss_count }}" style="font-size: 1.85rem; font-weight: 800; color: var(--accent-cyan); margin-bottom: 0.25rem;">{{ xss_count }}</div>
+      <div style="font-size: 0.78rem; color: var(--text-muted);">Script & DOM execution</div>
+    </div>
+
+    <!-- Path Traversal -->
+    <div class="cyber-card hud-card" style="border-top: 3px solid #e11d48;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary);"><i class="fa-solid fa-folder-open" style="color: #e11d48;"></i> Path Traversal</h4>
+        <span class="badge badge-critical">LFI</span>
+      </div>
+      <div class="code-font animate-counter" data-target="{{ path_traversal_count }}" style="font-size: 1.85rem; font-weight: 800; color: #e11d48; margin-bottom: 0.25rem;">{{ path_traversal_count }}</div>
+      <div style="font-size: 0.78rem; color: var(--text-muted);">Directory escape & config leaks</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Recent Security Incidents Feed Table -->
+<div style="margin-bottom: 2.5rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+    <div>
+      <h2 class="font-hud" style="font-size: 1.2rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fa-solid fa-bolt" style="color: var(--accent-cyan);"></i> Live Intercepted Threat Stream
+      </h2>
+      <span style="font-size: 0.8rem; color: var(--text-muted);" class="font-mono">TELEMETRY INGESTION FEED</span>
+    </div>
+    <div style="display: flex; gap: 0.5rem;">
+      <a href="{% url 'api_export_telemetry' 'csv' %}" class="btn-outline btn-sm"><i class="fa-solid fa-file-csv"></i> Export CSV</a>
+      <a href="{% url 'api_export_telemetry' 'json' %}" class="btn-outline btn-sm"><i class="fa-solid fa-file-code"></i> Export JSON</a>
+    </div>
+  </div>
+
+  <div class="table-container">
+    
+    <!-- Table Interactive Toolbar -->
+    <div class="table-toolbar">
+      <div class="search-input-wrap">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" placeholder="Filter incidents by IP, method, intent, path..." data-table-search="recentAttacksTable">
+      </div>
+      <div style="font-size: 0.8rem; color: var(--text-muted);" class="font-mono">
+        SHOWING LATEST {{ recent_attacks|length }} INCIDENTS
+      </div>
+    </div>    <div class="table-responsive">
+      <table id="recentAttacksTable" style="min-width: 900px;">
+        <thead>
+          <tr>
+            <th style="width: 150px;">Timestamp</th>
+            <th style="width: 170px;">Attacker IP</th>
+            <th style="width: 220px;">Inferred Attacker Intent</th>
+            <th>HTTP Target Path</th>
+            <th style="width: 100px;">Status</th>
+            <th style="width: 130px; text-align: right;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for attack in recent_attacks %}
+          <tr>
+            <td class="font-mono" style="color: var(--text-muted); font-size: 0.82rem; white-space: nowrap;">
+              <i class="fa-regular fa-clock" style="margin-right: 0.35rem; color: var(--accent-cyan);"></i>
+              {{ attack.timestamp|date:"Y-m-d H:i:s" }}
+            </td>
+            <td class="font-mono" style="font-weight: 700; white-space: nowrap;">
+              <span>{{ attack.ip_address }}</span>
+              <button type="button" class="copy-ip-btn" data-ip="{{ attack.ip_address }}" title="Copy IP">
+                <i class="fa-regular fa-copy"></i>
+              </button>
+            </td>
+            <td>
+              <span class="badge {% if 'SQL' in attack.inferred_intent or 'Injection' in attack.inferred_intent %}badge-critical{% elif 'Brute' in attack.inferred_intent %}badge-high{% elif 'Recon' in attack.inferred_intent %}badge-medium{% else %}badge-cyan{% endif %}" style="font-size: 0.72rem; white-space: nowrap;">
+                {{ attack.inferred_intent }}
+              </span>
+            </td>
+            <td class="font-mono" style="max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+              <span style="color: var(--accent-cyan); font-weight: 700; margin-right: 0.3rem;">{{ attack.method }}</span>
+              <span>{{ attack.path }}</span>
+            </td>
+            <td>
+              <span class="font-mono" style="font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 4px; {% if attack.status_code >= 400 %}background: rgba(255, 77, 109, 0.12); color: var(--accent-red); border: 1px solid rgba(255,77,109,0.3);{% else %}background: rgba(16, 185, 129, 0.12); color: var(--accent-emerald); border: 1px solid rgba(16,185,129,0.3);{% endif %}">
+                {{ attack.status_code }}
+              </span>
+            </td>
+            <td style="text-align: right; white-space: nowrap;">
+              <a href="{% url 'threat_journey' attack.ip_address %}" class="btn-outline btn-sm">
+                <span>Forensics</span>
+                <i class="fa-solid fa-arrow-right"></i>
+              </a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr class="no-filter">
+            <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 3.5rem 1.5rem;">
+              <div style="display: flex; flex-direction: column; align-items: center; gap: 0.75rem;">
+                <i class="fa-solid fa-shield-check" style="font-size: 2.5rem; color: var(--accent-emerald);"></i>
+                <div style="font-weight: 700; font-size: 1.1rem; color: var(--text-primary);">All Systems Clean</div>
+                <p style="font-size: 0.88rem; color: var(--text-secondary); max-width: 400px;">
+                  No malicious threat events recorded. Launch a test attack from the <strong>Attack Simulator</strong> to see real-time detection!
+                </p>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // 1. Initialize Interactive Global Threat Map
+  let map = null;
+  let markersLayer = null;
+
+  function initThreatMap() {
+    const mapContainer = document.getElementById('threatMap');
+    if (!mapContainer || typeof L === 'undefined') return;
+
+    map = L.map('threatMap', {
+      center: [20.0, 10.0],
+      zoom: 2,
+      minZoom: 2,
+      maxZoom: 10,
+      zoomControl: true,
+      attributionControl: false
+    });
+
+    // 100% Free Cyber Dark Map Tile Layer (No API Key Required)
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 16,
+      attribution: 'Esri, DeLorme, NAVTEQ'
+    }).addTo(map);
+
+    markersLayer = L.layerGroup().addTo(map);
+    loadThreatMapData();
+  }
+
+  async function loadThreatMapData() {
+    if (!map || !markersLayer) return;
+    try {
+      const res = await fetch('/api/threat-map/');
+      const data = await res.json();
+      markersLayer.clearLayers();
+
+      data.markers.forEach(marker => {
+        const tierClass = marker.risk_score >= 70 ? 'critical' : (marker.risk_score >= 40 ? 'high' : (marker.risk_score >= 15 ? 'medium' : 'low'));
+        const customIcon = L.divIcon({
+          className: 'custom-pulse-icon',
+          html: `<span class="pulse-marker ${tierClass}"></span>`,
+          iconSize: [14, 14],
+          iconAnchor: [7, 7]
+        });
+
+        const popupContent = `
+          <div style="font-size: 0.85rem; line-height: 1.5; min-width: 180px;">
+            <div style="font-weight: 800; font-family: monospace; color: var(--accent-cyan); font-size: 0.95rem; margin-bottom: 0.2rem;">
+              <i class="fa-solid fa-network-wired"></i> ${marker.ip}
+            </div>
+            <div style="color: #94a3b8; font-size: 0.78rem; margin-bottom: 0.4rem;">
+              ${marker.city}, ${marker.country} &bull; <span style="color: #cbd5e1;">${marker.asn}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+              <span>Threat Score:</span>
+              <strong style="color: ${marker.risk_score >= 70 ? '#ff4d6d' : '#fb923c'}; font-family: monospace;">${marker.fused_score}/100 (${marker.threat_level})</strong>
+            </div>
+            <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.5rem;">
+              Forecast: <span style="color: #38bdf8; font-weight: 600;">${marker.predicted_stage || 'Active Monitoring'}</span>
+            </div>
+            <div style="text-align: right;">
+              <a href="/threats/${marker.ip}/" style="color: #38bdf8; text-decoration: underline; font-weight: 700; font-size: 0.8rem;">
+                Open IP Dossier &rarr;
+              </a>
+            </div>
+          </div>
+        `;
+
+        L.marker([marker.lat, marker.lng], { icon: customIcon })
+          .bindPopup(popupContent)
+          .addTo(markersLayer);
+      });
+
+      // Fit map view if markers are present
+      if (markersLayer.getLayers().length > 0) {
+        const group = new L.featureGroup(markersLayer.getLayers());
+        map.fitBounds(group.getBounds().pad(0.12), { maxZoom: 5 });
+      }
+    } catch (err) {
+      console.error('Failed to load threat map points:', err);
+    }
+  }
+
+  // 2. Real-Time Server-Sent Events (SSE) Live Feed
+  function initLiveStream() {
+    if (typeof EventSource === 'undefined') return;
+
+    let evtSource = null;
+    function connect() {
+      evtSource = new EventSource('/api/live-stream/');
+
+      evtSource.onmessage = function(e) {
+        if (!e.data || e.data.startsWith(':')) return;
+        try {
+          const log = JSON.parse(e.data);
+          handleLiveLog(log);
+        } catch (err) {
+          console.error('SSE JSON error:', err);
+        }
+      };
+
+      evtSource.onerror = function() {
+        evtSource.close();
+        setTimeout(connect, 4000); // Auto reconnect
+      };
+    }
+
+    connect();
+  }
+
+  function handleLiveLog(log) {
+    // 1. Update KPI numbers dynamically if changed
+    const totalEl = document.querySelector('.stat-card:nth-child(1) .animate-counter');
+    const malEl = document.querySelector('.stat-card:nth-child(2) .animate-counter');
+    const flaggedEl = document.querySelector('.stat-card:nth-child(3) .animate-counter');
+    const blockedEl = document.querySelector('.stat-card:nth-child(4) .animate-counter');
+
+    if (totalEl && log.total_requests) totalEl.innerText = log.total_requests;
+    if (malEl && log.malicious_total !== undefined) malEl.innerText = log.malicious_total;
+    if (flaggedEl && log.flagged_ips !== undefined) flaggedEl.innerText = log.flagged_ips;
+    if (blockedEl && log.blocked_ips !== undefined) blockedEl.innerText = log.blocked_ips;
+
+    // 2. Prepend row to incident feed if it is an attack
+    if (log.is_attack) {
+      const tableBody = document.querySelector('#recentAttacksTable tbody');
+      if (tableBody) {
+        // Remove empty state row if present
+        const emptyRow = tableBody.querySelector('.no-filter');
+        if (emptyRow) emptyRow.remove();
+
+        const badgeClass = (log.intent.includes('SQL') || log.intent.includes('Injection')) ? 'badge-critical' : (log.intent.includes('Brute') ? 'badge-high' : 'badge-cyan');
+        const statusStyle = log.status_code >= 400 ? 'background: rgba(255, 77, 109, 0.12); color: var(--accent-red); border: 1px solid rgba(255,77,109,0.3);' : 'background: rgba(16, 185, 129, 0.12); color: var(--accent-emerald); border: 1px solid rgba(16,185,129,0.3);';
+
+        const newRow = document.createElement('tr');
+        newRow.className = 'new-row-pulse';
+        newRow.innerHTML = `
+          <td class="font-mono" style="color: var(--text-muted); font-size: 0.82rem; white-space: nowrap;">
+            <i class="fa-regular fa-clock" style="margin-right: 0.35rem; color: var(--accent-cyan);"></i>
+            ${log.timestamp}
+          </td>
+          <td class="font-mono" style="font-weight: 700; white-space: nowrap;">
+            <span>${log.ip}</span>
+            <button type="button" class="copy-ip-btn" data-ip="${log.ip}" title="Copy IP">
+              <i class="fa-regular fa-copy"></i>
+            </button>
+          </td>
+          <td>
+            <span class="badge ${badgeClass}" style="font-size: 0.72rem; white-space: nowrap;">
+              ${log.intent}
+            </span>
+          </td>
+          <td class="font-mono" style="max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            <span style="color: var(--accent-cyan); font-weight: 700; margin-right: 0.3rem;">${log.method}</span>
+            <span>${log.path}</span>
+          </td>
+          <td>
+            <span class="font-mono" style="font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 4px; ${statusStyle}">
+              ${log.status_code}
+            </span>
+          </td>
+          <td style="text-align: right; white-space: nowrap;">
+            <a href="/threats/${log.ip}/" class="btn-outline btn-sm">
+              <span>Forensics</span>
+              <i class="fa-solid fa-arrow-right"></i>
+            </a>
+          </td>
+        `;
+
+        tableBody.insertBefore(newRow, tableBody.firstChild);
+
+        // Keep maximum 12 rows
+        while (tableBody.children.length > 12) {
+          tableBody.removeChild(tableBody.lastChild);
+        }
+
+        // Refresh Threat Map markers
+        loadThreatMapData();
+      }
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    initThreatMap();
+    initLiveStream();
+  });
+</script>
+{% endblock %}

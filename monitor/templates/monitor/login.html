@@ -1,0 +1,228 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Security Gateway Clearance — SentinelML</title>
+
+  <!-- Cyber Brand Favicon -->
+  <link rel="icon" type="image/svg+xml" href="{% static 'monitor/img/favicon.svg' %}">
+
+  <!-- Preload Theme Preference -->
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('iml_sentinel_theme');
+      const theme = savedTheme || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Orbitron:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Custom Futuristic Stylesheet -->
+  <link rel="stylesheet" href="{% static 'monitor/css/sentinel.css' %}">
+
+  <style>
+    .login-wrapper {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .login-top-bar {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .login-card-futuristic {
+      background: var(--bg-surface);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      padding: 2.75rem 2.25rem;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: var(--card-shadow), var(--card-glow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-card-futuristic::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple), var(--accent-cyan));
+      background-size: 200% 100%;
+      animation: gradient-slide 4s linear infinite;
+    }
+
+    @keyframes gradient-slide {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
+    }
+
+    .brand-header-login {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.85rem;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .login-brand-icon {
+      width: 58px;
+      height: 58px;
+      background: linear-gradient(135deg, #0284c7, #7c3aed);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.75rem;
+      color: #fff;
+      box-shadow: 0 0 25px var(--accent-cyan-glow);
+      position: relative;
+    }
+
+    .input-field-group {
+      margin-bottom: 1.35rem;
+    }
+
+    .input-field-group label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.05em;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-wrapper i {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .input-wrapper input {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 0.8rem 1rem 0.8rem 2.6rem;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    .input-wrapper input:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 12px var(--accent-cyan-glow);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-wrapper">
+
+    <!-- Top Bar Controls -->
+    <div class="login-top-bar">
+      <div class="system-status-pill">
+        <span class="pulse-dot"></span>
+        <span>PORTAL ENCRYPTED</span>
+      </div>
+      <button type="button" class="theme-toggle-btn" aria-label="Toggle Dark/Light Mode" title="Toggle Theme">
+        <i class="fa-solid fa-sun"></i>
+      </button>
+    </div>
+
+    <!-- Futuristic Login Box -->
+    <div class="login-card-futuristic hud-card">
+      
+      <div class="brand-header-login">
+        <div class="login-brand-icon">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div>
+          <h1 class="font-hud" style="font-size: 1.45rem; font-weight: 800; color: var(--text-primary); letter-spacing: 0.04em;">
+            IML SENTINEL GUARD
+          </h1>
+          <div class="font-mono" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">
+            SECURITY OPERATIONS CLEARANCE GATEWAY
+          </div>
+        </div>
+      </div>
+
+      {% if form.errors %}
+      <div class="badge badge-critical" style="width: 100%; padding: 0.75rem 1rem; margin-bottom: 1.5rem; justify-content: center; font-size: 0.82rem;">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span>Access Denied: Invalid Security Credentials</span>
+      </div>
+      {% endif %}
+
+      <form method="post">
+        {% csrf_token %}
+
+        <div class="input-field-group">
+          <label for="id_username">USERNAME</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-user-astronaut"></i>
+            <input type="text" name="username" id="id_username" required autofocus placeholder="Enter security operator identity">
+          </div>
+        </div>
+
+        <div class="input-field-group">
+          <label for="id_password">PASSWORD</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-key"></i>
+            <input type="password" name="password" id="id_password" required placeholder="Enter encrypted clearance key">
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 0.85rem; font-size: 0.95rem; margin-top: 0.5rem;">
+          <i class="fa-solid fa-lock-open"></i>
+          <span>Authenticate & Access SOC</span>
+        </button>
+      </form>
+
+      <div style="margin-top: 2rem; text-align: center; border-top: 1px solid var(--border-color-subtle); padding-top: 1.25rem;">
+        <div class="font-mono" style="font-size: 0.72rem; color: var(--text-muted);">
+          <i class="fa-solid fa-fingerprint" style="color: var(--accent-cyan);"></i>
+          256-BIT ENCRYPTED TELEMETRY SESSION &bull; SOC CLEARANCE REQUIRED
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script src="{% static 'monitor/js/sentinel.js' %}"></script>
+</body>
+</html>

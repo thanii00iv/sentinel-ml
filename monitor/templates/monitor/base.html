@@ -1,0 +1,158 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}SentinelML — Autonomous Threat Hunting & Predictive Analytics Engine{% endblock %}</title>
+
+  <!-- Cyber Brand Favicon -->
+  <link rel="icon" type="image/svg+xml" href="{% static 'monitor/img/favicon.svg' %}">
+
+  <!-- Preload Theme Preference to Prevent Flash of Wrong Theme -->
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('iml_sentinel_theme');
+      const theme = savedTheme || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Orbitron:wght@600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Custom Futuristic Stylesheet -->
+  <link rel="stylesheet" href="{% static 'monitor/css/sentinel.css' %}">
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      
+      <!-- Brand & Radar -->
+      <a href="{% url 'home' %}" class="brand">
+        <div class="brand-icon-wrap">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div>
+          <div class="brand-title">SENTINEL<span style="color: var(--accent-cyan);">ML</span></div>
+        </div>
+        <span class="brand-tag">ICMF CORE</span>
+      </a>
+
+      <!-- Center Telemetry Status -->
+      <div class="nav-center">
+        <div class="system-status-pill">
+          <span class="pulse-dot"></span>
+          <span>AUTONOMOUS HUNT: ACTIVE</span>
+          <span style="color: var(--border-color);">&bull;</span>
+          <span style="color: var(--accent-cyan);">ICMF FUSION v3.0</span>
+        </div>
+      </div>
+
+      <!-- Nav Links & Controls -->
+      {% if user.is_authenticated %}
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <ul class="nav-links">
+          <li>
+            <a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+              <i class="fa-solid fa-gauge-high"></i>
+              <span>SOC Dashboard</span>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'threat_list' %}" class="{% if request.resolver_match.url_name == 'threat_list' or request.resolver_match.url_name == 'threat_journey' %}active{% endif %}">
+              <i class="fa-solid fa-crosshairs"></i>
+              <span>Threat Matrix</span>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'threat_hunting' %}" class="{% if request.resolver_match.url_name == 'threat_hunting' %}active{% endif %}">
+              <i class="fa-solid fa-radar"></i>
+              <span>Threat Hunting</span>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'attack_simulator' %}" class="{% if request.resolver_match.url_name == 'attack_simulator' %}active{% endif %}">
+              <i class="fa-solid fa-terminal"></i>
+              <span>Attack Studio</span>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'evaluation' %}" class="{% if request.resolver_match.url_name == 'evaluation' %}active{% endif %}">
+              <i class="fa-solid fa-flask-vial"></i>
+              <span>ML Lab</span>
+            </a>
+          </li>
+          <li>
+            <a href="/admin/" target="_blank">
+              <i class="fa-solid fa-sliders"></i>
+              <span>Admin</span>
+            </a>
+          </li>
+        </ul>
+
+        <!-- Theme Toggle Button -->
+        <button type="button" class="theme-toggle-btn" aria-label="Toggle Dark/Light Mode" title="Toggle Theme">
+          <i class="fa-solid fa-sun"></i>
+        </button>
+
+        <!-- Logout Action -->
+        <form method="post" action="{% url 'logout' %}" style="display:inline; margin: 0;">
+          {% csrf_token %}
+          <button type="submit" class="logout-btn" title="Sign Out">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span>Logout</span>
+          </button>
+        </form>
+      </div>
+      {% else %}
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <button type="button" class="theme-toggle-btn" aria-label="Toggle Dark/Light Mode" title="Toggle Theme">
+          <i class="fa-solid fa-sun"></i>
+        </button>
+        <a href="{% url 'login' %}" class="btn-primary btn-sm">
+          <i class="fa-solid fa-lock"></i> Sign In
+        </a>
+      </div>
+      {% endif %}
+
+    </div>
+  </nav>
+
+  <!-- Main Application Body -->
+  <main class="main-container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Futuristic Footer -->
+  <footer>
+    <div class="footer-content">
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fa-solid fa-microchip" style="color: var(--accent-cyan);"></i>
+        <span class="font-mono" style="font-size: 0.8rem; letter-spacing: 0.05em;">
+          SENTINELML &bull; INTENT-CENTRIC MULTI-LAYER FUSION (ICMF) THREAT ENGINE
+        </span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 1.25rem; font-size: 0.8rem;" class="font-mono">
+        <span style="color: var(--accent-emerald);"><i class="fa-solid fa-shield-halved"></i> FIREWALL ACTIVE</span>
+        <span style="color: var(--text-muted);">&bull;</span>
+        <span>LATENCY: &lt;1.1ms</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="{% static 'monitor/js/sentinel.js' %}"></script>
+  {% block extra_scripts %}{% endblock %}
+
+</body>
+</html>

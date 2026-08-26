@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7" />
+      <stop offset="100%" stop-color="#7c3aed" />
+    </linearGradient>
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#e0f2fe" />
+    </linearGradient>
+  </defs>
+
+  <!-- Rounded Capsule Base -->
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#bgGrad)" stroke="#38bdf8" stroke-width="1.5" />
+
+  <!-- White Shield Icon -->
+  <path d="M32 14 L46 19.5 C46 32 39 42.5 32 48 C25 42.5 18 32 18 19.5 Z" fill="url(#shieldGrad)" />
+
+  <!-- Shield Half Shadow (Halved Wing) -->
+  <path d="M32 14 L46 19.5 C46 32 39 42.5 32 48 Z" fill="rgba(2, 132, 199, 0.35)" />
+</svg>

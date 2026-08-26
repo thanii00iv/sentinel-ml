@@ -1,0 +1,255 @@
+{% extends 'monitor/base.html' %}
+
+{% block title %}Autonomous Threat Hunting Center — SentinelML{% endblock %}
+
+{% block content %}
+<!-- Hunting Header -->
+<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 1.25rem;">
+  <div>
+    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+      <span class="badge badge-purple"><i class="fa-solid fa-crosshairs"></i> AUTONOMOUS SOC AGENT</span>
+      <span style="font-size: 0.8rem; color: var(--text-muted);" class="font-mono">CONTINUOUS TELEMETRY SCANNER</span>
+    </div>
+    <h1 class="font-hud" style="font-size: 2rem; font-weight: 800; color: var(--text-primary); letter-spacing: 0.02em;">
+      Autonomous Threat Hunting Center
+    </h1>
+    <p style="color: var(--text-secondary); font-size: 0.95rem; margin-top: 0.25rem;">
+      Autonomous pattern recognition discovering stealthy low-and-slow campaigns, distributed multi-IP attacks, and automated quarantine
+    </p>
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+    <div id="sweepStatusBadge" class="system-status-pill" style="border-color: rgba(34, 197, 94, 0.4); cursor: pointer;" onclick="toggleAutoSweep()">
+      <span class="pulse-dot" style="background: var(--accent-emerald);"></span>
+      <span id="sweepStatusText" style="color: var(--accent-emerald); font-weight: 700;">AUTO-SWEEP: ACTIVE (30s)</span>
+    </div>
+    <button type="button" id="triggerHuntBtn" class="btn-primary">
+      <i class="fa-solid fa-radar fa-spin"></i>
+      <span>Run Manual Sweep</span>
+    </button>
+  </div>
+</div>
+
+<!-- Hunting Routine Overview Cards -->
+<div class="grid-cards">
+  
+  <div class="stat-card hud-card" style="border-left: 4px solid var(--accent-purple);">
+    <div class="label">
+      <span>Low-and-Slow Stealth Hunter</span>
+      <i class="fa-solid fa-user-secret" style="color: var(--accent-purple);"></i>
+    </div>
+    <div class="value code-font" style="color: var(--accent-purple);">ACTIVE</div>
+    <div class="sub-meta">Detects sub-threshold spaced attack bursts</div>
+  </div>
+
+  <div class="stat-card hud-card" style="border-left: 4px solid var(--accent-red);">
+    <div class="label">
+      <span>Distributed Probing Hunter</span>
+      <i class="fa-solid fa-network-wired" style="color: var(--accent-red);"></i>
+    </div>
+    <div class="value code-font" style="color: var(--accent-red);">ACTIVE</div>
+    <div class="sub-meta">Correlates multi-IP synchronized probes</div>
+  </div>
+
+  <div class="stat-card hud-card" style="border-left: 4px solid var(--accent-amber);">
+    <div class="label">
+      <span>Active Hunt Discoveries</span>
+      <i class="fa-solid fa-triangle-exclamation" style="color: var(--accent-amber);"></i>
+    </div>
+    <div class="value code-font animate-counter" data-target="{{ active_findings }}" style="color: var(--accent-amber);">{{ active_findings }}</div>
+    <div class="sub-meta">Requiring SOC attention</div>
+  </div>
+
+  <div class="stat-card hud-card" style="border-left: 4px solid var(--accent-emerald);">
+    <div class="label">
+      <span>Automated Mitigations</span>
+      <i class="fa-solid fa-shield-check" style="color: var(--accent-emerald);"></i>
+    </div>
+    <div class="value code-font animate-counter" data-target="{{ mitigated_findings }}" style="color: var(--accent-emerald);">{{ mitigated_findings }}</div>
+    <div class="sub-meta">Quarantined by Autonomous Agent</div>
+  </div>
+
+</div>
+
+<!-- Quarantined Entities Section -->
+{% if quarantined_profiles %}
+<div class="cyber-card hud-card" style="margin-bottom: 2rem; border-top: 3px solid var(--accent-red);">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+    <h3 class="font-hud" style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+      <i class="fa-solid fa-ban" style="color: var(--accent-red);"></i> Active Firewall Quarantined Entities
+    </h3>
+    <span class="badge badge-critical">{{ quarantined_profiles|length }} QUARANTINED</span>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+    {% for qp in quarantined_profiles %}
+    <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <div class="font-mono" style="font-weight: 700; font-size: 0.95rem; color: var(--text-primary);">{{ qp.ip_address }}</div>
+        <div style="font-size: 0.75rem; color: var(--accent-red);" class="font-mono">Risk Score: {{ qp.risk_score }}/100</div>
+      </div>
+      <button type="button" class="btn-outline btn-sm unblock-btn" data-ip="{{ qp.ip_address }}">
+        <i class="fa-solid fa-unlock"></i> Unblock
+      </button>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- Autonomous Threat Hunting Findings Table -->
+<div style="margin-bottom: 2.5rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+    <h2 class="font-hud" style="font-size: 1.2rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+      <i class="fa-solid fa-list-check" style="color: var(--accent-purple);"></i> Threat Hunting Discovery Log
+    </h2>
+  </div>
+
+  <div class="table-container">
+    <div class="table-toolbar">
+      <div class="search-input-wrap">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" placeholder="Search hunting findings by entity, type, severity..." data-table-search="huntingFindingsTable">
+      </div>
+      <div style="font-size: 0.8rem; color: var(--text-muted);" class="font-mono">
+        TOTAL DISCOVERIES: {{ findings|length }}
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table id="huntingFindingsTable" style="min-width: 950px;">
+        <thead>
+          <tr>
+            <th style="width: 140px;">Timestamp</th>
+            <th style="width: 170px;">Hunt Pattern Type</th>
+            <th style="width: 220px;">Target Entity</th>
+            <th style="width: 100px; text-align: center;">Severity</th>
+            <th>Discovered Evidence & Description</th>
+            <th style="width: 220px;">Mitigation Action</th>
+            <th style="width: 120px; text-align: right;">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for finding in findings %}
+          <tr>
+            <td class="font-mono" style="color: var(--text-muted); font-size: 0.82rem; white-space: nowrap;">
+              <i class="fa-regular fa-clock" style="margin-right: 0.35rem; color: var(--accent-cyan);"></i>
+              {{ finding.timestamp|date:"Y-m-d H:i:s" }}
+            </td>
+            <td class="font-mono" style="font-weight: 700; color: var(--accent-purple); white-space: nowrap;">
+              {{ finding.get_hunt_type_display }}
+            </td>
+            <td class="font-mono" style="font-weight: 700; color: var(--text-primary); max-width: 220px; overflow-wrap: anywhere; word-break: break-word;">
+              {{ finding.target_entity }}
+            </td>
+            <td style="text-align: center;">
+              <span class="badge {% if finding.severity == 'CRITICAL' %}badge-critical{% elif finding.severity == 'HIGH' %}badge-high{% else %}badge-medium{% endif %}">
+                {{ finding.severity }}
+              </span>
+            </td>
+            <td style="min-width: 220px; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5;">
+              {{ finding.description }}
+            </td>
+            <td style="font-size: 0.82rem; color: var(--accent-emerald); font-weight: 600; line-height: 1.4; max-width: 220px;">
+              <i class="fa-solid fa-wrench" style="margin-right: 0.25rem;"></i> {{ finding.mitigation_action }}
+            </td>
+            <td style="text-align: right; white-space: nowrap;">
+              {% if finding.status == 'MITIGATED' %}
+                <span class="badge badge-low"><i class="fa-solid fa-shield-check"></i> MITIGATED</span>
+              {% elif finding.status == 'ACTIVE' %}
+                <span class="badge badge-critical"><i class="fa-solid fa-triangle-exclamation"></i> ACTIVE</span>
+              {% else %}
+                <span class="badge badge-cyan">RESOLVED</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr class="no-filter">
+            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 3.5rem 1.5rem;">
+              <div style="display: flex; flex-direction: column; align-items: center; gap: 0.75rem;">
+                <i class="fa-solid fa-radar" style="font-size: 2.5rem; color: var(--accent-purple);"></i>
+                <div style="font-weight: 700; font-size: 1.1rem; color: var(--text-primary);">No Threat Hunt Findings Logged</div>
+                <p style="font-size: 0.88rem; color: var(--text-secondary); max-width: 420px;">
+                  Click <strong>"Run Autonomous Threat Hunt"</strong> above to scan telemetry for stealthy and coordinated multi-IP campaigns.
+                </p>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Trigger Autonomous Hunt API
+  document.getElementById('triggerHuntBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('triggerHuntBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Scanning Telemetry...';
+
+    try {
+      const res = await fetch('/api/hunt/', { method: 'POST' });
+      const data = await res.json();
+      btn.innerHTML = `<i class="fa-solid fa-check"></i> Hunt Complete (${data.findings_created} Found)`;
+      setTimeout(() => location.reload(), 1200);
+    } catch (err) {
+      console.error(err);
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Hunt Error';
+    }
+  });
+
+  // Unblock Entity
+  document.querySelectorAll('.unblock-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const ip = btn.getAttribute('data-ip');
+      try {
+        const res = await fetch(`/api/toggle-block/${ip}/`, { method: 'POST' });
+        const data = await res.json();
+        if (data.status === 'SUCCESS') location.reload();
+      } catch (err) {
+        console.error(err);
+      }
+    });
+  });
+
+  // Background Autonomous Sweeper (30s)
+  let autoSweepActive = true;
+  let sweepTimer = null;
+
+  function runBackgroundSweep() {
+    if (!autoSweepActive) return;
+    fetch('/api/hunt/', { method: 'POST' })
+      .then(res => res.json())
+      .then(data => {
+        if (data.findings_created > 0) {
+          console.log(`[Autonomous Hunt] ${data.findings_created} new findings discovered.`);
+          setTimeout(() => location.reload(), 1000);
+        }
+      })
+      .catch(err => console.debug('Background sweep:', err));
+  }
+
+  function toggleAutoSweep() {
+    autoSweepActive = !autoSweepActive;
+    const text = document.getElementById('sweepStatusText');
+    const badge = document.getElementById('sweepStatusBadge');
+    if (autoSweepActive) {
+      text.innerText = 'AUTO-SWEEP: ACTIVE (30s)';
+      text.style.color = 'var(--accent-emerald)';
+      badge.style.borderColor = 'rgba(34, 197, 94, 0.4)';
+    } else {
+      text.innerText = 'AUTO-SWEEP: PAUSED';
+      text.style.color = 'var(--text-muted)';
+      badge.style.borderColor = 'var(--border-color)';
+    }
+  }
+
+  // Start background sweep interval
+  sweepTimer = setInterval(runBackgroundSweep, 30000);
+</script>
+{% endblock %}

@@ -1,0 +1,317 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Orbitron:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+/* ==========================================================================
+   Dark Theme (Default)
+   ========================================================================== */
+:root, [data-theme="dark"] {
+  --admin-bg: #070c18;
+  --admin-card: #0d1527;
+  --admin-card-header: #131d35;
+  --admin-border: rgba(56, 189, 248, 0.2);
+  --admin-border-subtle: rgba(56, 189, 248, 0.08);
+  --admin-cyan: #38bdf8;
+  --admin-purple: #c084fc;
+  --admin-red: #ff4d6d;
+  --admin-amber: #fb923c;
+  --admin-emerald: #10b981;
+  --admin-text-primary: #f8fafc;
+  --admin-text-muted: #94a3b8;
+  --admin-input-bg: #070c18;
+  --admin-header-bg: linear-gradient(135deg, #0d1527 0%, #151d38 100%);
+  --admin-breadcrumbs-bg: #0b1120;
+  --admin-hover-row: rgba(56, 189, 248, 0.08);
+  --admin-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* ==========================================================================
+   Light Theme
+   ========================================================================== */
+[data-theme="light"] {
+  --admin-bg: #f8fafc;
+  --admin-card: #ffffff;
+  --admin-card-header: #f1f5f9;
+  --admin-border: #cbd5e1;
+  --admin-border-subtle: rgba(0, 0, 0, 0.06);
+  --admin-cyan: #0284c7;
+  --admin-purple: #7c3aed;
+  --admin-red: #e11d48;
+  --admin-amber: #ea580c;
+  --admin-emerald: #059669;
+  --admin-text-primary: #0f172a;
+  --admin-text-muted: #64748b;
+  --admin-input-bg: #ffffff;
+  --admin-header-bg: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  --admin-breadcrumbs-bg: #e2e8f0;
+  --admin-hover-row: rgba(2, 132, 199, 0.06);
+  --admin-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--admin-bg) !important;
+  color: var(--admin-text-primary) !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+#container {
+  min-width: 100% !important;
+  width: 100% !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+#content {
+  max-width: 1400px !important;
+  margin: 0 auto !important;
+  padding: 1.75rem 2rem !important;
+  width: 100% !important;
+}
+
+#header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1000 !important;
+  background: var(--admin-header-bg) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border-bottom: 2px solid var(--admin-cyan) !important;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.5) !important;
+  padding: 0.85rem 2rem !important;
+}
+
+#branding h1 {
+  font-family: 'Orbitron', sans-serif !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.05em !important;
+  color: #ffffff !important;
+}
+
+#branding h1 a:link, #branding h1 a:visited {
+  color: #ffffff !important;
+}
+
+#user-tools {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 0.82rem !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.65rem !important;
+  color: var(--admin-text-muted) !important;
+  font-weight: 500 !important;
+}
+
+#user-tools strong {
+  color: var(--admin-cyan) !important;
+  font-weight: 700 !important;
+}
+
+#user-tools a, #user-tools button, #user-tools input[type="submit"] {
+  color: var(--admin-text-primary) !important;
+  text-decoration: none !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+  padding: 0.35rem 0.65rem !important;
+  border-radius: 6px !important;
+  border: 1px solid var(--admin-border) !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  box-shadow: none !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  line-height: normal !important;
+}
+
+#user-tools a:hover, #user-tools button:hover, #user-tools input[type="submit"]:hover {
+  background: rgba(56, 189, 248, 0.18) !important;
+  border-color: var(--admin-cyan) !important;
+  color: var(--admin-cyan) !important;
+  transform: none !important;
+}
+
+#user-tools form {
+  display: inline-flex !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  vertical-align: middle !important;
+}
+
+div.breadcrumbs {
+  background: var(--admin-breadcrumbs-bg) !important;
+  border-bottom: 1px solid var(--admin-border) !important;
+  color: var(--admin-text-muted) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 0.82rem !important;
+  padding: 0.75rem 2rem !important;
+}
+
+div.breadcrumbs a {
+  color: var(--admin-cyan) !important;
+}
+
+/* ==========================================================================
+   Admin Model Management & Changelists
+   ========================================================================== */
+.module, .app-module, .dashboard-module {
+  background: var(--admin-card) !important;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 10px !important;
+  box-shadow: var(--admin-shadow) !important;
+  overflow: hidden !important;
+  margin-bottom: 1.5rem !important;
+}
+
+.module h2, .module caption, .inline-group h2 {
+  background: var(--admin-card-header) !important;
+  color: var(--admin-cyan) !important;
+  font-family: 'Orbitron', sans-serif !important;
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em !important;
+  border-bottom: 1px solid var(--admin-border) !important;
+  padding: 0.85rem 1.25rem !important;
+  margin: 0 !important;
+}
+
+table {
+  background: transparent !important;
+  color: var(--admin-text-primary) !important;
+  width: 100% !important;
+  border-collapse: collapse !important;
+}
+
+thead th {
+  background: var(--admin-card-header) !important;
+  color: var(--admin-cyan) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 0.82rem !important;
+  text-transform: uppercase !important;
+  border-bottom: 2px solid var(--admin-border) !important;
+  padding: 0.75rem 1rem !important;
+}
+
+tbody td, tbody th {
+  padding: 0.75rem 1rem !important;
+  vertical-align: middle !important;
+}
+
+tbody tr {
+  background: var(--admin-card) !important;
+  border-bottom: 1px solid var(--admin-border-subtle) !important;
+}
+
+tbody tr:hover {
+  background: var(--admin-hover-row) !important;
+}
+
+a:link, a:visited {
+  color: var(--admin-cyan) !important;
+}
+
+.button, input[type=submit], input[type=button], .submit-row input, a.button {
+  background: linear-gradient(135deg, #0284c7, #2563eb) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(56, 189, 248, 0.4) !important;
+  border-radius: 6px !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-weight: 700 !important;
+  padding: 0.55rem 1.15rem !important;
+  text-transform: uppercase !important;
+  font-size: 0.78rem !important;
+  box-shadow: 0 0 12px rgba(2, 132, 199, 0.25) !important;
+  cursor: pointer !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.4rem !important;
+}
+
+.button:hover, input[type=submit]:hover {
+  background: linear-gradient(135deg, #0369a1, #1d4ed8) !important;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.45) !important;
+}
+
+.button.default, input[type=submit].default {
+  background: linear-gradient(135deg, #0284c7, #7c3aed) !important;
+}
+
+#changelist-filter {
+  background: var(--admin-card) !important;
+  border-left: 1px solid var(--admin-border) !important;
+}
+
+#changelist-filter h2 {
+  background: var(--admin-card-header) !important;
+  color: var(--admin-cyan) !important;
+  font-family: 'Orbitron', sans-serif !important;
+}
+
+#changelist-filter a {
+  color: var(--admin-text-muted) !important;
+}
+
+#changelist-filter li.selected a {
+  color: var(--admin-cyan) !important;
+  font-weight: bold !important;
+}
+
+input[type=text], input[type=password], input[type=email], input[type=url], input[type=number], textarea, select {
+  background: var(--admin-input-bg) !important;
+  border: 1px solid var(--admin-border) !important;
+  color: var(--admin-text-primary) !important;
+  border-radius: 6px !important;
+  padding: 0.45rem 0.65rem !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+.help, p.help {
+  color: var(--admin-text-muted) !important;
+  font-size: 0.78rem !important;
+}
+
+/* ==========================================================================
+   Admin Model Row Cards (List Item Styles)
+   ========================================================================== */
+.admin-model-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--admin-border-subtle);
+  transition: background-color 0.2s ease;
+}
+
+.admin-model-item:last-child {
+  border-bottom: none;
+}
+
+.admin-model-item:hover {
+  background: var(--admin-hover-row);
+}
+
+.admin-btn-outline {
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--admin-border);
+  border-radius: 6px;
+  color: var(--admin-text-primary);
+  text-decoration: none;
+  font-size: 0.78rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.2s ease;
+}
+
+.admin-btn-outline:hover {
+  background: var(--admin-cyan);
+  color: #070c18 !important;
+  border-color: var(--admin-cyan);
+}

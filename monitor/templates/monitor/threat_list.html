@@ -1,0 +1,185 @@
+{% extends 'monitor/base.html' %}
+
+{% block title %}Threat Intelligence Matrix — SentinelML{% endblock %}
+
+{% block content %}
+<!-- Threat Matrix Header -->
+<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+  <div>
+    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+      <span class="badge badge-purple"><i class="fa-solid fa-crosshairs"></i> ENTITY PROFILING</span>
+      <span style="font-size: 0.8rem; color: var(--text-muted);" class="font-mono">ICMF MULTI-VIEW FUSION MATRIX</span>
+    </div>
+    <h1 class="font-hud" style="font-size: 2rem; font-weight: 800; color: var(--text-primary); letter-spacing: 0.02em;">
+      Threat Intelligence Matrix
+    </h1>
+    <p style="color: var(--text-secondary); font-size: 0.95rem; margin-top: 0.25rem;">
+      Multi-Layer Fused Risk Scoring (Rule + Supervised RF + Isolation Forest + Sequence Graph + LLM View)
+    </p>
+  </div>
+  <div style="display: flex; align-items: center; gap: 0.75rem;">
+    <div class="system-status-pill">
+      <span class="pulse-dot"></span>
+      <span>TOTAL FLAGGED: <strong>{{ profile_data|length }}</strong></span>
+    </div>
+  </div>
+</div>
+
+<!-- Main Table Container -->
+<div class="table-container">
+  
+  <!-- Interactive Table Toolbar -->
+  <div class="table-toolbar">
+    <div class="search-input-wrap">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" placeholder="Search target IP, classification, or verdict..." data-table-search="threatMatrixTable">
+    </div>
+
+    <!-- Severity Filter Buttons -->
+    <div class="filter-pills">
+      <button type="button" class="filter-btn active" data-severity-filter="ALL" data-target-table="threatMatrixTable">All</button>
+      <button type="button" class="filter-btn" data-severity-filter="CRITICAL" data-target-table="threatMatrixTable">Critical</button>
+      <button type="button" class="filter-btn" data-severity-filter="HIGH" data-target-table="threatMatrixTable">High</button>
+      <button type="button" class="filter-btn" data-severity-filter="MEDIUM" data-target-table="threatMatrixTable">Medium</button>
+      <button type="button" class="filter-btn" data-severity-filter="QUARANTINED" data-target-table="threatMatrixTable">Quarantined</button>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table id="threatMatrixTable" style="min-width: 950px;">
+      <thead>
+        <tr>
+          <th style="width: 170px;">Attacker IP</th>
+          <th style="width: 150px;">Fused ICMF Score</th>
+          <th style="width: 220px;">Multi-View Breakdown</th>
+          <th style="width: 120px; text-align: center;">Attacks</th>
+          <th>Forecasted Next Stage</th>
+          <th style="width: 130px;">Firewall Status</th>
+          <th style="width: 180px; text-align: right;">Forensic Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in profile_data %}
+        <tr data-severity="{% if item.profile.is_blocked %}QUARANTINED{% elif item.profile.risk_score >= 70 %}CRITICAL{% elif item.profile.risk_score >= 40 %}HIGH{% elif item.profile.risk_score >= 15 %}MEDIUM{% else %}LOW{% endif %}">
+          
+          <!-- Target IP -->
+          <td class="font-mono" style="font-weight: 700; white-space: nowrap;">
+            <div style="display: flex; align-items: center; gap: 0.35rem;">
+              <i class="fa-solid fa-network-wired" style="color: var(--accent-cyan); font-size: 0.8rem;"></i>
+              <span style="color: var(--text-primary);">{{ item.profile.ip_address }}</span>
+              <button type="button" class="copy-ip-btn" data-ip="{{ item.profile.ip_address }}" title="Copy IP">
+                <i class="fa-regular fa-copy"></i>
+              </button>
+            </div>
+          </td>
+
+          <!-- Fused Score & Level -->
+          <td>
+            <div style="display: flex; align-items: center; gap: 0.6rem;">
+              <span class="font-mono" style="font-weight: 800; font-size: 1.15rem; min-width: 28px; {% if item.profile.risk_score >= 70 %}color: var(--accent-red);{% elif item.profile.risk_score >= 40 %}color: #fb923c;{% elif item.profile.risk_score >= 15 %}color: var(--accent-amber);{% else %}color: var(--accent-emerald);{% endif %}">
+                {{ item.profile.fused_score|default:item.profile.risk_score }}
+              </span>
+              {% if item.profile.risk_score >= 70 %}
+                <span class="badge badge-critical">CRITICAL</span>
+              {% elif item.profile.risk_score >= 40 %}
+                <span class="badge badge-high">HIGH</span>
+              {% elif item.profile.risk_score >= 15 %}
+                <span class="badge badge-medium">MEDIUM</span>
+              {% else %}
+                <span class="badge badge-low">LOW</span>
+              {% endif %}
+            </div>
+          </td>
+
+          <!-- ICMF Multi-View Scores -->
+          <td>
+            <div style="display: flex; gap: 0.3rem; flex-wrap: wrap;" class="font-mono" style="font-size: 0.72rem;">
+              <span style="background: rgba(251,191,36,0.12); color: var(--accent-amber); padding: 0.15rem 0.4rem; border-radius: 4px; border: 1px solid rgba(251,191,36,0.25);" title="Rule View Score">R:{{ item.profile.rule_score|floatformat:0 }}</span>
+              <span style="background: rgba(16,185,129,0.12); color: var(--accent-emerald); padding: 0.15rem 0.4rem; border-radius: 4px; border: 1px solid rgba(16,185,129,0.25);" title="Supervised ML Score">ML:{{ item.profile.ml_score|floatformat:0 }}</span>
+              <span style="background: rgba(255,77,109,0.12); color: var(--accent-red); padding: 0.15rem 0.4rem; border-radius: 4px; border: 1px solid rgba(255,77,109,0.25);" title="Isolation Forest Anomaly Score">A:{{ item.profile.anomaly_score|floatformat:0 }}</span>
+              <span style="background: rgba(192,132,252,0.12); color: var(--accent-purple); padding: 0.15rem 0.4rem; border-radius: 4px; border: 1px solid rgba(192,132,252,0.25);" title="Markov Sequence Score">S:{{ item.profile.sequence_score|floatformat:0 }}</span>
+            </div>
+          </td>
+
+          <!-- Attack counts -->
+          <td class="font-mono" style="text-align: center; white-space: nowrap;">
+            <span style="font-weight: 700; color: var(--text-primary);">{{ item.profile.total_attack_count }}</span>
+            <span style="font-size: 0.72rem; color: var(--text-muted); display: block;">
+              (BF:{{ item.profile.brute_force_count }} SQLi:{{ item.profile.sqli_count }} Rec:{{ item.profile.recon_count }})
+            </span>
+          </td>
+
+          <!-- Predicted Next Stage -->
+          <td style="max-width: 240px; font-size: 0.85rem;">
+            <div style="font-weight: 700; color: var(--accent-cyan); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+              {{ item.profile.predicted_next_stage|default:"Unknown — Monitoring" }}
+            </div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">
+              Target: {{ item.profile.predicted_target_asset|default:"/login/" }}
+            </div>
+          </td>
+
+          <!-- Firewall Quarantine Status -->
+          <td style="white-space: nowrap;">
+            {% if item.profile.is_blocked %}
+              <span class="badge badge-critical"><i class="fa-solid fa-ban"></i> QUARANTINED</span>
+            {% else %}
+              <span class="badge badge-low"><i class="fa-solid fa-circle-check"></i> ACTIVE</span>
+            {% endif %}
+          </td>
+
+          <!-- Action Links -->
+          <td style="text-align: right; white-space: nowrap;">
+            <div style="display: flex; gap: 0.4rem; justify-content: flex-end;">
+              <button type="button" class="btn-outline btn-sm toggle-block-btn" data-ip="{{ item.profile.ip_address }}" title="Toggle Firewall Quarantine">
+                {% if item.profile.is_blocked %}<i class="fa-solid fa-unlock"></i> Unblock{% else %}<i class="fa-solid fa-ban"></i> Quarantine{% endif %}
+              </button>
+              <a href="{% url 'threat_journey' item.profile.ip_address %}" class="btn-outline btn-sm">
+                <span>Dossier</span>
+                <i class="fa-solid fa-arrow-right"></i>
+              </a>
+            </div>
+          </td>
+
+        </tr>
+        {% empty %}
+        <tr class="no-filter">
+          <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 4rem 1.5rem;">
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 0.75rem;">
+              <i class="fa-solid fa-shield-halved" style="font-size: 2.5rem; color: var(--accent-emerald);"></i>
+              <div style="font-weight: 700; font-size: 1.1rem; color: var(--text-primary);">Zero Threats Flagged</div>
+              <p style="font-size: 0.88rem; color: var(--text-secondary); max-width: 400px;">
+                No entities have triggered risk thresholds. Launch attacks from the <strong>Attack Simulator</strong> to populate the matrix!
+              </p>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // 1-Click Toggle Quarantine Button
+  document.querySelectorAll('.toggle-block-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const ip = btn.getAttribute('data-ip');
+      if (!ip) return;
+
+      try {
+        const res = await fetch(`/api/toggle-block/${ip}/`, { method: 'POST' });
+        const data = await res.json();
+        if (data.status === 'SUCCESS') {
+          location.reload();
+        }
+      } catch (err) {
+        console.error('Failed to toggle block:', err);
+      }
+    });
+  });
+</script>
+{% endblock %}

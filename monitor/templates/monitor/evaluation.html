@@ -1,0 +1,271 @@
+{% extends 'monitor/base.html' %}
+
+{% block title %}ML Model Benchmark & Evaluation Lab — SentinelML{% endblock %}
+
+{% block content %}
+<!-- Evaluation Lab Header -->
+<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+  <div>
+    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+      <span class="badge badge-cyan"><i class="fa-solid fa-flask-vial"></i> MODEL VALIDATION LAB</span>
+      <span style="font-size: 0.8rem; color: var(--text-muted);" class="font-mono">SUPERVISED & ANOMALY BENCHMARKS</span>
+    </div>
+    <h1 class="font-hud" style="font-size: 2rem; font-weight: 800; color: var(--text-primary); letter-spacing: 0.02em;">
+      Machine Learning Benchmark Lab
+    </h1>
+    <p style="color: var(--text-secondary); font-size: 0.95rem; margin-top: 0.25rem;">
+      Empirical verification comparing Rule-Based Heuristics vs. Supervised Random Forest and Isolation Forest models
+    </p>
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+    <button type="button" id="retrainBtn" class="btn-primary">
+      <i class="fa-solid fa-arrows-rotate"></i>
+      <span>Retrain ML Models</span>
+    </button>
+    <div style="display: flex; gap: 0.35rem;">
+      <a href="{% url 'api_export_telemetry' 'csv' %}" class="btn-outline btn-sm"><i class="fa-solid fa-file-csv"></i> CSV</a>
+      <a href="{% url 'api_export_telemetry' 'json' %}" class="btn-outline btn-sm"><i class="fa-solid fa-file-code"></i> JSON</a>
+    </div>
+  </div>
+</div>
+
+{% if no_data %}
+<div class="cyber-card" style="padding: 4rem 2rem; text-align: center; color: var(--text-muted);">
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+    <i class="fa-solid fa-database" style="font-size: 3rem; color: var(--accent-cyan);"></i>
+    <h2 class="font-hud" style="font-size: 1.35rem; color: var(--text-primary);">No Telemetry Dataset Available</h2>
+    <p style="max-width: 480px; font-size: 0.95rem; color: var(--text-secondary);">
+      Launch test simulations from the <a href="{% url 'attack_simulator' %}" style="color: var(--accent-cyan);">Attack Simulation Studio</a> to generate empirical security telemetry for ML evaluation.
+    </p>
+  </div>
+</div>
+{% else %}
+
+<!-- Telemetry Summary Cards -->
+<div style="margin-bottom: 1rem;">
+  <h2 class="font-hud" style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+    <i class="fa-solid fa-server" style="color: var(--accent-cyan);"></i> Telemetry Dataset Metrics
+  </h2>
+</div>
+
+<div class="grid-cards" style="margin-bottom: 2.5rem;">
+  
+  <div class="stat-card hud-card" style="border-left: 4px solid var(--accent-cyan);">
+    <div class="label">
+      <span>Total Sample Size</span>
+      <i class="fa-solid fa-layer-group" style="color: var(--accent-cyan);"></i>
+    </div>
+    <div class="value animate-counter" data-target="{{ total }}">{{ total }}</div>
+    <div class="sub-meta">Ingested HTTP Invocations</div>
+    <div class="cyber-meter-track">
+      <div class="cyber-meter-fill" style="width: 100%; background: var(--accent-cyan);"></div>
+    </div>
+  </div>
+
+  <div class="stat-card hud-card" style="border-left: 4px solid var(--accent-red);">
+    <div class="label">
+      <span>Malicious Samples</span>
+      <i class="fa-solid fa-shield-virus" style="color: var(--accent-red);"></i>
+    </div>
+    <div class="value animate-counter" data-target="{{ malicious }}" style="color: var(--accent-red);">{{ malicious }}</div>
+    <div class="sub-meta">Ground Truth Attacks</div>
+    <div class="cyber-meter-track">
+      <div class="cyber-meter-fill" style="width: {% if total > 0 %}{% widthratio malicious total 100 %}{% else %}0{% endif %}%; background: var(--accent-red);"></div>
+    </div>
+  </div>
+
+  <div class="stat-card hud-card" style="border-left: 4px solid var(--accent-emerald);">
+    <div class="label">
+      <span>Clean Telemetry Samples</span>
+      <i class="fa-solid fa-shield-check" style="color: var(--accent-emerald);"></i>
+    </div>
+    <div class="value animate-counter" data-target="{{ clean }}" style="color: var(--accent-emerald);">{{ clean }}</div>
+    <div class="sub-meta">Legitimate Traffic Requests</div>
+    <div class="cyber-meter-track">
+      <div class="cyber-meter-fill" style="width: {% if total > 0 %}{% widthratio clean total 100 %}{% else %}0{% endif %}%; background: var(--accent-emerald);"></div>
+    </div>
+  </div>
+
+  <div class="stat-card hud-card" style="border-left: 4px solid var(--accent-purple);">
+    <div class="label">
+      <span>Threat Ingestion Rate</span>
+      <i class="fa-solid fa-percent" style="color: var(--accent-purple);"></i>
+    </div>
+    <div class="value animate-counter" data-target="{{ detection_rate }}" style="color: var(--accent-purple);">{{ detection_rate }}%</div>
+    <div class="sub-meta">Attack Concentration</div>
+    <div class="cyber-meter-track">
+      <div class="cyber-meter-fill" style="width: {{ detection_rate }}%; background: var(--accent-purple);"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Side-by-Side Model Showdown Comparison -->
+<div style="margin-bottom: 1rem;">
+  <h2 class="font-hud" style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+    <i class="fa-solid fa-scale-balanced" style="color: var(--accent-purple);"></i> Model Performance Comparison Showdown
+  </h2>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem;">
+
+  <!-- Rule-Based Heuristics Model -->
+  <div class="cyber-card hud-card" style="border-top: 3px solid var(--accent-amber);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+      <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fa-solid fa-list-check" style="color: var(--accent-amber);"></i> Rule-Based Threat Heuristics
+      </h3>
+      <span class="badge badge-medium">HEURISTIC BASELINE</span>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+      
+      <div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.88rem; margin-bottom: 0.35rem;">
+          <span style="color: var(--text-secondary); font-weight: 600;">Precision</span>
+          <span class="font-mono" style="font-weight: 800; color: var(--accent-amber);">{{ rule_precision }}%</span>
+        </div>
+        <div class="cyber-meter-track">
+          <div class="cyber-meter-fill" style="width: {{ rule_precision }}%; background: var(--accent-amber);"></div>
+        </div>
+      </div>
+
+      <div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.88rem; margin-bottom: 0.35rem;">
+          <span style="color: var(--text-secondary); font-weight: 600;">Recall</span>
+          <span class="font-mono" style="font-weight: 800; color: var(--accent-amber);">{{ rule_recall }}%</span>
+        </div>
+        <div class="cyber-meter-track">
+          <div class="cyber-meter-fill" style="width: {{ rule_recall }}%; background: var(--accent-amber);"></div>
+        </div>
+      </div>
+
+      <div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.88rem; margin-bottom: 0.35rem;">
+          <span style="color: var(--text-secondary); font-weight: 600;">F1-Score</span>
+          <span class="font-mono" style="font-weight: 800; color: var(--accent-amber);">{{ rule_f1 }}%</span>
+        </div>
+        <div class="cyber-meter-track">
+          <div class="cyber-meter-fill" style="width: {{ rule_f1 }}%; background: var(--accent-amber);"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Random Forest ML Model -->
+  <div class="cyber-card hud-card" style="border-top: 3px solid var(--accent-emerald);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+      <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fa-solid fa-brain" style="color: var(--accent-emerald);"></i> Random Forest ML Model (12 Features)
+      </h3>
+      <span class="badge badge-low">SUPERVISED ENSEMBLE</span>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+      
+      <div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.88rem; margin-bottom: 0.35rem;">
+          <span style="color: var(--text-secondary); font-weight: 600;">Precision</span>
+          <span class="font-mono" style="font-weight: 800; color: var(--accent-emerald);">{{ ml_precision }}%</span>
+        </div>
+        <div class="cyber-meter-track">
+          <div class="cyber-meter-fill" style="width: {{ ml_precision }}%; background: var(--accent-emerald);"></div>
+        </div>
+      </div>
+
+      <div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.88rem; margin-bottom: 0.35rem;">
+          <span style="color: var(--text-secondary); font-weight: 600;">Recall</span>
+          <span class="font-mono" style="font-weight: 800; color: var(--accent-emerald);">{{ ml_recall }}%</span>
+        </div>
+        <div class="cyber-meter-track">
+          <div class="cyber-meter-fill" style="width: {{ ml_recall }}%; background: var(--accent-emerald);"></div>
+        </div>
+      </div>
+
+      <div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.88rem; margin-bottom: 0.35rem;">
+          <span style="color: var(--text-secondary); font-weight: 600;">F1-Score</span>
+          <span class="font-mono" style="font-weight: 800; color: var(--accent-emerald);">{{ ml_f1 }}%</span>
+        </div>
+        <div class="cyber-meter-track">
+          <div class="cyber-meter-fill" style="width: {{ ml_f1 }}%; background: var(--accent-emerald);"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- High-Tech Confusion Matrix Heatmap Table -->
+<div style="margin-bottom: 2.5rem;">
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
+    <h2 class="font-hud" style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+      <i class="fa-solid fa-table-cells" style="color: var(--accent-cyan);"></i> Random Forest Classification Heatmap Matrix
+    </h2>
+    <span class="font-mono" style="font-size: 0.8rem; color: var(--text-muted);">BINARY ACCURACY BREAKDOWN</span>
+  </div>
+
+  <div class="table-container" style="max-width: 680px;">
+    <table>
+      <thead>
+        <tr>
+          <th>Ground Truth \ Classification</th>
+          <th style="text-align: center;">Predicted Clean</th>
+          <th style="text-align: center;">Predicted Malicious</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th style="color: var(--text-primary); font-family: 'JetBrains Mono', monospace;">Actual Clean</th>
+          <td style="text-align: center; background: rgba(16, 185, 129, 0.08);">
+            <div style="font-size: 1.35rem; font-weight: 800; color: var(--accent-emerald);" class="font-mono animate-counter" data-target="{{ ml_cm.0.0 }}">{{ ml_cm.0.0 }}</div>
+            <div style="font-size: 0.72rem; color: var(--accent-emerald); font-weight: 700;" class="font-mono">TRUE NEGATIVE (TN)</div>
+          </td>
+          <td style="text-align: center; background: rgba(255, 77, 109, 0.08);">
+            <div style="font-size: 1.35rem; font-weight: 800; color: var(--accent-red);" class="font-mono animate-counter" data-target="{{ ml_cm.0.1 }}">{{ ml_cm.0.1 }}</div>
+            <div style="font-size: 0.72rem; color: var(--accent-red); font-weight: 700;" class="font-mono">FALSE POSITIVE (FP)</div>
+          </td>
+        </tr>
+        <tr>
+          <th style="color: var(--text-primary); font-family: 'JetBrains Mono', monospace;">Actual Malicious</th>
+          <td style="text-align: center; background: rgba(255, 77, 109, 0.08);">
+            <div style="font-size: 1.35rem; font-weight: 800; color: var(--accent-red);" class="font-mono animate-counter" data-target="{{ ml_cm.1.0 }}">{{ ml_cm.1.0 }}</div>
+            <div style="font-size: 0.72rem; color: var(--accent-red); font-weight: 700;" class="font-mono">FALSE NEGATIVE (FN)</div>
+          </td>
+          <td style="text-align: center; background: rgba(16, 185, 129, 0.08);">
+            <div style="font-size: 1.35rem; font-weight: 800; color: var(--accent-emerald);" class="font-mono animate-counter" data-target="{{ ml_cm.1.1 }}">{{ ml_cm.1.1 }}</div>
+            <div style="font-size: 0.72rem; color: var(--accent-emerald); font-weight: 700;" class="font-mono">TRUE POSITIVE (TP)</div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  document.getElementById('retrainBtn')?.addEventListener('click', async () => {
+    const btn = document.getElementById('retrainBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Retraining Models...';
+
+    try {
+      const res = await fetch('/api/retrain-model/', { method: 'POST' });
+      const data = await res.json();
+      btn.innerHTML = `<i class="fa-solid fa-check"></i> ${data.message || 'Models Retrained'}`;
+      setTimeout(() => location.reload(), 1200);
+    } catch (err) {
+      console.error(err);
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Retraining Error';
+    }
+  });
+</script>
+{% endblock %}

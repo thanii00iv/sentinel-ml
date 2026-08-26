@@ -1,0 +1,271 @@
+{% extends "admin/base_site.html" %}
+{% load static admin_stats %}
+
+{% block content %}
+{% get_soc_db_stats as stats %}
+
+<!-- SOC Master Administration Banner (Full Width) -->
+<div style="background: linear-gradient(135deg, rgba(2, 132, 199, 0.12), rgba(124, 58, 237, 0.12)); border: 1px solid var(--admin-border); border-radius: 12px; padding: 1.35rem 1.75rem; margin-bottom: 1.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.25rem; box-shadow: var(--admin-shadow);">
+  <div style="max-width: 750px;">
+    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+      <span style="background: rgba(56, 189, 248, 0.15); color: var(--admin-cyan); border: 1px solid rgba(56,189,248,0.3); font-size: 0.72rem; padding: 0.2rem 0.55rem; border-radius: 4px; font-weight: bold; font-family: monospace;">
+        SENTINELML ENTERPRISE CORE
+      </span>
+      <span style="font-size: 0.8rem; color: var(--admin-text-muted); font-family: monospace;">GATEWAY: MASTER-DB-ADMIN</span>
+    </div>
+    <h2 style="font-family: 'Orbitron', sans-serif; font-size: 1.45rem; color: var(--admin-text-primary); margin: 0; font-weight: 800; letter-spacing: 0.02em;">
+      SOC Database & Security Entity Management
+    </h2>
+    <p style="color: var(--admin-text-muted); font-size: 0.9rem; margin: 0.35rem 0 0 0; line-height: 1.45;">
+      Perform administrative forensics, inspect low-level telemetry streams, enforce firewall quarantine rules, and manage ML weights.
+    </p>
+  </div>
+
+  <div style="display: flex; gap: 0.65rem; align-items: center; flex-wrap: wrap;">
+    <a href="{% url 'home' %}" class="button" style="text-decoration: none;">
+      <i class="fa-solid fa-gauge-high"></i>
+      <span>SOC Dashboard</span>
+    </a>
+    <a href="{% url 'threat_hunting' %}" class="button" style="background: linear-gradient(135deg, #7c3aed, #9333ea) !important; text-decoration: none;">
+      <i class="fa-solid fa-radar"></i>
+      <span>Threat Hunting</span>
+    </a>
+    <a href="{% url 'attack_simulator' %}" class="button" style="background: linear-gradient(135deg, #ea580c, #c2410c) !important; text-decoration: none;">
+      <i class="fa-solid fa-terminal"></i>
+      <span>Attack Studio</span>
+    </a>
+  </div>
+</div>
+
+<!-- 4-Column Live Administrative KPI Metric Cards -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
+  
+  <div style="background: var(--admin-card); border: 1px solid var(--admin-border); border-left: 4px solid var(--admin-cyan); border-radius: 10px; padding: 1.15rem 1.35rem; box-shadow: var(--admin-shadow); display: flex; flex-direction: column; justify-content: space-between;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+      <span style="font-size: 0.78rem; font-family: monospace; color: var(--admin-text-muted); text-transform: uppercase; font-weight: 700;">Total Telemetry Logs</span>
+      <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(56, 189, 248, 0.12); display: flex; align-items: center; justify-content: center;">
+        <i class="fa-solid fa-database" style="color: var(--admin-cyan); font-size: 0.95rem;"></i>
+      </div>
+    </div>
+    <div style="font-size: 1.95rem; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--admin-cyan); margin: 0.15rem 0;">{{ stats.total_requests }}</div>
+    <div style="font-size: 0.75rem; color: var(--admin-text-muted);">HTTP Ingested Records</div>
+  </div>
+
+  <div style="background: var(--admin-card); border: 1px solid var(--admin-border); border-left: 4px solid var(--admin-red); border-radius: 10px; padding: 1.15rem 1.35rem; box-shadow: var(--admin-shadow); display: flex; flex-direction: column; justify-content: space-between;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+      <span style="font-size: 0.78rem; font-family: monospace; color: var(--admin-text-muted); text-transform: uppercase; font-weight: 700;">Malicious Threats</span>
+      <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(255, 77, 109, 0.12); display: flex; align-items: center; justify-content: center;">
+        <i class="fa-solid fa-shield-virus" style="color: var(--admin-red); font-size: 0.95rem;"></i>
+      </div>
+    </div>
+    <div style="font-size: 1.95rem; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--admin-red); margin: 0.15rem 0;">{{ stats.malicious_count }}</div>
+    <div style="font-size: 0.75rem; color: var(--admin-text-muted);">Flagged OWASP Attacks</div>
+  </div>
+
+  <div style="background: var(--admin-card); border: 1px solid var(--admin-border); border-left: 4px solid var(--admin-purple); border-radius: 10px; padding: 1.15rem 1.35rem; box-shadow: var(--admin-shadow); display: flex; flex-direction: column; justify-content: space-between;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+      <span style="font-size: 0.78rem; font-family: monospace; color: var(--admin-text-muted); text-transform: uppercase; font-weight: 700;">Quarantined Entities</span>
+      <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(192, 132, 252, 0.12); display: flex; align-items: center; justify-content: center;">
+        <i class="fa-solid fa-ban" style="color: var(--admin-purple); font-size: 0.95rem;"></i>
+      </div>
+    </div>
+    <div style="font-size: 1.95rem; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--admin-purple); margin: 0.15rem 0;">{{ stats.quarantined_count }}</div>
+    <div style="font-size: 0.75rem; color: var(--admin-text-muted);">Firewall Blocked IPs</div>
+  </div>
+
+  <div style="background: var(--admin-card); border: 1px solid var(--admin-border); border-left: 4px solid var(--admin-amber); border-radius: 10px; padding: 1.15rem 1.35rem; box-shadow: var(--admin-shadow); display: flex; flex-direction: column; justify-content: space-between;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+      <span style="font-size: 0.78rem; font-family: monospace; color: var(--admin-text-muted); text-transform: uppercase; font-weight: 700;">Hunt Discoveries</span>
+      <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(251, 146, 60, 0.12); display: flex; align-items: center; justify-content: center;">
+        <i class="fa-solid fa-radar" style="color: var(--admin-amber); font-size: 0.95rem;"></i>
+      </div>
+    </div>
+    <div style="font-size: 1.95rem; font-weight: 800; font-family: 'JetBrains Mono', monospace; color: var(--admin-amber); margin: 0.15rem 0;">{{ stats.active_findings }}</div>
+    <div style="font-size: 0.75rem; color: var(--admin-text-muted);">Active Stealth Campaigns</div>
+  </div>
+
+</div>
+
+<!-- Main 2-Column Administrative Workspace Layout -->
+<div style="display: grid; grid-template-columns: 2.3fr 1fr; gap: 1.75rem; align-items: start;">
+  
+  <!-- Left Column: Core Database Security Models -->
+  <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+    
+    <!-- Monitor App Security Core Card -->
+    <div class="module">
+      <h2><i class="fa-solid fa-shield-halved" style="margin-right: 0.5rem; color: var(--admin-cyan);"></i> SentinelML Security Telemetry Models</h2>
+      <div>
+        
+        <!-- IP Risk Profiles -->
+        <div class="admin-model-item">
+          <div style="display: flex; align-items: center; gap: 0.85rem;">
+            <div style="width: 38px; height: 38px; border-radius: 8px; background: rgba(255, 77, 109, 0.12); display: flex; align-items: center; justify-content: center;">
+              <i class="fa-solid fa-user-secret" style="color: var(--admin-red); font-size: 1.05rem;"></i>
+            </div>
+            <div>
+              <a href="{% url 'admin:monitor_ipriskprofile_changelist' %}" style="font-weight: 700; font-size: 0.95rem; text-decoration: none;">IP Risk Profiles</a>
+              <div style="font-size: 0.78rem; color: var(--admin-text-muted); margin-top: 0.15rem;">Fused risk scores, threat tiers, attack counters, and firewall quarantine state.</div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <a href="{% url 'admin:monitor_ipriskprofile_add' %}" class="admin-btn-outline"><i class="fa-solid fa-plus"></i> Add</a>
+            <a href="{% url 'admin:monitor_ipriskprofile_changelist' %}" class="admin-btn-outline" style="border-color: var(--admin-cyan); color: var(--admin-cyan);"><i class="fa-solid fa-arrow-right"></i> Manage</a>
+          </div>
+        </div>
+
+        <!-- Request Logs -->
+        <div class="admin-model-item">
+          <div style="display: flex; align-items: center; gap: 0.85rem;">
+            <div style="width: 38px; height: 38px; border-radius: 8px; background: rgba(56, 189, 248, 0.12); display: flex; align-items: center; justify-content: center;">
+              <i class="fa-solid fa-network-wired" style="color: var(--admin-cyan); font-size: 1.05rem;"></i>
+            </div>
+            <div>
+              <a href="{% url 'admin:monitor_requestlog_changelist' %}" style="font-weight: 700; font-size: 0.95rem; text-decoration: none;">Request Logs (Telemetry Stream)</a>
+              <div style="font-size: 0.78rem; color: var(--admin-text-muted); margin-top: 0.15rem;">Raw HTTP requests, attack vector suspect flags, latency, and Shannon entropy.</div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <a href="{% url 'admin:monitor_requestlog_add' %}" class="admin-btn-outline"><i class="fa-solid fa-plus"></i> Add</a>
+            <a href="{% url 'admin:monitor_requestlog_changelist' %}" class="admin-btn-outline" style="border-color: var(--admin-cyan); color: var(--admin-cyan);"><i class="fa-solid fa-arrow-right"></i> Manage</a>
+          </div>
+        </div>
+
+        <!-- Threat Hunt Findings -->
+        <div class="admin-model-item">
+          <div style="display: flex; align-items: center; gap: 0.85rem;">
+            <div style="width: 38px; height: 38px; border-radius: 8px; background: rgba(192, 132, 252, 0.12); display: flex; align-items: center; justify-content: center;">
+              <i class="fa-solid fa-radar" style="color: var(--admin-purple); font-size: 1.05rem;"></i>
+            </div>
+            <div>
+              <a href="{% url 'admin:monitor_threathuntfinding_changelist' %}" style="font-weight: 700; font-size: 0.95rem; text-decoration: none;">Threat Hunt Findings</a>
+              <div style="font-size: 0.78rem; color: var(--admin-text-muted); margin-top: 0.15rem;">Autonomous campaign discoveries (Low-and-Slow, Distributed Probing).</div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <a href="{% url 'admin:monitor_threathuntfinding_add' %}" class="admin-btn-outline"><i class="fa-solid fa-plus"></i> Add</a>
+            <a href="{% url 'admin:monitor_threathuntfinding_changelist' %}" class="admin-btn-outline" style="border-color: var(--admin-cyan); color: var(--admin-cyan);"><i class="fa-solid fa-arrow-right"></i> Manage</a>
+          </div>
+        </div>
+
+        <!-- Predictive Alerts -->
+        <div class="admin-model-item">
+          <div style="display: flex; align-items: center; gap: 0.85rem;">
+            <div style="width: 38px; height: 38px; border-radius: 8px; background: rgba(251, 146, 60, 0.12); display: flex; align-items: center; justify-content: center;">
+              <i class="fa-solid fa-crystal-ball" style="color: var(--admin-amber); font-size: 1.05rem;"></i>
+            </div>
+            <div>
+              <a href="{% url 'admin:monitor_predictivealert_changelist' %}" style="font-weight: 700; font-size: 0.95rem; text-decoration: none;">Predictive Alerts</a>
+              <div style="font-size: 0.78rem; color: var(--admin-text-muted); margin-top: 0.15rem;">Markov stage forecasts, high-risk targeted assets, and confidence scores.</div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <a href="{% url 'admin:monitor_predictivealert_add' %}" class="admin-btn-outline"><i class="fa-solid fa-plus"></i> Add</a>
+            <a href="{% url 'admin:monitor_predictivealert_changelist' %}" class="admin-btn-outline" style="border-color: var(--admin-cyan); color: var(--admin-cyan);"><i class="fa-solid fa-arrow-right"></i> Manage</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Authentication and RBAC Module Card -->
+    <div class="module">
+      <h2><i class="fa-solid fa-users-gear" style="margin-right: 0.5rem; color: var(--admin-purple);"></i> Authentication & Role-Based Access Control</h2>
+      <div>
+        
+        <!-- Users -->
+        <div class="admin-model-item">
+          <div style="display: flex; align-items: center; gap: 0.85rem;">
+            <div style="width: 38px; height: 38px; border-radius: 8px; background: rgba(56, 189, 248, 0.12); display: flex; align-items: center; justify-content: center;">
+              <i class="fa-solid fa-user-shield" style="color: var(--admin-cyan); font-size: 1.05rem;"></i>
+            </div>
+            <div>
+              <a href="{% url 'admin:auth_user_changelist' %}" style="font-weight: 700; font-size: 0.95rem; text-decoration: none;">Security Analyst & Administrator Accounts</a>
+              <div style="font-size: 0.78rem; color: var(--admin-text-muted); margin-top: 0.15rem;">Manage analyst logins, passwords, permissions, and superuser access.</div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <a href="{% url 'admin:auth_user_add' %}" class="admin-btn-outline"><i class="fa-solid fa-plus"></i> Add</a>
+            <a href="{% url 'admin:auth_user_changelist' %}" class="admin-btn-outline" style="border-color: var(--admin-cyan); color: var(--admin-cyan);"><i class="fa-solid fa-arrow-right"></i> Manage</a>
+          </div>
+        </div>
+
+        <!-- Groups -->
+        <div class="admin-model-item">
+          <div style="display: flex; align-items: center; gap: 0.85rem;">
+            <div style="width: 38px; height: 38px; border-radius: 8px; background: rgba(192, 132, 252, 0.12); display: flex; align-items: center; justify-content: center;">
+              <i class="fa-solid fa-layer-group" style="color: var(--admin-purple); font-size: 1.05rem;"></i>
+            </div>
+            <div>
+              <a href="{% url 'admin:auth_group_changelist' %}" style="font-weight: 700; font-size: 0.95rem; text-decoration: none;">Security Groups & Permissions</a>
+              <div style="font-size: 0.78rem; color: var(--admin-text-muted); margin-top: 0.15rem;">Configure Tier 1 Analyst, Tier 2 Responder, and CISO Admin group policies.</div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <a href="{% url 'admin:auth_group_add' %}" class="admin-btn-outline"><i class="fa-solid fa-plus"></i> Add</a>
+            <a href="{% url 'admin:auth_group_changelist' %}" class="admin-btn-outline" style="border-color: var(--admin-cyan); color: var(--admin-cyan);"><i class="fa-solid fa-arrow-right"></i> Manage</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Right Column: Quick Administration Utilities & Recent Actions -->
+  <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+    
+    <!-- Quick Database Tools -->
+    <div class="module">
+      <h2><i class="fa-solid fa-wrench" style="margin-right: 0.5rem; color: var(--admin-cyan);"></i> Quick Forensics Tools</h2>
+      <div style="padding: 1.1rem 1.25rem; display: flex; flex-direction: column; gap: 0.75rem;">
+        <a href="{% url 'threat_list' %}" class="admin-btn-outline" style="justify-content: space-between;">
+          <span><i class="fa-solid fa-crosshairs" style="color: var(--admin-cyan);"></i> Threat Matrix</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </a>
+        <a href="{% url 'evaluation' %}" class="admin-btn-outline" style="justify-content: space-between;">
+          <span><i class="fa-solid fa-flask-vial" style="color: var(--admin-purple);"></i> ML Evaluation Lab</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </a>
+        <a href="{% url 'api_export_telemetry' 'csv' %}" class="admin-btn-outline" style="justify-content: space-between;">
+          <span><i class="fa-solid fa-file-csv" style="color: var(--admin-emerald);"></i> Export Telemetry (CSV)</span>
+          <i class="fa-solid fa-download"></i>
+        </a>
+        <a href="{% url 'api_export_telemetry' 'json' %}" class="admin-btn-outline" style="justify-content: space-between;">
+          <span><i class="fa-solid fa-file-code" style="color: var(--admin-amber);"></i> Export Telemetry (JSON)</span>
+          <i class="fa-solid fa-download"></i>
+        </a>
+      </div>
+    </div>
+
+    <!-- Recent Actions Feed -->
+    <div class="module">
+      <h2><i class="fa-solid fa-clock-rotate-left" style="margin-right: 0.5rem; color: var(--admin-amber);"></i> Recent Admin Activity</h2>
+      <div style="padding: 1rem 1.25rem; font-size: 0.85rem; color: var(--admin-text-muted);">
+        {% load log %}
+        {% get_admin_log 6 as admin_log for_user user %}
+        {% if not admin_log %}
+          <div style="text-align: center; padding: 1rem; color: var(--admin-text-muted);">
+            <i class="fa-solid fa-shield-check" style="font-size: 1.5rem; color: var(--admin-emerald); margin-bottom: 0.35rem;"></i>
+            <div>No recent administrative actions recorded.</div>
+          </div>
+        {% else %}
+          <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.65rem;">
+            {% for entry in admin_log %}
+              <li style="border-bottom: 1px dashed var(--admin-border-subtle); padding-bottom: 0.5rem;">
+                <div style="font-weight: 600; color: var(--admin-text-primary);">
+                  {% if entry.is_addition %}<span style="color: var(--admin-emerald);">+ Added</span>{% elif entry.is_change %}<span style="color: var(--admin-cyan);">~ Edited</span>{% elif entry.is_deletion %}<span style="color: var(--admin-red);">- Deleted</span>{% endif %}
+                  {{ entry.object_repr }}
+                </div>
+                <div style="font-size: 0.72rem; color: var(--admin-text-muted); font-family: monospace;">{{ entry.action_time|date:"Y-m-d H:i" }} &bull; {{ entry.content_type }}</div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

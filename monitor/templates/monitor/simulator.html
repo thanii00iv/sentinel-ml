@@ -1,0 +1,316 @@
+{% extends 'monitor/base.html' %}
+
+{% block title %}Live Attack Simulation Studio — SentinelML{% endblock %}
+
+{% block content %}
+<!-- Studio Header -->
+<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 1.25rem;">
+  <div>
+    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+      <span class="badge badge-red"><i class="fa-solid fa-flask"></i> LIVE ADVERSARY LAB</span>
+      <span style="font-size: 0.8rem; color: var(--text-muted);" class="font-mono">REAL-TIME TRAFFIC & ATTACK INJECTION</span>
+    </div>
+    <h1 class="font-hud" style="font-size: 2rem; font-weight: 800; color: var(--text-primary); letter-spacing: 0.02em;">
+      Live Attack & Telemetry Simulation Studio
+    </h1>
+    <p style="color: var(--text-secondary); font-size: 0.95rem; margin-top: 0.25rem;">
+      Generate realistic web cyber attacks and clean telemetry to demonstrate real-time detection, ICMF scoring, and autonomous hunting
+    </p>
+  </div>
+  <div style="display: flex; gap: 0.5rem;">
+    <a href="{% url 'home' %}" class="btn-outline">
+      <i class="fa-solid fa-gauge-high"></i>
+      <span>SOC Dashboard</span>
+    </a>
+    <a href="{% url 'threat_list' %}" class="btn-outline">
+      <i class="fa-solid fa-crosshairs"></i>
+      <span>Threat Matrix</span>
+    </a>
+  </div>
+</div>
+
+<!-- Full Cyber Kill-Chain Grand Simulation Card -->
+<div class="cyber-card hud-card" style="margin-bottom: 2rem; border: 2px solid var(--accent-cyan); background: linear-gradient(135deg, var(--bg-surface), rgba(56, 189, 248, 0.08));">
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <div class="badge badge-cyan" style="margin-bottom: 0.35rem;"><i class="fa-solid fa-skull"></i> ADVANCED ADVERSARY EMULATION</div>
+      <h2 class="font-hud" style="font-size: 1.35rem; font-weight: 800; color: var(--text-primary);">
+        Full Multi-Stage Cyber Kill-Chain Campaign
+      </h2>
+      <p style="color: var(--text-secondary); font-size: 0.92rem; max-width: 720px; margin-top: 0.3rem;">
+        Executes a 4-step progressive campaign: <strong>Reconnaissance</strong> &rarr; <strong>Credential Brute-Force</strong> &rarr; <strong>SQL Injection</strong> &rarr; <strong>Data Exfiltration Probe</strong> from attacker IP <code>185.220.101.5</code>.
+      </p>
+    </div>
+    <button type="button" class="btn-primary sim-btn" data-type="killchain" data-ip="185.220.101.5" style="padding: 0.85rem 1.75rem; font-size: 1rem;">
+      <i class="fa-solid fa-bolt"></i>
+      <span>Execute Full Kill-Chain</span>
+    </button>
+  </div>
+</div>
+
+<!-- 1-Click Simulation Cards Grid -->
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 1.25rem; align-items: stretch; margin-bottom: 2rem;">
+
+  <!-- Card 1: SQL Injection -->
+  <div class="cyber-card hud-card" style="border-top: 3px solid var(--accent-red); display: flex; flex-direction: column;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.75rem;">
+      <h3 style="font-size: 1rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.4rem;">
+        <i class="fa-solid fa-bug" style="color: var(--accent-red);"></i> SQL Injection
+      </h3>
+      <span class="badge badge-critical" style="white-space: nowrap; flex-shrink: 0;">OWASP #3</span>
+    </div>
+    <p style="color: var(--text-secondary); font-size: 0.85rem; line-height: 1.55; flex: 1; margin-bottom: 1.25rem;">
+      Injects <code>UNION SELECT</code>, tautologies (<code>' OR 1=1</code>), and stacked queries into URL parameters from IP <code>198.51.100.45</code>.
+    </p>
+    <button type="button" class="btn-primary btn-sm sim-btn" data-type="sqli" data-ip="198.51.100.45" style="width: 100%; justify-content: center; background: linear-gradient(135deg, #e11d48, #be123c); margin-top: auto;">
+      <i class="fa-solid fa-play"></i> <span>Launch SQLi Simulation</span>
+    </button>
+  </div>
+
+  <!-- Card 2: Login Brute Force -->
+  <div class="cyber-card hud-card" style="border-top: 3px solid var(--accent-amber); display: flex; flex-direction: column;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.75rem;">
+      <h3 style="font-size: 1rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.4rem;">
+        <i class="fa-solid fa-key" style="color: var(--accent-amber);"></i> Login Brute-Force
+      </h3>
+      <span class="badge badge-high" style="white-space: nowrap; flex-shrink: 0;">AUTH FLOOD</span>
+    </div>
+    <p style="color: var(--text-secondary); font-size: 0.85rem; line-height: 1.55; flex: 1; margin-bottom: 1.25rem;">
+      Simulates rapid credential stuffing on <code>/login/</code> exceeding the sliding window failure threshold from IP <code>203.0.113.88</code>.
+    </p>
+    <button type="button" class="btn-primary btn-sm sim-btn" data-type="brute_force" data-ip="203.0.113.88" style="width: 100%; justify-content: center; background: linear-gradient(135deg, #d97706, #b45309); margin-top: auto;">
+      <i class="fa-solid fa-play"></i> <span>Launch Brute-Force Flood</span>
+    </button>
+  </div>
+
+  <!-- Card 3: Reconnaissance -->
+  <div class="cyber-card hud-card" style="border-top: 3px solid var(--accent-purple); display: flex; flex-direction: column;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.75rem;">
+      <h3 style="font-size: 1rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.4rem;">
+        <i class="fa-solid fa-radar" style="color: var(--accent-purple);"></i> Recon & Probing
+      </h3>
+      <span class="badge badge-medium" style="white-space: nowrap; flex-shrink: 0;">SCANNER</span>
+    </div>
+    <p style="color: var(--text-secondary); font-size: 0.85rem; line-height: 1.55; flex: 1; margin-bottom: 1.25rem;">
+      Probes sensitive paths (<code>/.env</code>, <code>/backup.sql</code>, <code>/admin.php</code>, <code>/config.json</code>) generating 404 storm from IP <code>192.0.2.140</code>.
+    </p>
+    <button type="button" class="btn-primary btn-sm sim-btn" data-type="recon" data-ip="192.0.2.140" style="width: 100%; justify-content: center; background: linear-gradient(135deg, #7c3aed, #6d28d9); margin-top: auto;">
+      <i class="fa-solid fa-play"></i> <span>Launch Recon Scan</span>
+    </button>
+  </div>
+
+  <!-- Card 4: XSS Injections -->
+  <div class="cyber-card hud-card" style="border-top: 3px solid var(--accent-cyan); display: flex; flex-direction: column;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.75rem;">
+      <h3 style="font-size: 1rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.4rem;">
+        <i class="fa-solid fa-code" style="color: var(--accent-cyan);"></i> Cross-Site Scripting
+      </h3>
+      <span class="badge badge-cyan" style="white-space: nowrap; flex-shrink: 0;">XSS INJECTION</span>
+    </div>
+    <p style="color: var(--text-secondary); font-size: 0.85rem; line-height: 1.55; flex: 1; margin-bottom: 1.25rem;">
+      Injects script tags and DOM event handler payloads (<code>&lt;script&gt;fetch(...)&lt;/script&gt;</code>, <code>onerror=</code>) from IP <code>198.51.100.99</code>.
+    </p>
+    <button type="button" class="btn-primary btn-sm sim-btn" data-type="xss" data-ip="198.51.100.99" style="width: 100%; justify-content: center; margin-top: auto;">
+      <i class="fa-solid fa-play"></i> <span>Launch XSS Attack</span>
+    </button>
+  </div>
+
+  <!-- Card 5: Path Traversal -->
+  <div class="cyber-card hud-card" style="border-top: 3px solid #f43f5e; display: flex; flex-direction: column;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.75rem;">
+      <h3 style="font-size: 1rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.4rem;">
+        <i class="fa-solid fa-folder-open" style="color: #f43f5e;"></i> Path Traversal / LFI
+      </h3>
+      <span class="badge badge-critical" style="white-space: nowrap; flex-shrink: 0;">LFI</span>
+    </div>
+    <p style="color: var(--text-secondary); font-size: 0.85rem; line-height: 1.55; flex: 1; margin-bottom: 1.25rem;">
+      Attempts directory escapes (<code>../../../../etc/passwd</code>, <code>%2e%2e%2fwindows/win.ini</code>) to leak server files from IP <code>203.0.113.12</code>.
+    </p>
+    <button type="button" class="btn-primary btn-sm sim-btn" data-type="path_traversal" data-ip="203.0.113.12" style="width: 100%; justify-content: center; background: linear-gradient(135deg, #e11d48, #9f1239); margin-top: auto;">
+      <i class="fa-solid fa-play"></i> <span>Launch LFI Simulation</span>
+    </button>
+  </div>
+
+  <!-- Card 6: Clean Baseline Traffic -->
+  <div class="cyber-card hud-card" style="border-top: 3px solid var(--accent-emerald); display: flex; flex-direction: column;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.75rem;">
+      <h3 style="font-size: 1rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.4rem;">
+        <i class="fa-solid fa-shield-check" style="color: var(--accent-emerald);"></i> Clean Normal Traffic
+      </h3>
+      <span class="badge badge-low" style="white-space: nowrap; flex-shrink: 0;">BASELINE</span>
+    </div>
+    <p style="color: var(--text-secondary); font-size: 0.85rem; line-height: 1.55; flex: 1; margin-bottom: 1.25rem;">
+      Generates legitimate user browsing across dashboard pages to build clean baseline telemetry for model training from IP <code>192.168.1.50</code>.
+    </p>
+    <button type="button" class="btn-primary btn-sm sim-btn" data-type="normal" data-ip="192.168.1.50" style="width: 100%; justify-content: center; background: linear-gradient(135deg, #059669, #047857); margin-top: auto;">
+      <i class="fa-solid fa-play"></i> <span>Generate Clean Traffic</span>
+    </button>
+  </div>
+
+</div>
+
+<!-- Custom Interactive Attack Injector -->
+<div class="cyber-card hud-card" style="margin-bottom: 2rem;">
+  <h3 class="font-hud" style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1rem;">
+    <i class="fa-solid fa-sliders" style="color: var(--accent-cyan);"></i> Custom Attack Payload Injector
+  </h3>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; align-items: flex-end;">
+    <div>
+      <label style="display: block; font-size: 0.78rem; font-family: monospace; color: var(--text-secondary); margin-bottom: 0.35rem;">ATTACK VECTOR</label>
+      <select id="customType" style="width: 100%; background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-primary); padding: 0.6rem 0.85rem; border-radius: 8px; font-size: 0.9rem; outline: none;">
+        <option value="sqli">SQL Injection (SQLi)</option>
+        <option value="brute_force">Login Brute-Force</option>
+        <option value="recon">Reconnaissance Scan</option>
+        <option value="xss">Cross-Site Scripting (XSS)</option>
+        <option value="path_traversal">Path Traversal (LFI)</option>
+        <option value="normal">Clean Legitimate Traffic</option>
+        <option value="killchain">Full Cyber Kill-Chain</option>
+      </select>
+    </div>
+
+    <div>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+        <label style="font-size: 0.78rem; font-family: monospace; color: var(--text-secondary); margin: 0;">SOURCE / LAPTOP IP</label>
+        <span style="font-size: 0.72rem; color: var(--accent-cyan); cursor: pointer;" onclick="document.getElementById('customIp').value='192.168.31.173'">[Use Laptop IP]</span>
+      </div>
+      <input type="text" id="customIp" value="192.168.31.173" placeholder="e.g. 192.168.31.173" style="width: 100%; background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-primary); padding: 0.6rem 0.85rem; border-radius: 8px; font-size: 0.9rem; font-family: monospace; outline: none;">
+    </div>
+
+    <div>
+      <label style="display: block; font-size: 0.78rem; font-family: monospace; color: var(--text-secondary); margin-bottom: 0.35rem;">PACKET / REQUEST COUNT</label>
+      <input type="number" id="customCount" value="5" min="1" max="25" style="width: 100%; background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-primary); padding: 0.6rem 0.85rem; border-radius: 8px; font-size: 0.9rem; font-family: monospace; outline: none;">
+    </div>
+
+    <div>
+      <button type="button" id="launchCustomBtn" class="btn-primary" style="width: 100%; justify-content: center; padding: 0.65rem;">
+        <i class="fa-solid fa-crosshairs"></i>
+        <span>Inject Custom Traffic</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Live Simulation Execution Terminal Output -->
+<div class="terminal-window" style="margin-bottom: 2rem;">
+  <div class="terminal-header">
+    <div class="terminal-dots">
+      <div class="terminal-dot dot-red"></div>
+      <div class="terminal-dot dot-yellow"></div>
+      <div class="terminal-dot dot-green"></div>
+    </div>
+    <div class="font-mono" style="font-size: 0.78rem; color: var(--text-secondary);">
+      <i class="fa-solid fa-terminal" style="color: var(--accent-cyan);"></i> SIMULATION STUDIO // REAL-TIME EXECUTION LOG
+    </div>
+    <div style="display: flex; align-items: center; gap: 0.5rem;">
+      <span id="terminalStatus" class="badge badge-cyan" style="font-size: 0.65rem;">READY</span>
+      <button type="button" id="clearTermBtn" style="background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.75rem;" title="Clear Console">
+        <i class="fa-solid fa-trash-can"></i>
+      </button>
+    </div>
+  </div>
+  <div id="terminalBody" class="terminal-body" style="min-height: 160px; max-height: 320px; overflow-y: auto; background: var(--bg-surface-solid);">
+    <div style="color: var(--text-muted); font-size: 0.85rem;">[SentinelML] Adversary emulation ready. Click any launch button above to generate live cyber traffic...</div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  const termBody = document.getElementById('terminalBody');
+  const termStatus = document.getElementById('terminalStatus');
+
+  function logToTerm(htmlMsg, isSuccess = true) {
+    const time = new Date().toLocaleTimeString();
+    const line = document.createElement('div');
+    line.style.fontSize = '0.85rem';
+    line.style.marginBottom = '0.45rem';
+    line.style.lineHeight = '1.5';
+    line.style.color = isSuccess ? 'var(--accent-emerald)' : 'var(--accent-red)';
+    line.innerHTML = `<span style="color: var(--text-muted); font-family: monospace;">[${time}]</span> ${htmlMsg}`;
+    termBody.appendChild(line);
+    termBody.scrollTop = termBody.scrollHeight;
+  }
+
+  document.getElementById('clearTermBtn')?.addEventListener('click', () => {
+    termBody.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem;">[SentinelML] Console cleared. Ready for next simulation.</div>';
+  });
+
+  async function executeSimulation(type, ip, count, buttonElem = null) {
+    let originalHtml = '';
+    if (buttonElem) {
+      originalHtml = buttonElem.innerHTML;
+      buttonElem.disabled = true;
+      buttonElem.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Injecting...</span>';
+    }
+
+    termStatus.innerText = 'EXECUTING...';
+    termStatus.className = 'badge badge-high';
+    logToTerm(`[+] Dispatching simulation: <strong>${type.toUpperCase()}</strong> &bull; Target IP: <code>${ip}</code> (x${count} requests)...`, true);
+
+    try {
+      const res = await fetch('/api/simulate/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type, ip, count: parseInt(count) || 4 })
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status} ${res.statusText}`);
+      }
+
+      const data = await res.json();
+      
+      termStatus.innerText = 'COMPLETE';
+      termStatus.className = 'badge badge-low';
+      
+      let successMsg = `[✓] <strong>${data.type || type}</strong> simulation complete! Telemetry ingested into SentinelML pipeline.`;
+      if (data.fused_score !== undefined) {
+        successMsg += `<br>&nbsp;&nbsp;&bull; Fused ICMF Risk Score: <strong>${data.fused_score}/100</strong> (${data.threat_level})`;
+        if (data.predicted_next_stage) {
+          successMsg += `<br>&nbsp;&nbsp;&bull; Forecasted Next Stage: <strong>${data.predicted_next_stage}</strong>`;
+        }
+      }
+
+      successMsg += `<br>&nbsp;&nbsp;<a href="/threats/${ip}/" style="color: var(--accent-cyan); text-decoration: underline; font-weight: 700; margin-right: 1rem;"><i class="fa-solid fa-crosshairs"></i> Inspect IP Dossier</a>`;
+      successMsg += `<a href="/" style="color: var(--accent-emerald); text-decoration: underline; font-weight: 700;"><i class="fa-solid fa-gauge-high"></i> View on SOC Dashboard</a>`;
+
+      logToTerm(successMsg, true);
+
+      if (buttonElem) {
+        buttonElem.innerHTML = '<i class="fa-solid fa-check"></i> <span>Executed</span>';
+        setTimeout(() => {
+          buttonElem.disabled = false;
+          buttonElem.innerHTML = originalHtml;
+        }, 1500);
+      }
+    } catch (err) {
+      termStatus.innerText = 'ERROR';
+      termStatus.className = 'badge badge-critical';
+      logToTerm(`[-] Simulation dispatch error: ${err.message}`, false);
+
+      if (buttonElem) {
+        buttonElem.disabled = false;
+        buttonElem.innerHTML = originalHtml;
+      }
+    }
+  }
+
+  // 1-Click Cards
+  document.querySelectorAll('.sim-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const type = btn.getAttribute('data-type');
+      const ip = btn.getAttribute('data-ip');
+      executeSimulation(type, ip, 4, btn);
+    });
+  });
+
+  // Custom Form
+  document.getElementById('launchCustomBtn')?.addEventListener('click', () => {
+    const type = document.getElementById('customType').value;
+    const ip = document.getElementById('customIp').value.trim() || '198.51.100.77';
+    const count = document.getElementById('customCount').value || 5;
+    const btn = document.getElementById('launchCustomBtn');
+    executeSimulation(type, ip, count, btn);
+  });
+</script>
+{% endblock %}

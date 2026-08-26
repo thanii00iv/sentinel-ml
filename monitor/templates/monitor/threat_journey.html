@@ -1,0 +1,617 @@
+{% extends 'monitor/base.html' %}
+
+{% block title %}Threat Dossier — {{ profile.ip_address }} — SentinelML{% endblock %}
+
+{% block extra_head %}
+<!-- Plotly.js for Futuristic Visualizations -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.27.0/plotly.min.js"></script>
+<style>
+  @media print {
+    .navbar, footer, #quarantineBtn, .btn-outline, .btn-primary, .copy-ip-btn { display: none !important; }
+    body, .main-container { background: #ffffff !important; color: #000000 !important; }
+    .cyber-card, .stat-card, .terminal-window { border: 1px solid #cbd5e1 !important; background: #ffffff !important; color: #000000 !important; box-shadow: none !important; }
+    .font-hud, h1, h2, h3, div, p, span { color: #0f172a !important; }
+    .badge { border: 1px solid #94a3b8 !important; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Back Navigation & Report Export -->
+<div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+  <div style="display: flex; gap: 0.5rem;">
+    <a href="{% url 'threat_list' %}" class="btn-outline btn-sm">
+      <i class="fa-solid fa-arrow-left"></i>
+      <span>Back to Threat Matrix</span>
+    </a>
+    <button type="button" onclick="window.print()" class="btn-outline btn-sm" title="Generate printable CISO forensic PDF dossier">
+      <i class="fa-solid fa-file-pdf" style="color: var(--accent-cyan);"></i>
+      <span>Export Forensic Report</span>
+    </button>
+  </div>
+  <button type="button" id="quarantineBtn" class="btn-primary btn-sm" style="{% if profile.is_blocked %}background: #22c55e;{% else %}background: var(--accent-red);{% endif %}">
+    {% if profile.is_blocked %}<i class="fa-solid fa-unlock"></i> Lift Quarantine{% else %}<i class="fa-solid fa-ban"></i> Enforce IP Quarantine{% endif %}
+  </button>
+</div>
+
+<!-- Threat Dossier Header -->
+<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; flex-wrap: wrap; gap: 1.25rem;">
+  <div>
+    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem; flex-wrap: wrap;">
+      <span class="badge badge-cyan"><i class="fa-solid fa-fingerprint"></i> ENTITY DOSSIER</span>
+      {% if geo %}
+        <span class="badge badge-purple" style="font-size: 0.75rem;">
+          <i class="fa-solid fa-location-dot"></i> {{ geo.city }}, {{ geo.country }} ({{ geo.country_code }}) &bull; {{ geo.asn }}
+        </span>
+      {% endif %}
+      <span style="font-size: 0.8rem; color: var(--text-muted);" class="font-mono">FIRST SEEN: {{ profile.first_seen|date:"Y-m-d H:i" }} &bull; LAST SEEN: {{ profile.last_seen|date:"Y-m-d H:i" }}</span>
+    </div>
+    <h1 class="font-hud" style="font-size: 2.25rem; font-weight: 800; color: var(--text-primary); display: flex; align-items: center; gap: 0.75rem;">
+      <i class="fa-solid fa-user-secret" style="color: var(--accent-red);"></i>
+      <span class="font-mono">{{ profile.ip_address }}</span>
+      <button type="button" class="copy-ip-btn" data-ip="{{ profile.ip_address }}" title="Copy IP">
+        <i class="fa-regular fa-copy"></i>
+      </button>
+    </h1>
+    <p style="color: var(--text-secondary); font-size: 0.95rem; margin-top: 0.25rem;">
+      Intent-Centric Multi-Layer Fusion (ICMF) forensics &bull; MITRE ATT&CK framework mapping &bull; Markov predictive forecasting
+    </p>
+  </div>
+
+  <div style="display: flex; gap: 0.5rem; align-items: center;">
+    {% if profile.is_blocked %}
+      <span class="badge badge-critical" style="font-size: 0.95rem; padding: 0.55rem 1rem;"><i class="fa-solid fa-ban"></i> QUARANTINED</span>
+    {% endif %}
+    <span class="badge {% if profile.risk_score >= 70 %}badge-critical{% elif profile.risk_score >= 40 %}badge-high{% elif profile.risk_score >= 15 %}badge-medium{% else %}badge-low{% endif %}" style="font-size: 0.95rem; padding: 0.55rem 1.15rem;">
+      {{ profile.threat_level }} THREAT TIER ({{ profile.fused_score|default:profile.risk_score }}/100)
+    </span>
+  </div>
+</div>
+
+<!-- Threat-Journey Attack Kill-Chain Markov Graph (ICMF Section 6.2) -->
+<div class="cyber-card hud-card" style="margin-bottom: 2rem; border-top: 3px solid var(--accent-cyan);">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
+    <div>
+      <h3 class="font-hud" style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fa-solid fa-diagram-project" style="color: var(--accent-cyan);"></i> Attacker Threat-Journey & Markov State-Transition Graph
+      </h3>
+      <span class="font-mono" style="font-size: 0.78rem; color: var(--text-muted);">TEMPORAL INTENT GRAPH &bull; MARKOV CHAIN STAGE MODELING</span>
+    </div>
+    <span class="badge badge-cyan font-mono" style="font-size: 0.72rem;">ICMF SECTION 6.2</span>
+  </div>
+  
+  <!-- Visual Markov Killchain State Machine Flow -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; position: relative;">
+    
+    <!-- State S1: Recon -->
+    <div style="background: var(--bg-surface-elevated); border: 2px solid {% if profile.recon_count > 0 %}var(--accent-purple){% else %}var(--border-color){% endif %}; border-radius: 10px; padding: 1.1rem; text-align: center; position: relative; box-shadow: {% if profile.recon_count > 0 %}0 0 15px rgba(192, 132, 252, 0.25){% else %}none{% endif %};">
+      {% if profile.recon_count > 0 %}
+        <span class="pulse-dot" style="position: absolute; top: 10px; right: 10px; background: var(--accent-purple);"></span>
+      {% endif %}
+      <div style="font-size: 1.75rem; color: {% if profile.recon_count > 0 %}var(--accent-purple){% else %}var(--text-muted){% endif %}; margin-bottom: 0.35rem;">
+        <i class="fa-solid fa-radar"></i>
+      </div>
+      <div style="font-weight: 800; font-size: 0.9rem; color: var(--text-primary);">Stage 1: Reconnaissance (S₁)</div>
+      <div class="font-mono" style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.3rem;">
+        {% if profile.recon_count > 0 %}
+          <span style="color: var(--accent-purple); font-weight: 700;">ACTIVE &bull; {{ profile.recon_count }} Events</span>
+        {% else %}
+          <span>Guarded &bull; 0 Events</span>
+        {% endif %}
+      </div>
+      <div style="margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px dashed var(--border-color); font-size: 0.72rem; color: var(--text-muted);">
+        Transition Prob: <strong style="color: var(--accent-purple);">P(S₂|S₁) = 0.68</strong>
+      </div>
+    </div>
+
+    <!-- State S2: Brute Force -->
+    <div style="background: var(--bg-surface-elevated); border: 2px solid {% if profile.brute_force_count > 0 %}var(--accent-amber){% else %}var(--border-color){% endif %}; border-radius: 10px; padding: 1.1rem; text-align: center; position: relative; box-shadow: {% if profile.brute_force_count > 0 %}0 0 15px rgba(251, 146, 60, 0.25){% else %}none{% endif %};">
+      {% if profile.brute_force_count > 0 %}
+        <span class="pulse-dot" style="position: absolute; top: 10px; right: 10px; background: var(--accent-amber);"></span>
+      {% endif %}
+      <div style="font-size: 1.75rem; color: {% if profile.brute_force_count > 0 %}var(--accent-amber){% else %}var(--text-muted){% endif %}; margin-bottom: 0.35rem;">
+        <i class="fa-solid fa-key"></i>
+      </div>
+      <div style="font-weight: 800; font-size: 0.9rem; color: var(--text-primary);">Stage 2: Credential Access (S₂)</div>
+      <div class="font-mono" style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.3rem;">
+        {% if profile.brute_force_count > 0 %}
+          <span style="color: var(--accent-amber); font-weight: 700;">ACTIVE &bull; {{ profile.brute_force_count }} Fails</span>
+        {% else %}
+          <span>Guarded &bull; 0 Fails</span>
+        {% endif %}
+      </div>
+      <div style="margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px dashed var(--border-color); font-size: 0.72rem; color: var(--text-muted);">
+        Transition Prob: <strong style="color: var(--accent-amber);">P(S₃|S₂) = 0.82</strong>
+      </div>
+    </div>
+
+    <!-- State S3: Injection -->
+    <div style="background: var(--bg-surface-elevated); border: 2px solid {% if profile.sqli_count > 0 or profile.xss_count > 0 or profile.path_traversal_count > 0 %}var(--accent-red){% else %}var(--border-color){% endif %}; border-radius: 10px; padding: 1.1rem; text-align: center; position: relative; box-shadow: {% if profile.sqli_count > 0 or profile.xss_count > 0 %}0 0 15px rgba(255, 77, 109, 0.25){% else %}none{% endif %};">
+      {% if profile.sqli_count > 0 or profile.xss_count > 0 or profile.path_traversal_count > 0 %}
+        <span class="pulse-dot" style="position: absolute; top: 10px; right: 10px; background: var(--accent-red);"></span>
+      {% endif %}
+      <div style="font-size: 1.75rem; color: {% if profile.sqli_count > 0 or profile.xss_count > 0 or profile.path_traversal_count > 0 %}var(--accent-red){% else %}var(--text-muted){% endif %}; margin-bottom: 0.35rem;">
+        <i class="fa-solid fa-bug"></i>
+      </div>
+      <div style="font-weight: 800; font-size: 0.9rem; color: var(--text-primary);">Stage 3: Web Exploitation (S₃)</div>
+      <div class="font-mono" style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.3rem;">
+        {% if profile.sqli_count > 0 or profile.xss_count > 0 or profile.path_traversal_count > 0 %}
+          <span style="color: var(--accent-red); font-weight: 700;">SQLi:{{ profile.sqli_count }} &bull; XSS:{{ profile.xss_count }}</span>
+        {% else %}
+          <span>Guarded &bull; 0 Exploits</span>
+        {% endif %}
+      </div>
+      <div style="margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px dashed var(--border-color); font-size: 0.72rem; color: var(--text-muted);">
+        Transition Prob: <strong style="color: var(--accent-red);">P(S₄|S₃) = 0.94</strong>
+      </div>
+    </div>
+
+    <!-- State S4: Exfiltration -->
+    <div style="background: var(--bg-surface-elevated); border: 2px solid {% if profile.risk_score >= 70 %}#e11d48{% else %}var(--border-color){% endif %}; border-radius: 10px; padding: 1.1rem; text-align: center; position: relative; box-shadow: {% if profile.risk_score >= 70 %}0 0 15px rgba(225, 29, 72, 0.25){% else %}none{% endif %};">
+      {% if profile.risk_score >= 70 %}
+        <span class="pulse-dot" style="position: absolute; top: 10px; right: 10px; background: #e11d48;"></span>
+      {% endif %}
+      <div style="font-size: 1.75rem; color: {% if profile.risk_score >= 70 %}#e11d48{% else %}var(--text-muted){% endif %}; margin-bottom: 0.35rem;">
+        <i class="fa-solid fa-database"></i>
+      </div>
+      <div style="font-weight: 800; font-size: 0.9rem; color: var(--text-primary);">Stage 4: Data Exfiltration (S₄)</div>
+      <div class="font-mono" style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.3rem;">
+        {% if profile.risk_score >= 70 %}
+          <span style="color: #e11d48; font-weight: 700;">CRITICAL RISK LEVEL</span>
+        {% else %}
+          <span>Guarded &bull; 0 Exfil</span>
+        {% endif %}
+      </div>
+      <div style="margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px dashed var(--border-color); font-size: 0.72rem; color: var(--text-muted);">
+        Transition Prob: <strong style="color: #e11d48;">P(Compromise|S₄) = 0.99</strong>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Predictive Trajectory Forecast Vector Banner -->
+  <div style="margin-top: 1.25rem; padding: 0.9rem 1.2rem; background: rgba(56, 189, 248, 0.07); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <i class="fa-solid fa-crystal-ball" style="color: var(--accent-cyan); font-size: 1.3rem;"></i>
+      <div>
+        <div style="font-weight: 700; font-size: 0.88rem; color: var(--text-primary);">
+          Forecasted Next Attack Vector: <span style="color: var(--accent-cyan);">{{ profile.predicted_next_stage }}</span>
+        </div>
+        <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.15rem;">
+          High-Risk Target Asset: <code class="font-mono" style="color: var(--accent-amber); background: rgba(0,0,0,0.3); padding: 0.15rem 0.4rem; border-radius: 4px;">{{ profile.predicted_target_asset }}</code>
+        </div>
+      </div>
+    </div>
+    <span class="badge {% if profile.prediction_confidence == 'CRITICAL' %}badge-critical{% elif profile.prediction_confidence == 'HIGH' %}badge-high{% else %}badge-medium{% endif %} font-mono">
+      {{ profile.prediction_confidence }} CONFIDENCE
+    </span>
+  </div>
+</div>
+
+<!-- MITRE ATT&CK Enterprise Matrix Tactical Mapping -->
+<div class="cyber-card hud-card" style="margin-bottom: 2rem; border-top: 3px solid var(--accent-purple);">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
+    <h3 class="font-hud" style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+      <i class="fa-solid fa-chess-knight" style="color: var(--accent-purple);"></i> MITRE ATT&CK® Enterprise Framework Alignment
+    </h3>
+    <span class="badge badge-purple" style="font-size: 0.72rem;">TACTICS & TECHNIQUES CORRELATED</span>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+    
+    <!-- Recon -->
+    <div style="background: var(--bg-surface-elevated); border: 1px solid {% if profile.recon_count > 0 %}var(--accent-purple){% else %}var(--border-color){% endif %}; border-radius: 8px; padding: 0.9rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+        <span class="badge {% if profile.recon_count > 0 %}badge-medium{% else %}badge-low{% endif %} font-mono" style="font-size: 0.72rem;">T1595.002</span>
+        <span style="font-size: 0.72rem; color: var(--text-muted);">Reconnaissance</span>
+      </div>
+      <div style="font-weight: 700; font-size: 0.88rem; color: var(--text-primary); margin-bottom: 0.25rem;">Active Scanning & Wordlist Probing</div>
+      <p style="font-size: 0.78rem; color: var(--text-secondary); margin: 0; line-height: 1.45;">
+        Probed hidden paths and sensitive config files. (Events: {{ profile.recon_count }})
+      </p>
+    </div>
+
+    <!-- Brute Force -->
+    <div style="background: var(--bg-surface-elevated); border: 1px solid {% if profile.brute_force_count > 0 %}var(--accent-amber){% else %}var(--border-color){% endif %}; border-radius: 8px; padding: 0.9rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+        <span class="badge {% if profile.brute_force_count > 0 %}badge-high{% else %}badge-low{% endif %} font-mono" style="font-size: 0.72rem;">T1110.001</span>
+        <span style="font-size: 0.72rem; color: var(--text-muted);">Credential Access</span>
+      </div>
+      <div style="font-weight: 700; font-size: 0.88rem; color: var(--text-primary); margin-bottom: 0.25rem;">Password Guessing / Stuffing</div>
+      <p style="font-size: 0.78rem; color: var(--text-secondary); margin: 0; line-height: 1.45;">
+        Rapid authentication attempts violating failed login policy. (Events: {{ profile.brute_force_count }})
+      </p>
+    </div>
+
+    <!-- Web Exploitation (SQLi / XSS) -->
+    <div style="background: var(--bg-surface-elevated); border: 1px solid {% if profile.sqli_count > 0 or profile.xss_count > 0 %}var(--accent-red){% else %}var(--border-color){% endif %}; border-radius: 8px; padding: 0.9rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+        <span class="badge {% if profile.sqli_count > 0 or profile.xss_count > 0 %}badge-critical{% else %}badge-low{% endif %} font-mono" style="font-size: 0.72rem;">T1190 / T1059</span>
+        <span style="font-size: 0.72rem; color: var(--text-muted);">Initial Access & Exec</span>
+      </div>
+      <div style="font-weight: 700; font-size: 0.88rem; color: var(--text-primary); margin-bottom: 0.25rem;">Exploit Public Application (SQLi / XSS)</div>
+      <p style="font-size: 0.78rem; color: var(--text-secondary); margin: 0; line-height: 1.45;">
+        Injected database queries and script payloads. (SQLi: {{ profile.sqli_count }}, XSS: {{ profile.xss_count }})
+      </p>
+    </div>
+
+    <!-- Path Traversal / Exfiltration -->
+    <div style="background: var(--bg-surface-elevated); border: 1px solid {% if profile.path_traversal_count > 0 or profile.risk_score >= 70 %}#e11d48{% else %}var(--border-color){% endif %}; border-radius: 8px; padding: 0.9rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+        <span class="badge {% if profile.path_traversal_count > 0 or profile.risk_score >= 70 %}badge-critical{% else %}badge-low{% endif %} font-mono" style="font-size: 0.72rem;">T1005 / T1083</span>
+        <span style="font-size: 0.72rem; color: var(--text-muted);">Collection & Exfil</span>
+      </div>
+      <div style="font-weight: 700; font-size: 0.88rem; color: var(--text-primary); margin-bottom: 0.25rem;">Local File Inclusion / Data Probe</div>
+      <p style="font-size: 0.78rem; color: var(--text-secondary); margin: 0; line-height: 1.45;">
+        Directory traversal patterns and file extraction probes. (LFI: {{ profile.path_traversal_count }})
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ICMF 5-Layer Analytical Score View Breakdown Cards -->
+<div style="margin-bottom: 1rem;">
+  <h3 class="font-hud" style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+    <i class="fa-solid fa-layer-group" style="color: var(--accent-purple);"></i> Intent-Centric Multi-Layer Fusion (ICMF) Score Views
+  </h3>
+</div>
+
+<div class="grid-cards" style="margin-bottom: 2rem;">
+  
+  <!-- 1. Rule View -->
+  <div class="stat-card" style="border-left: 4px solid var(--accent-amber);">
+    <div class="label">
+      <span>1. Rule View (25%)</span>
+      <i class="fa-solid fa-list-check" style="color: var(--accent-amber);"></i>
+    </div>
+    <div class="value code-font" style="color: var(--accent-amber);">{{ profile.rule_score|floatformat:1 }}</div>
+    <div class="sub-meta">Deterministic Signatures</div>
+  </div>
+
+  <!-- 2. Supervised ML View -->
+  <div class="stat-card" style="border-left: 4px solid var(--accent-emerald);">
+    <div class="label">
+      <span>2. ML View (25%)</span>
+      <i class="fa-solid fa-brain" style="color: var(--accent-emerald);"></i>
+    </div>
+    <div class="value code-font" style="color: var(--accent-emerald);">{{ profile.ml_score|floatformat:1 }}%</div>
+    <div class="sub-meta">Random Forest Prob.</div>
+  </div>
+
+  <!-- 3. Anomaly View -->
+  <div class="stat-card" style="border-left: 4px solid var(--accent-red);">
+    <div class="label">
+      <span>3. Anomaly View (15%)</span>
+      <i class="fa-solid fa-bolt" style="color: var(--accent-red);"></i>
+    </div>
+    <div class="value code-font" style="color: var(--accent-red);">{{ profile.anomaly_score|floatformat:1 }}</div>
+    <div class="sub-meta">Isolation Forest Deviation</div>
+  </div>
+
+  <!-- 4. Sequence View -->
+  <div class="stat-card" style="border-left: 4px solid var(--accent-purple);">
+    <div class="label">
+      <span>4. Sequence View (20%)</span>
+      <i class="fa-solid fa-chart-line" style="color: var(--accent-purple);"></i>
+    </div>
+    <div class="value code-font" style="color: var(--accent-purple);">{{ profile.sequence_score|floatformat:1 }}</div>
+    <div class="sub-meta">Markov Stage Transition</div>
+  </div>
+
+  <!-- 5. LLM View -->
+  <div class="stat-card" style="border-left: 4px solid var(--accent-cyan);">
+    <div class="label">
+      <span>5. LLM View (15%)</span>
+      <i class="fa-solid fa-robot" style="color: var(--accent-cyan);"></i>
+    </div>
+    <div class="value code-font" style="color: var(--accent-cyan);">{{ profile.llm_score|floatformat:1 }}</div>
+    <div class="sub-meta">AI Intent Synthesis</div>
+  </div>
+
+</div>
+
+<!-- AI Forensic Synthesis Terminal -->
+<div class="terminal-window" style="margin-bottom: 2rem;">
+  <div class="terminal-header">
+    <div class="terminal-dots">
+      <div class="terminal-dot dot-red"></div>
+      <div class="terminal-dot dot-yellow"></div>
+      <div class="terminal-dot dot-green"></div>
+    </div>
+    <div class="font-mono" style="font-size: 0.78rem; color: var(--text-secondary); display: flex; align-items: center; gap: 0.4rem;">
+      <i class="fa-solid fa-brain" style="color: var(--accent-purple);"></i>
+      <span>NEURAL FORENSIC REASONING // ICMF THREAT SYNTHESIS</span>
+    </div>
+    <span class="badge badge-purple" style="font-size: 0.65rem;">AI SYNTHESIZED</span>
+  </div>
+  <div class="terminal-body" style="background: var(--bg-surface-solid);">
+    <p style="color: var(--text-primary); font-size: 0.95rem; line-height: 1.65;">
+      {{ profile.llm_explanation|default:"No neural threat synthesis has been compiled yet for this target entity." }}
+    </p>
+  </div>
+</div>
+
+<!-- Predictive Attack Trajectory HUD -->
+<div class="cyber-card hud-card" style="margin-bottom: 2.25rem; border-left: 5px solid {% if severity == 'CRITICAL' %}var(--accent-red){% elif severity == 'HIGH' %}#fb923c{% elif severity == 'MEDIUM' %}var(--accent-amber){% else %}var(--accent-cyan){% endif %};">
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+    <div style="display: flex; align-items: center; gap: 0.6rem;">
+      <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--accent-cyan); font-size: 1.15rem;"></i>
+      <h3 class="font-hud" style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary);">
+        Predicted Future Attack Trajectory & Targeted Asset
+      </h3>
+    </div>
+    <span class="badge {% if severity == 'CRITICAL' %}badge-critical{% elif severity == 'HIGH' %}badge-high{% elif severity == 'MEDIUM' %}badge-medium{% else %}badge-low{% endif %}">
+      {{ severity }} CONFIDENCE
+    </span>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+    <div style="background: var(--bg-surface-elevated); padding: 0.85rem; border-radius: 8px; border: 1px solid var(--border-color);">
+      <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Forecasted Next Attack Vector</div>
+      <div class="font-hud" style="font-size: 1.25rem; font-weight: 800; color: var(--accent-cyan); margin-top: 0.2rem;">
+        {{ next_stage }}
+      </div>
+    </div>
+    <div style="background: var(--bg-surface-elevated); padding: 0.85rem; border-radius: 8px; border: 1px solid var(--border-color);">
+      <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Most Likely Target Asset / Endpoint</div>
+      <div class="font-hud" style="font-size: 1.25rem; font-weight: 800; color: var(--accent-amber); margin-top: 0.2rem;">
+        {{ target_asset }}
+      </div>
+    </div>
+  </div>
+
+  <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6; margin-bottom: 0.75rem;">
+    <strong>Reasoning:</strong> {{ reasoning }}
+  </p>
+
+  <div style="background: rgba(16, 185, 129, 0.08); border-left: 3px solid var(--accent-emerald); padding: 0.75rem; border-radius: 4px; font-size: 0.88rem; color: var(--text-primary);">
+    <strong style="color: var(--accent-emerald);"><i class="fa-solid fa-shield-halved"></i> Actionable Recommendation:</strong> {{ recommended_action }}
+  </div>
+</div>
+
+<!-- Plotly Visualization Charts -->
+<div class="cyber-card hud-card" style="margin-bottom: 2rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
+    <h3 class="font-hud" style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+      <i class="fa-solid fa-timeline" style="color: var(--accent-cyan);"></i> Chronological Attack Event Scatter Plot
+    </h3>
+    <span class="font-mono" style="font-size: 0.78rem; color: var(--text-muted);">INTERACTIVE FORENSIC ZOOM ENABLED</span>
+  </div>
+  <div id="chart" style="width: 100%; height: 440px;"></div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(460px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+  
+  <div class="cyber-card hud-card">
+    <h3 class="font-hud" style="font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1rem;">
+      <i class="fa-solid fa-chart-column" style="color: var(--accent-purple);"></i> Full Timeline Attack Volume
+    </h3>
+    <div id="densityChart" style="width: 100%; height: 360px;"></div>
+  </div>
+
+  <div class="cyber-card hud-card">
+    <h3 class="font-hud" style="font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1rem;">
+      <i class="fa-solid fa-magnifying-glass-chart" style="color: var(--accent-amber);"></i> Peak Burst Density Window
+    </h3>
+    <div id="densityChartZoom" style="width: 100%; height: 360px;"></div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+{{ events|json_script:"events-data" }}
+{{ density|json_script:"density-data" }}
+
+<script>
+  // IP Quarantine Toggle
+  document.getElementById('quarantineBtn')?.addEventListener('click', async () => {
+    try {
+      const res = await fetch('/api/toggle-block/{{ profile.ip_address }}/', { method: 'POST' });
+      const data = await res.json();
+      if (data.status === 'SUCCESS') {
+        location.reload();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  });
+
+  const eventsElem = document.getElementById('events-data');
+  const densityElem = document.getElementById('density-data');
+  const events = eventsElem ? JSON.parse(eventsElem.textContent) : [];
+  const density = densityElem ? JSON.parse(densityElem.textContent) : { minutes: [], recon: [], brute_force: [], sqli: [], xss: [], path_traversal: [] };
+
+  const types = {1: 'Recon', 2: 'Brute Force', 3: 'SQL Injection', 4: 'XSS', 5: 'Path Traversal'};
+  const colors = {1: '#c084fc', 2: '#fb923c', 3: '#ff4d6d', 4: '#38bdf8', 5: '#e11d48'};
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  function renderEmptyState(elemId, message) {
+    const el = document.getElementById(elemId);
+    if (!el) return;
+    el.innerHTML = `
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 220px; color: var(--text-muted); text-align: center; padding: 1.5rem;">
+        <i class="fa-solid fa-chart-line" style="font-size: 2.25rem; color: var(--accent-cyan); opacity: 0.6; margin-bottom: 0.75rem;"></i>
+        <div style="font-weight: 700; font-size: 0.95rem; color: var(--text-primary); margin-bottom: 0.25rem;">${message}</div>
+        <p style="font-size: 0.8rem; color: var(--text-secondary); max-width: 320px; margin: 0;">
+          Launch attack simulations from the <a href="/simulator/" style="color: var(--accent-cyan); text-decoration: underline;">Attack Studio</a> to populate real-time vector forensics.
+        </p>
+      </div>
+    `;
+  }
+
+  function renderCharts() {
+    if (typeof Plotly === 'undefined') {
+      const errHtml = `
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 200px; color: var(--accent-amber); text-align: center; padding: 1.5rem;">
+          <i class="fa-solid fa-triangle-exclamation" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+          <div style="font-weight: 700;">Plotly Library Offline</div>
+          <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.25rem;">Could not load visualization library from CDN. Check internet or adblock settings.</div>
+        </div>
+      `;
+      ['chart', 'densityChart', 'densityChartZoom'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = errHtml;
+      });
+      return;
+    }
+
+    if (!events || events.length === 0) {
+      renderEmptyState('chart', 'No Attack Vectors Recorded For This Entity');
+      renderEmptyState('densityChart', 'No Timeline Telemetry Ingested');
+      renderEmptyState('densityChartZoom', 'No Peak Burst Telemetry Window');
+      return;
+    }
+
+    const isDark = (document.documentElement.getAttribute('data-theme') || 'dark') === 'dark';
+    const gridColor = isDark ? 'rgba(51, 65, 85, 0.45)' : 'rgba(203, 213, 225, 0.7)';
+    const fontColor = isDark ? '#94a3b8' : '#475569';
+
+    const baseLayout = {
+      paper_bgcolor: 'rgba(0,0,0,0)',
+      plot_bgcolor: 'rgba(0,0,0,0)',
+      font: { color: fontColor, family: 'Plus Jakarta Sans, sans-serif' },
+      margin: { t: 30, r: 30, b: 85, l: 85 },
+      xaxis: {
+        gridcolor: gridColor,
+        zerolinecolor: gridColor,
+        tickfont: { color: fontColor, size: 10 },
+        automargin: true,
+        tickangle: -25
+      },
+      yaxis: {
+        gridcolor: gridColor,
+        zerolinecolor: gridColor,
+        tickfont: { color: fontColor }
+      }
+    };
+
+    // 1. Scatter Plot
+    const traces = [1, 2, 3, 4, 5].map(y => {
+      const filtered = events.filter(e => e.y === y);
+      return {
+        x: filtered.map(e => e.timestamp),
+        y: filtered.map(e => e.y),
+        mode: 'markers',
+        type: 'scatter',
+        name: types[y],
+        marker: { color: colors[y], size: 13, line: { color: '#ffffff', width: 1 } },
+        text: filtered.map(e => `${escapeHtml(e.method)} ${escapeHtml(e.path)} (Status ${e.status_code})<br>Intent: ${escapeHtml(e.intent || types[y])}`),
+        hovertemplate: '<b>%{text}</b><br>%{x}<extra></extra>'
+      };
+    });
+
+    Plotly.newPlot('chart', traces, {
+      ...baseLayout,
+      xaxis: {
+        ...baseLayout.xaxis,
+        title: { text: 'Timeline (Indian Standard Time)', standoff: 25 },
+        type: 'date',
+        tickformat: '%H:%M:%S<br>%d %b',
+        nticks: 7
+      },
+      yaxis: {
+        ...baseLayout.yaxis,
+        title: { text: 'Attack Vector', standoff: 20 },
+        tickvals: [1, 2, 3, 4, 5],
+        ticktext: ['Recon', 'Brute Force', 'SQL Injection', 'XSS', 'Path Traversal'],
+        range: [0.5, 5.5]
+      },
+      hovermode: 'closest'
+    }, { responsive: true, displayModeBar: false });
+
+    // 2. Full Timeline Bar Chart (Auto-sampled Date Axis)
+    const densityTraces = [
+      { x: density.minutes || [], y: density.recon || [], name: 'Recon', type: 'bar', marker: { color: '#c084fc' } },
+      { x: density.minutes || [], y: density.brute_force || [], name: 'Brute Force', type: 'bar', marker: { color: '#fb923c' } },
+      { x: density.minutes || [], y: density.sqli || [], name: 'SQL Injection', type: 'bar', marker: { color: '#ff4d6d' } },
+      { x: density.minutes || [], y: density.xss || [], name: 'XSS', type: 'bar', marker: { color: '#38bdf8' } },
+      { x: density.minutes || [], y: density.path_traversal || [], name: 'Path Traversal', type: 'bar', marker: { color: '#e11d48' } }
+    ];
+
+    Plotly.newPlot('densityChart', densityTraces, {
+      ...baseLayout,
+      barmode: 'stack',
+      xaxis: {
+        ...baseLayout.xaxis,
+        title: { text: 'Time Interval (Indian Standard Time)', standoff: 25 },
+        type: 'date',
+        tickformat: '%H:%M<br>%d %b',
+        nticks: 6
+      },
+      yaxis: {
+        ...baseLayout.yaxis,
+        title: { text: 'Attack Volume', standoff: 20 }
+      },
+      hovermode: 'closest'
+    }, { responsive: true, displayModeBar: false });
+
+    // 3. Zoomed Burst Density Chart (Only Peak Window Slice)
+    let maxTotal = 0;
+    let maxIndex = 0;
+    const minutes = density.minutes || [];
+    if (minutes.length > 0) {
+      minutes.forEach((m, i) => {
+        const total = (density.recon[i] || 0) + (density.brute_force[i] || 0) + (density.sqli[i] || 0) + (density.xss[i] || 0) + (density.path_traversal[i] || 0);
+        if (total > maxTotal) {
+          maxTotal = total;
+          maxIndex = i;
+        }
+      });
+    }
+
+    const startIdx = Math.max(0, maxIndex - 3);
+    const endIdx = Math.min(minutes.length, maxIndex + 4);
+    const zoomMinutes = minutes.slice(startIdx, endIdx);
+
+    // Format peak labels to clean short time (HH:MM)
+    const formattedLabels = zoomMinutes.map(m => (m && m.length >= 16) ? m.substring(11, 16) : m);
+
+    const zoomTraces = [
+      { x: formattedLabels, y: (density.recon || []).slice(startIdx, endIdx), name: 'Recon', type: 'bar', marker: { color: '#c084fc' } },
+      { x: formattedLabels, y: (density.brute_force || []).slice(startIdx, endIdx), name: 'Brute Force', type: 'bar', marker: { color: '#fb923c' } },
+      { x: formattedLabels, y: (density.sqli || []).slice(startIdx, endIdx), name: 'SQL Injection', type: 'bar', marker: { color: '#ff4d6d' } },
+      { x: formattedLabels, y: (density.xss || []).slice(startIdx, endIdx), name: 'XSS', type: 'bar', marker: { color: '#38bdf8' } },
+      { x: formattedLabels, y: (density.path_traversal || []).slice(startIdx, endIdx), name: 'Path Traversal', type: 'bar', marker: { color: '#e11d48' } }
+    ];
+
+    Plotly.newPlot('densityChartZoom', zoomTraces, {
+      ...baseLayout,
+      barmode: 'stack',
+      xaxis: {
+        ...baseLayout.xaxis,
+        title: { text: 'Peak Burst Window (HH:MM IST)', standoff: 25 },
+        type: 'category',
+        tickangle: 0,
+        tickfont: { color: fontColor, size: 11 }
+      },
+      yaxis: {
+        ...baseLayout.yaxis,
+        title: { text: 'Requests / Minute', standoff: 20 }
+      },
+      hovermode: 'closest'
+    }, { responsive: true, displayModeBar: false });
+  }
+
+  // Ensure DOM is fully ready before rendering
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', renderCharts);
+  } else {
+    renderCharts();
+  }
+
+  window.addEventListener('sentinel:themeChange', () => {
+    renderCharts();
+  });
+</script>
+{% endblock %}
