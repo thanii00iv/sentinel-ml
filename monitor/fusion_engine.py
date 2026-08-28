@@ -17,10 +17,17 @@ WEIGHT_LLM = 0.15
 
 def infer_event_intent(log):
     """Infer high-level attacker intent from request telemetry and signatures."""
+    target_user = getattr(log, 'username', None)
+    user_suffix = f" (Target: {target_user})" if target_user else ""
+    path = getattr(log, 'path', '') or ''
+    is_login = getattr(log, 'is_login_attempt', False) or '/login' in path
+
     if getattr(log, 'is_sqli_suspect', False):
+        if is_login:
+            return f"SQL Injection (Auth Bypass){user_suffix}"
         return "SQL Injection Attempt"
     if getattr(log, 'is_brute_force_suspect', False):
-        return "Credential Guessing / Brute-Force"
+        return f"Brute Force / Credential Guessing{user_suffix}"
     if getattr(log, 'is_xss_suspect', False):
         return "Cross-Site Scripting (XSS)"
     if getattr(log, 'is_path_traversal_suspect', False):
@@ -28,7 +35,7 @@ def infer_event_intent(log):
     if getattr(log, 'is_recon_suspect', False):
         return "Reconnaissance & Directory Fuzzing"
     if getattr(log, 'is_login_attempt', False) and not getattr(log, 'login_success', False):
-        return "Failed Authentication"
+        return f"Brute Force Attempt{user_suffix}"
     if getattr(log, 'entropy_score', 0) > 4.5:
         return "High-Entropy Payload Probe"
     return "Legitimate Web Traffic"

@@ -15,26 +15,30 @@ from .fusion_engine import evaluate_and_fuse_profile
 def simulate_sqli(ip="198.51.100.45", count=3):
     """Simulate SQL Injection attack traffic."""
     payloads = [
-        ("GET", "/api/search/?q=' UNION SELECT id, username, password FROM auth_user --", 200),
-        ("POST", "/products/?category=1' OR '1'='1", 500),
-        ("GET", "/users/profile/?id=1; DROP TABLE temp_logs; --", 403),
-        ("POST", "/login/?user=admin' OR 1=1 --", 200),
+        ("GET", "/api/search/?q=' UNION SELECT id, username, password FROM auth_user --", 200, None),
+        ("POST", "/products/?category=1' OR '1'='1", 500, None),
+        ("GET", "/users/profile/?id=1; DROP TABLE temp_logs; --", 403, None),
+        ("POST", "/login/?user=admin' OR 1=1 --", 200, "admin"),
     ]
 
     profile, _ = IPRiskProfile.objects.get_or_create(ip_address=ip)
     logs_created = []
 
     for i in range(count):
-        method, path, status = random.choice(payloads)
+        method, path, status, user = random.choice(payloads)
+        is_login = '/login' in path
         log = RequestLog.objects.create(
             ip_address=ip,
             method=method,
             path=path,
             status_code=status,
+            username=user,
+            is_login_attempt=is_login,
+            login_success=False if is_login else None,
             user_agent="Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/119.0 (sqlmap/1.7.2)",
             response_time_ms=random.uniform(120.0, 380.0),
             is_sqli_suspect=True,
-            inferred_intent="SQL Injection Attempt",
+            inferred_intent=f"SQL Injection on Login (Auth Bypass) (Target: {user})" if is_login else "SQL Injection Attempt",
             entropy_score=calculate_entropy(path),
             request_rate=12.0
         )
@@ -63,17 +67,16 @@ def simulate_brute_force(ip="203.0.113.88", count=6):
             username=user,
             is_login_attempt=True,
             login_success=False,
-            is_brute_force_suspect=(i >= 4),  # Suspect after threshold
-            inferred_intent="Credential Guessing / Brute-Force",
+            is_brute_force_suspect=True,
+            inferred_intent=f"Brute Force / Credential Guessing (Target: {user})",
             entropy_score=calculate_entropy(user),
             request_rate=28.0
         )
-        if i >= 4:
-            profile.brute_force_count += 1
+        profile.brute_force_count += 1
         logs_created.append(log)
 
     evaluate_and_fuse_profile(profile, latest_log=logs_created[-1])
-    return {'status': 'SUCCESS', 'type': 'Login Brute-Force', 'ip': ip, 'count': count}
+    return {'status': 'SUCCESS', 'type': 'Brute Force', 'ip': ip, 'count': count}
 
 
 def simulate_recon(ip="192.0.2.140", count=8):

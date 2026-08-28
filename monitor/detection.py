@@ -230,6 +230,7 @@ HONEYPOT_PATHS = {
 def parse_device_info(user_agent: str) -> dict:
     """
     Parse a User-Agent string to extract precise Device Model, OS, Browser, and Icon.
+    Supports all mobile manufacturers, tablets, workstations, and security attack engines.
     """
     if not user_agent:
         return {
@@ -244,8 +245,69 @@ def parse_device_info(user_agent: str) -> dict:
 
     ua = user_agent.lower()
 
-    # 1. Device Type & OS Detection
-    if 'iphone' in ua:
+    # 1. Specialized Attack Tools & CLI Engines
+    if 'hydra' in ua:
+        device_name = 'THC-Hydra Brute-Forcer'
+        device_type = 'Adversary Tool'
+        os_name = 'Security Tool'
+        icon = 'fa-solid fa-key'
+        badge = '⚡ THC-Hydra Cracker'
+    elif 'sqlmap' in ua:
+        device_name = 'sqlmap Attack Engine'
+        device_type = 'Adversary Tool'
+        os_name = 'Security Tool'
+        icon = 'fa-solid fa-bug'
+        badge = '👾 sqlmap Injection Tool'
+    elif 'burp' in ua or 'burpsuite' in ua:
+        device_name = 'Burp Suite Proxy'
+        device_type = 'Adversary Tool'
+        os_name = 'Security Tool'
+        icon = 'fa-solid fa-shield-virus'
+        badge = '🛡️ Burp Suite'
+    elif 'dirbuster' in ua or 'gobuster' in ua or 'ffuf' in ua:
+        device_name = 'Directory Fuzzing Scanner'
+        device_type = 'Scanner'
+        os_name = 'CLI Tool'
+        icon = 'fa-solid fa-radar'
+        badge = '🔍 Web Fuzz Scanner'
+    elif 'nikto' in ua:
+        device_name = 'Nikto Vulnerability Scanner'
+        device_type = 'Scanner'
+        os_name = 'CLI Tool'
+        icon = 'fa-solid fa-satellite-dish'
+        badge = '📡 Nikto Scanner'
+    elif 'nmap' in ua:
+        device_name = 'Nmap Security Scanner'
+        device_type = 'Scanner'
+        os_name = 'CLI Tool'
+        icon = 'fa-solid fa-crosshairs'
+        badge = '🎯 Nmap Scanner'
+    elif 'metasploit' in ua:
+        device_name = 'Metasploit Framework'
+        device_type = 'Adversary Tool'
+        os_name = 'Exploit Engine'
+        icon = 'fa-solid fa-skull'
+        badge = '☠️ Metasploit Node'
+    elif 'curl' in ua:
+        device_name = 'cURL HTTP Utility'
+        device_type = 'CLI Client'
+        os_name = 'Terminal'
+        icon = 'fa-solid fa-terminal'
+        badge = '💻 cURL CLI'
+    elif 'postman' in ua:
+        device_name = 'Postman API Client'
+        device_type = 'API Tool'
+        os_name = 'Developer Tool'
+        icon = 'fa-solid fa-paper-plane'
+        badge = '🚀 Postman Client'
+    elif 'python-requests' in ua or 'python' in ua or 'httpclient' in ua:
+        device_name = 'Python Automated Script'
+        device_type = 'Script Bot'
+        os_name = 'Python Runtime'
+        icon = 'fa-brands fa-python'
+        badge = '🐍 Python Script / Bot'
+    # 2. Apple Devices
+    elif 'iphone' in ua:
         device_name = 'Apple iPhone'
         device_type = 'Mobile'
         os_name = 'iOS'
@@ -257,62 +319,106 @@ def parse_device_info(user_agent: str) -> dict:
         os_name = 'iPadOS'
         icon = 'fa-brands fa-apple'
         badge = '📱 iPad'
-    elif 'android' in ua:
-        device_name = 'Android Smartphone'
-        device_type = 'Mobile'
-        os_name = 'Android'
-        icon = 'fa-brands fa-android'
-        badge = '🤖 Android'
     elif 'macintosh' in ua or 'mac os x' in ua:
         device_name = 'Apple Mac'
         device_type = 'Desktop'
         os_name = 'macOS'
         icon = 'fa-brands fa-apple'
         badge = '💻 Mac'
+    # 3. Android Mobile Brand Specifics
+    elif 'android' in ua:
+        device_type = 'Mobile'
+        os_name = 'Android'
+        icon = 'fa-brands fa-android'
+        if 'samsung' in ua or 'sm-' in ua:
+            device_name = 'Samsung Galaxy'
+            badge = '📱 Samsung Galaxy'
+        elif 'pixel' in ua:
+            device_name = 'Google Pixel'
+            badge = '📱 Google Pixel'
+        elif 'xiaomi' in ua or 'redmi' in ua or 'mi ' in ua or 'poco' in ua:
+            device_name = 'Xiaomi / Redmi'
+            badge = '📱 Xiaomi / Redmi'
+        elif 'oneplus' in ua:
+            device_name = 'OnePlus Smartphone'
+            badge = '📱 OnePlus Phone'
+        elif 'vivo' in ua:
+            device_name = 'Vivo Smartphone'
+            badge = '📱 Vivo Mobile'
+        elif 'oppo' in ua:
+            device_name = 'Oppo Smartphone'
+            badge = '📱 Oppo Mobile'
+        elif 'realme' in ua:
+            device_name = 'Realme Smartphone'
+            badge = '📱 Realme Mobile'
+        elif 'motorola' in ua or 'moto' in ua:
+            device_name = 'Motorola Smartphone'
+            badge = '📱 Moto Mobile'
+        else:
+            device_name = 'Android Smartphone'
+            badge = '🤖 Android Phone'
+    # 4. Windows
     elif 'windows nt 10.0' in ua or 'windows' in ua:
         device_name = 'Windows PC'
         device_type = 'Desktop'
         os_name = 'Windows 10/11'
         icon = 'fa-brands fa-windows'
         badge = '💻 Windows PC'
+    # 5. Linux Distributions
+    elif 'kali' in ua:
+        device_name = 'Kali Linux PenTest Node'
+        device_type = 'Security Station'
+        os_name = 'Kali Linux'
+        icon = 'fa-brands fa-linux'
+        badge = '🐉 Kali Linux'
+    elif 'ubuntu' in ua:
+        device_name = 'Ubuntu Linux'
+        device_type = 'Desktop'
+        os_name = 'Ubuntu'
+        icon = 'fa-brands fa-ubuntu'
+        badge = '🐧 Ubuntu Linux'
+    elif 'arch' in ua:
+        device_name = 'Arch Linux'
+        device_type = 'Desktop'
+        os_name = 'Arch'
+        icon = 'fa-brands fa-linux'
+        badge = '🐧 Arch Linux'
     elif 'linux' in ua:
         device_name = 'Linux Station'
         device_type = 'Desktop'
         os_name = 'Linux'
         icon = 'fa-brands fa-linux'
-        badge = '🐧 Linux'
-    elif 'curl' in ua or 'postman' in ua or 'python' in ua or 'httpclient' in ua or 'nmap' in ua or 'nikto' in ua:
-        device_name = 'Automated Attack Engine'
-        device_type = 'Scanner'
-        os_name = 'CLI'
-        icon = 'fa-solid fa-terminal'
-        badge = '👾 Automated Script'
+        badge = '🐧 Linux Machine'
     else:
         device_name = 'Network Workstation'
         device_type = 'Client'
-        os_name = 'OS Client'
+        os_name = 'Client Node'
         icon = 'fa-solid fa-laptop'
         badge = '💻 Client Station'
 
-    # 2. Browser Detection
+    # Browser Detection
     if 'edg/' in ua or 'edge/' in ua:
         browser = 'Microsoft Edge'
-    elif 'chrome' in ua and 'safari' in ua and 'edg' not in ua:
+    elif 'chrome' in ua and 'safari' in ua and 'edg' not in ua and 'samsung' not in ua:
         browser = 'Google Chrome'
     elif 'safari' in ua and 'chrome' not in ua:
         browser = 'Apple Safari'
     elif 'firefox' in ua:
         browser = 'Mozilla Firefox'
+    elif 'samsungbrowser' in ua:
+        browser = 'Samsung Internet'
     elif 'opera' in ua or 'opr/' in ua:
         browser = 'Opera'
+    elif 'brave' in ua:
+        browser = 'Brave'
     elif 'curl' in ua:
         browser = 'cURL CLI'
     elif 'postman' in ua:
         browser = 'Postman Client'
     elif 'python' in ua:
-        browser = 'Python Requests'
+        browser = 'Python HTTP'
     else:
-        browser = 'Web Browser'
+        browser = 'Web Client'
 
     return {
         'device_name': device_name,

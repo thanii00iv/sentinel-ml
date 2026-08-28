@@ -54,6 +54,49 @@
     0% { background: rgba(56, 189, 248, 0.35); }
     100% { background: transparent; }
   }
+  .threat-filter-btn {
+    background: var(--bg-surface-elevated, #0d1527);
+    border: 1px solid var(--border-color, rgba(56, 189, 248, 0.2));
+    color: var(--text-secondary, #94a3b8);
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.2s ease;
+    font-family: inherit;
+  }
+  .threat-filter-btn:hover {
+    border-color: var(--accent-cyan, #38bdf8);
+    color: var(--text-primary, #f1f5f9);
+    background: rgba(56, 189, 248, 0.1);
+  }
+  .threat-filter-btn.active {
+    background: rgba(56, 189, 248, 0.18);
+    border-color: var(--accent-cyan, #38bdf8);
+    color: #fff;
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+  }
+  .threat-filter-btn.brute-filter.active {
+    background: rgba(245, 158, 11, 0.2);
+    border-color: #f59e0b;
+    color: #fef3c7;
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.35);
+  }
+  .threat-filter-btn.remaining-filter.active {
+    background: rgba(168, 85, 247, 0.2);
+    border-color: #a855f7;
+    color: #f3e8ff;
+    box-shadow: 0 0 12px rgba(168, 85, 247, 0.35);
+  }
+  .filter-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    opacity: 0.85;
+  }
 </style>
 {% endblock %}
 
@@ -332,23 +375,54 @@
 
   <div class="table-container">
     
-    <!-- Table Interactive Toolbar -->
-    <div class="table-toolbar">
-      <div class="search-input-wrap">
-        <i class="fa-solid fa-magnifying-glass"></i>
-        <input type="text" placeholder="Filter incidents by IP, method, intent, path..." data-table-search="recentAttacksTable">
+    <!-- Table Interactive Filter Buttons & Search Toolbar -->
+    <div style="padding: 1rem 1.25rem 0.5rem 1.25rem; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 0.85rem;">
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+          <span style="font-size: 0.78rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; font-weight: 700; margin-right: 0.25rem;">
+            <i class="fa-solid fa-filter" style="color: var(--accent-cyan);"></i> FILTER STREAM:
+          </span>
+          <button type="button" class="threat-filter-btn active" data-filter="all">
+            <i class="fa-solid fa-layer-group"></i> All Attacks
+          </button>
+          <button type="button" class="threat-filter-btn brute-filter" data-filter="brute_force">
+            <i class="fa-solid fa-key" style="color: var(--accent-amber);"></i> Brute Force
+          </button>
+          <button type="button" class="threat-filter-btn sub-filter" data-filter="sqli">
+            <i class="fa-solid fa-bug" style="color: var(--accent-red);"></i> SQLi
+          </button>
+          <button type="button" class="threat-filter-btn sub-filter" data-filter="xss">
+            <i class="fa-solid fa-code" style="color: var(--accent-cyan);"></i> XSS
+          </button>
+          <button type="button" class="threat-filter-btn sub-filter" data-filter="recon">
+            <i class="fa-solid fa-radar" style="color: var(--accent-purple);"></i> Recon
+          </button>
+          <button type="button" class="threat-filter-btn sub-filter" data-filter="path_traversal">
+            <i class="fa-solid fa-folder-open" style="color: #f43f5e;"></i> LFI
+          </button>
+        </div>
       </div>
-      <div style="font-size: 0.8rem; color: var(--text-muted);" class="font-mono">
-        SHOWING LATEST {{ recent_attacks|length }} INCIDENTS
+
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; width: 100%; flex-wrap: wrap;">
+        <div class="search-input-wrap" style="flex: 1; max-width: 480px; min-width: 240px;">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" placeholder="Filter incidents by IP, method, intent, user, path..." data-table-search="recentAttacksTable">
+        </div>
+        <div class="hud-status-badge font-mono" style="background: rgba(13, 21, 39, 0.95); border: 1px solid var(--border-color); padding: 0.45rem 0.95rem; border-radius: 6px; font-size: 0.78rem; color: var(--accent-cyan); display: inline-flex; align-items: center; gap: 0.5rem; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06); flex-shrink: 0;">
+          <i class="fa-solid fa-satellite-dish" style="font-size: 0.75rem; color: var(--accent-cyan);"></i>
+          <span data-threat-showing-count>SHOWING {{ recent_attacks|length }} INCIDENTS</span>
+        </div>
       </div>
-    </div>    <div class="table-responsive">
+    </div>
+
+    <div class="table-responsive">
       <table id="recentAttacksTable" style="min-width: 1050px;">
         <thead>
           <tr>
             <th style="width: 140px;">Timestamp</th>
             <th style="width: 160px;">Attacker IP</th>
             <th style="width: 220px;">Origin Device & Location</th>
-            <th style="width: 200px;">Inferred Attacker Intent</th>
+            <th style="width: 230px;">Inferred Attacker Intent</th>
             <th>HTTP Target Path</th>
             <th style="width: 90px;">Status</th>
             <th style="width: 120px; text-align: right;">Action</th>
@@ -356,7 +430,7 @@
         </thead>
         <tbody>
           {% for attack in recent_attacks %}
-          <tr data-log-id="{{ attack.id }}">
+          <tr data-log-id="{{ attack.id }}" data-category="{{ attack.attack_category }}" data-is-brute="{{ attack.is_login_brute|yesno:'true,false' }}">
             <td class="font-mono" style="color: var(--text-muted); font-size: 0.82rem; white-space: nowrap;">
               <i class="fa-regular fa-clock" style="margin-right: 0.35rem; color: var(--accent-cyan);"></i>
               {{ attack.timestamp|date:"Y-m-d H:i:s" }}
@@ -381,13 +455,40 @@
               </div>
             </td>
             <td>
-              <span class="badge {% if 'SQL' in attack.inferred_intent or 'Injection' in attack.inferred_intent %}badge-critical{% elif 'Brute' in attack.inferred_intent %}badge-high{% elif 'Recon' in attack.inferred_intent %}badge-medium{% else %}badge-cyan{% endif %}" style="font-size: 0.72rem; white-space: nowrap;">
+              {% if attack.is_login_brute %}
+              <span class="badge badge-high" style="background: rgba(251, 146, 60, 0.16); color: #fb923c; border: 1px solid rgba(251, 146, 60, 0.4); font-size: 0.72rem; white-space: nowrap;">
+                <i class="fa-solid fa-key" style="margin-right: 3px;"></i> {{ attack.inferred_intent }}
+              </span>
+              {% elif 'SQL' in attack.inferred_intent or 'Injection' in attack.inferred_intent %}
+              <span class="badge badge-critical" style="font-size: 0.72rem; white-space: nowrap;">
+                <i class="fa-solid fa-bug" style="margin-right: 3px;"></i> {{ attack.inferred_intent }}
+              </span>
+              {% elif 'Recon' in attack.inferred_intent %}
+              <span class="badge badge-medium" style="font-size: 0.72rem; white-space: nowrap;">
+                <i class="fa-solid fa-radar" style="margin-right: 3px;"></i> {{ attack.inferred_intent }}
+              </span>
+              {% elif 'XSS' in attack.inferred_intent or 'Scripting' in attack.inferred_intent %}
+              <span class="badge badge-cyan" style="font-size: 0.72rem; white-space: nowrap;">
+                <i class="fa-solid fa-code" style="margin-right: 3px;"></i> {{ attack.inferred_intent }}
+              </span>
+              {% elif 'Path' in attack.inferred_intent or 'Inclusion' in attack.inferred_intent %}
+              <span class="badge badge-critical" style="background: rgba(244, 63, 94, 0.16); color: #f43f5e; border: 1px solid rgba(244, 63, 94, 0.4); font-size: 0.72rem; white-space: nowrap;">
+                <i class="fa-solid fa-folder-open" style="margin-right: 3px;"></i> {{ attack.inferred_intent }}
+              </span>
+              {% else %}
+              <span class="badge badge-cyan" style="font-size: 0.72rem; white-space: nowrap;">
                 {{ attack.inferred_intent }}
               </span>
+              {% endif %}
             </td>
             <td class="font-mono" style="max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
               <span style="color: var(--accent-cyan); font-weight: 700; margin-right: 0.3rem;">{{ attack.method }}</span>
               <span>{{ attack.path }}</span>
+              {% if attack.username %}
+              <div style="font-size: 0.72rem; color: #fb923c; font-family: 'JetBrains Mono', monospace; margin-top: 2px;">
+                <i class="fa-solid fa-user-secret" style="margin-right: 2px;"></i> Target: <strong>{{ attack.username }}</strong>
+              </div>
+              {% endif %}
             </td>
             <td>
               <span class="font-mono" style="font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 4px; {% if attack.status_code >= 400 %}background: rgba(255, 77, 109, 0.12); color: var(--accent-red); border: 1px solid rgba(255,77,109,0.3);{% else %}background: rgba(16, 185, 129, 0.12); color: var(--accent-emerald); border: 1px solid rgba(16,185,129,0.3);{% endif %}">
@@ -543,7 +644,53 @@
   }
 
   // =========================================================================
-  // 2. Real-Time Server-Sent Events (SSE) Live Feed (Glitch-Free & Deduplicated)
+  // 2. Interactive Attack Stream Category Filters (Brute-Force & Multi-Vector)
+  // =========================================================================
+  let currentThreatFilter = 'all';
+
+  function initThreatFilters() {
+    const filterBtns = document.querySelectorAll('.threat-filter-btn');
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentThreatFilter = btn.getAttribute('data-filter') || 'all';
+        applyThreatFilter();
+      });
+    });
+  }
+
+  function applyThreatFilter() {
+    const rows = document.querySelectorAll('#recentAttacksTable tbody tr[data-log-id]');
+    let visibleCount = 0;
+
+    rows.forEach(row => {
+      const cat = row.getAttribute('data-category') || '';
+      const isBrute = row.getAttribute('data-is-brute') === 'true' || cat === 'brute_force';
+
+      let show = false;
+      if (currentThreatFilter === 'all') {
+        show = true;
+      } else if (currentThreatFilter === 'brute_force') {
+        show = isBrute;
+      } else if (currentThreatFilter === 'remaining') {
+        show = !isBrute;
+      } else if (currentThreatFilter === cat) {
+        show = true;
+      }
+
+      row.style.display = show ? '' : 'none';
+      if (show) visibleCount++;
+    });
+
+    const statusEl = document.querySelector('[data-threat-showing-count]');
+    if (statusEl) {
+      statusEl.innerText = `SHOWING ${visibleCount} INCIDENTS`;
+    }
+  }
+
+  // =========================================================================
+  // 3. Real-Time Server-Sent Events (SSE) Live Feed (Glitch-Free & Deduplicated)
   // =========================================================================
   const renderedLogIds = new Set();
 
@@ -597,8 +744,38 @@
     if (flaggedEl && log.flagged_ips !== undefined) flaggedEl.innerText = log.flagged_ips;
     if (blockedEl && log.blocked_ips !== undefined) blockedEl.innerText = log.blocked_ips;
 
-    // 2. Check if this is an attack incident
-    const isSecurityIncident = log.is_attack || (log.intent && !log.intent.toLowerCase().includes('legitimate'));
+    // Update all category filter badge counts dynamically in real time
+    if (log.total_attacks_count !== undefined) {
+      const el = document.querySelector('.total-count-badge');
+      if (el) el.innerText = `(${log.total_attacks_count})`;
+    }
+    if (log.brute_count !== undefined) {
+      const el = document.querySelector('.brute-count-badge');
+      if (el) el.innerText = `(${log.brute_count})`;
+    }
+    if (log.remaining_count !== undefined) {
+      const el = document.querySelector('.remaining-count-badge');
+      if (el) el.innerText = `(${log.remaining_count})`;
+    }
+    if (log.sqli_count !== undefined) {
+      const el = document.querySelector('.sqli-count-badge');
+      if (el) el.innerText = `(${log.sqli_count})`;
+    }
+    if (log.xss_count !== undefined) {
+      const el = document.querySelector('.xss-count-badge');
+      if (el) el.innerText = `(${log.xss_count})`;
+    }
+    if (log.recon_count !== undefined) {
+      const el = document.querySelector('.recon-count-badge');
+      if (el) el.innerText = `(${log.recon_count})`;
+    }
+    if (log.lfi_count !== undefined) {
+      const el = document.querySelector('.lfi-count-badge');
+      if (el) el.innerText = `(${log.lfi_count})`;
+    }
+
+    // 2. Check if this is an attack incident or login attempt
+    const isSecurityIncident = log.is_attack || log.is_brute || (log.intent && !log.intent.toLowerCase().includes('legitimate'));
 
     if (isSecurityIncident) {
       // Prevent duplicate row glitch
@@ -611,7 +788,24 @@
         const emptyRow = tableBody.querySelector('.no-filter');
         if (emptyRow) emptyRow.remove();
 
-        const badgeClass = (log.intent.includes('SQL') || log.intent.includes('Injection')) ? 'badge-critical' : (log.intent.includes('Brute') ? 'badge-high' : 'badge-cyan');
+        const cat = log.category || (log.is_brute ? 'brute_force' : 'remaining');
+        const isBrute = Boolean(log.is_brute || cat === 'brute_force');
+
+        let badgeHtml = '';
+        if (isBrute) {
+          badgeHtml = `<span class="badge badge-high" style="background: rgba(251, 146, 60, 0.16); color: #fb923c; border: 1px solid rgba(251, 146, 60, 0.4); font-size: 0.72rem; white-space: nowrap;"><i class="fa-solid fa-key" style="margin-right: 3px;"></i> ${log.intent}</span>`;
+        } else if (log.intent.includes('SQL') || log.intent.includes('Injection')) {
+          badgeHtml = `<span class="badge badge-critical" style="font-size: 0.72rem; white-space: nowrap;"><i class="fa-solid fa-bug" style="margin-right: 3px;"></i> ${log.intent}</span>`;
+        } else if (log.intent.includes('Recon')) {
+          badgeHtml = `<span class="badge badge-medium" style="font-size: 0.72rem; white-space: nowrap;"><i class="fa-solid fa-radar" style="margin-right: 3px;"></i> ${log.intent}</span>`;
+        } else if (log.intent.includes('XSS') || log.intent.includes('Scripting')) {
+          badgeHtml = `<span class="badge badge-cyan" style="font-size: 0.72rem; white-space: nowrap;"><i class="fa-solid fa-code" style="margin-right: 3px;"></i> ${log.intent}</span>`;
+        } else if (log.intent.includes('Path') || log.intent.includes('Inclusion')) {
+          badgeHtml = `<span class="badge badge-critical" style="background: rgba(244, 63, 94, 0.16); color: #f43f5e; border: 1px solid rgba(244, 63, 94, 0.4); font-size: 0.72rem; white-space: nowrap;"><i class="fa-solid fa-folder-open" style="margin-right: 3px;"></i> ${log.intent}</span>`;
+        } else {
+          badgeHtml = `<span class="badge badge-cyan" style="font-size: 0.72rem; white-space: nowrap;">${log.intent}</span>`;
+        }
+
         const statusStyle = log.status_code >= 400 ? 'background: rgba(255, 77, 109, 0.12); color: var(--accent-red); border: 1px solid rgba(255,77,109,0.3);' : 'background: rgba(16, 185, 129, 0.12); color: var(--accent-emerald); border: 1px solid rgba(16,185,129,0.3);';
 
         const deviceBadge = log.device_badge || '📱 Mobile Device';
@@ -620,8 +814,12 @@
         const city = log.city || 'Local Area';
         const country = log.country || 'Network';
 
+        const userHtml = log.username ? `<div style="font-size: 0.72rem; color: #fb923c; font-family: 'JetBrains Mono', monospace; margin-top: 2px;"><i class="fa-solid fa-user-secret" style="margin-right: 2px;"></i> Target: <strong>${log.username}</strong></div>` : '';
+
         const newRow = document.createElement('tr');
         newRow.setAttribute('data-log-id', log.id);
+        newRow.setAttribute('data-category', cat);
+        newRow.setAttribute('data-is-brute', isBrute ? 'true' : 'false');
         newRow.className = 'new-row-pulse';
         newRow.innerHTML = `
           <td class="font-mono" style="color: var(--text-muted); font-size: 0.82rem; white-space: nowrap;">
@@ -648,13 +846,12 @@
             </div>
           </td>
           <td>
-            <span class="badge ${badgeClass}" style="font-size: 0.72rem; white-space: nowrap;">
-              ${log.intent}
-            </span>
+            ${badgeHtml}
           </td>
           <td class="font-mono" style="max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
             <span style="color: var(--accent-cyan); font-weight: 700; margin-right: 0.3rem;">${log.method}</span>
             <span>${log.path}</span>
+            ${userHtml}
           </td>
           <td>
             <span class="font-mono" style="font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 4px; ${statusStyle}">
@@ -689,11 +886,57 @@
           });
         }
 
-        // Limit table to 15 rows cleanly
-        while (tableBody.children.length > 15) {
+        // Limit table to 25 rows cleanly
+        while (tableBody.children.length > 25) {
           const removedRow = tableBody.removeChild(tableBody.lastChild);
           const oldId = parseInt(removedRow.getAttribute('data-log-id'), 10);
           if (oldId) renderedLogIds.delete(oldId);
+        }
+
+        // Apply active filter to newly added row
+        applyThreatFilter();
+
+        // Real-Time Threat Map: Instantly place/update device pin on cyber map
+        if (map && markersLayer && log.lat && log.lng) {
+          const tierClass = (log.intent.includes('SQL') || log.intent.includes('Injection') || log.intent.includes('Path')) ? 'critical' : (log.is_brute ? 'high' : 'medium');
+          const popupContent = `
+            <div style="font-size: 0.85rem; line-height: 1.5; min-width: 210px;">
+              <div style="font-weight: 800; font-family: monospace; color: var(--accent-cyan); font-size: 0.95rem; margin-bottom: 0.2rem; display: flex; justify-content: space-between; align-items: center;">
+                <span><i class="fa-solid fa-network-wired"></i> ${log.ip}</span>
+                <span style="font-size: 0.72rem; padding: 0.15rem 0.4rem; border-radius: 4px; background: rgba(255, 77, 109, 0.2); color: #ff4d6d; border: 1px solid rgba(255, 77, 109, 0.5);">LIVE ATTACK</span>
+              </div>
+              <div style="margin-bottom: 0.4rem; font-weight: 600; color: #f1f5f9; display: flex; align-items: center; gap: 0.4rem;">
+                <i class="${deviceIcon}" style="color: #38bdf8;"></i>
+                <span>${deviceBadge} &bull; ${browser}</span>
+              </div>
+              <div style="color: #94a3b8; font-size: 0.78rem; margin-bottom: 0.45rem;">
+                <i class="fa-solid fa-location-dot" style="color: #ff4d6d;"></i> ${city}, ${country}
+                <div style="color: #64748b; font-size: 0.72rem; margin-top: 1px;">${log.asn || 'Live Ingested Telemetry'}</div>
+              </div>
+              <div style="font-size: 0.78rem; color: #fb923c; margin-bottom: 0.4rem; font-weight: 700;">
+                Intent: <span>${log.intent}</span>
+              </div>
+              <div style="text-align: right; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.4rem;">
+                <a href="/threats/${log.ip}/" style="color: #38bdf8; text-decoration: underline; font-weight: 700; font-size: 0.8rem;">
+                  Open IP Dossier &rarr;
+                </a>
+              </div>
+            </div>
+          `;
+
+          if (markerMap.has(log.ip)) {
+            markerMap.get(log.ip).setPopupContent(popupContent);
+          } else {
+            const customIcon = L.divIcon({
+              className: 'custom-pulse-icon',
+              html: `<span class="pulse-marker ${tierClass}"></span>`,
+              iconSize: [14, 14],
+              iconAnchor: [7, 7]
+            });
+            const newMarker = L.marker([log.lat, log.lng], { icon: customIcon }).bindPopup(popupContent);
+            markersLayer.addLayer(newMarker);
+            markerMap.set(log.ip, newMarker);
+          }
         }
 
         // Soft sync threat map marker without snapping viewport
@@ -704,6 +947,7 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     initThreatMap();
+    initThreatFilters();
     initLiveStream();
   });
 </script>

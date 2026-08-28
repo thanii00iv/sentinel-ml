@@ -153,15 +153,44 @@ def home(request):
         models.Q(is_brute_force_suspect=True) |
         models.Q(is_recon_suspect=True) |
         models.Q(is_xss_suspect=True) |
-        models.Q(is_path_traversal_suspect=True)
-    ).order_by('-timestamp')[:12]
+        models.Q(is_path_traversal_suspect=True) |
+        models.Q(is_login_attempt=True, login_success=False)
+    ).order_by('-timestamp')[:25]
 
-    # Dynamically enrich recent attacks with device details and live Geo metadata
+    # Dynamically enrich recent attacks with device details, live Geo metadata, and categorization
     enriched_attacks = []
     for attack in recent_attacks:
         attack.device = parse_device_info(attack.user_agent)
         attack.geo = resolve_ip_geo(attack.ip_address)
+        
+        # Categorize attack vector for interactive UI filtering
+        if attack.is_brute_force_suspect or (attack.is_login_attempt and attack.login_success is False):
+            attack.attack_category = 'brute_force'
+        elif attack.is_sqli_suspect:
+            attack.attack_category = 'sqli'
+        elif attack.is_xss_suspect:
+            attack.attack_category = 'xss'
+        elif attack.is_path_traversal_suspect:
+            attack.attack_category = 'path_traversal'
+        elif attack.is_recon_suspect:
+            attack.attack_category = 'recon'
+        else:
+            attack.attack_category = 'remaining'
+
+        attack.is_login_brute = (attack.attack_category == 'brute_force')
         enriched_attacks.append(attack)
+
+    brute_force_incidents_count = RequestLog.objects.filter(
+        models.Q(is_brute_force_suspect=True) |
+        models.Q(is_login_attempt=True, login_success=False)
+    ).count()
+
+    remaining_attacks_count = RequestLog.objects.filter(
+        models.Q(is_sqli_suspect=True) |
+        models.Q(is_recon_suspect=True) |
+        models.Q(is_xss_suspect=True) |
+        models.Q(is_path_traversal_suspect=True)
+    ).count()
 
     # Active predictive alerts & threat hunt findings
     active_alerts = PredictiveAlert.objects.filter(is_active=True).order_by('-timestamp')[:5]
@@ -179,6 +208,9 @@ def home(request):
         'critical_ips_count': critical_ips_count,
         'blocked_ips_count': blocked_ips_count,
         'recent_attacks': enriched_attacks,
+        'total_attacks_count': malicious_total,
+        'brute_force_incidents_count': brute_force_incidents_count,
+        'remaining_attacks_count': remaining_attacks_count,
         'active_alerts': active_alerts,
         'active_findings': active_findings,
     }
@@ -537,11 +569,21 @@ def threat_map_api(request):
         seen_ips.add(p.ip_address)
 
     # Also include any recent active demonstration devices that may not have reached risk threshold yet
-    recent_active_logs = RequestLog.objects.order_by('-timestamp')[:10]
+    recent_active_logs = RequestLog.objects.order_by('-timestamp')[:35]
     for r in recent_active_logs:
         if r.ip_address not in seen_ips:
             geo = resolve_ip_geo(r.ip_address)
             device = parse_device_info(r.user_agent)
+            is_attack = bool(
+                r.is_sqli_suspect or
+                r.is_brute_force_suspect or
+                r.is_recon_suspect or
+                r.is_xss_suspect or
+                r.is_path_traversal_suspect or
+                (r.is_login_attempt and r.login_success is False)
+            )
+            score = 45 if is_attack else 0
+            tier = 'HIGH' if is_attack else 'LOW'
             markers.append({
                 'ip': r.ip_address,
                 'country': geo['country'],
@@ -556,12 +598,12 @@ def threat_map_api(request):
                 'device_display': device['display'],
                 'browser': device['browser'],
                 'os': device['os'],
-                'risk_score': 10 if (r.is_sqli_suspect or r.is_recon_suspect) else 0,
-                'fused_score': 10 if (r.is_sqli_suspect or r.is_recon_suspect) else 0,
-                'threat_level': 'LOW',
+                'risk_score': score,
+                'fused_score': score,
+                'threat_level': tier,
                 'is_blocked': False,
-                'total_attacks': 1 if (r.is_sqli_suspect or r.is_recon_suspect) else 0,
-                'predicted_stage': 'Live Client Node Monitoring',
+                'total_attacks': 1 if is_attack else 0,
+                'predicted_stage': r.inferred_intent if is_attack else 'Live Client Node Monitoring',
             })
             seen_ips.add(r.ip_address)
 
@@ -583,13 +625,27 @@ def live_stream_api(request):
                     local_ts = timezone.localtime(log.timestamp)
                     geo = resolve_ip_geo(log.ip_address)
                     device = parse_device_info(log.user_agent)
+                    is_brute = bool(log.is_brute_force_suspect or (log.is_login_attempt and log.login_success is False))
                     is_attack = bool(
                         log.is_sqli_suspect or
-                        log.is_brute_force_suspect or
+                        is_brute or
                         log.is_recon_suspect or
                         log.is_xss_suspect or
                         log.is_path_traversal_suspect
                     )
+
+                    if is_brute:
+                        category = 'brute_force'
+                    elif log.is_sqli_suspect:
+                        category = 'sqli'
+                    elif log.is_xss_suspect:
+                        category = 'xss'
+                    elif log.is_path_traversal_suspect:
+                        category = 'path_traversal'
+                    elif log.is_recon_suspect:
+                        category = 'recon'
+                    else:
+                        category = 'remaining'
 
                     data = {
                         'id': log.id,
@@ -598,6 +654,9 @@ def live_stream_api(request):
                         'method': log.method,
                         'path': log.path,
                         'status_code': log.status_code,
+                        'username': log.username or '',
+                        'category': category,
+                        'is_brute': is_brute,
                         'intent': log.inferred_intent,
                         'is_attack': is_attack,
                         'country': geo['country'],
@@ -619,10 +678,25 @@ def live_stream_api(request):
                             models.Q(is_brute_force_suspect=True) |
                             models.Q(is_recon_suspect=True) |
                             models.Q(is_xss_suspect=True) |
-                            models.Q(is_path_traversal_suspect=True)
+                            models.Q(is_path_traversal_suspect=True) |
+                            models.Q(is_login_attempt=True, login_success=False)
                         ).count(),
                         'flagged_ips': IPRiskProfile.objects.filter(risk_score__gt=0).count(),
                         'blocked_ips': IPRiskProfile.objects.filter(is_blocked=True).count(),
+                        'total_attacks_count': RequestLog.objects.filter(
+                            models.Q(is_sqli_suspect=True) |
+                            models.Q(is_brute_force_suspect=True) |
+                            models.Q(is_recon_suspect=True) |
+                            models.Q(is_xss_suspect=True) |
+                            models.Q(is_path_traversal_suspect=True) |
+                            models.Q(is_login_attempt=True, login_success=False)
+                        ).count(),
+                        'brute_count': RequestLog.objects.filter(models.Q(is_brute_force_suspect=True) | models.Q(is_login_attempt=True, login_success=False)).count(),
+                        'sqli_count': RequestLog.objects.filter(is_sqli_suspect=True).count(),
+                        'xss_count': RequestLog.objects.filter(is_xss_suspect=True).count(),
+                        'recon_count': RequestLog.objects.filter(is_recon_suspect=True).count(),
+                        'lfi_count': RequestLog.objects.filter(is_path_traversal_suspect=True).count(),
+                        'remaining_count': RequestLog.objects.filter(models.Q(is_sqli_suspect=True) | models.Q(is_recon_suspect=True) | models.Q(is_xss_suspect=True) | models.Q(is_path_traversal_suspect=True)).count(),
                     }
                     yield f"data: {json.dumps(data)}\n\n"
                     last_id = max(last_id, log.id)

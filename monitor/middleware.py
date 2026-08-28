@@ -83,11 +83,23 @@ class RequestLoggingMiddleware:
         duration_ms = (time.time() - start_time) * 1000
 
         # Login and Brute-force detection
-        is_login_attempt = (request.path == '/login/' and request.method == 'POST')
+        is_login_attempt = (request.path.rstrip('/') in ['/login', '/admin/login'] and request.method == 'POST')
         login_success = None
         is_brute_force_suspect = False
+        attempted_username = None
 
         if is_login_attempt:
+            # Capture attempted username from JSON body or standard form POST
+            if request.content_type == 'application/json':
+                try:
+                    import json
+                    body_data = json.loads(request.body.decode('utf-8'))
+                    attempted_username = str(body_data.get('username', '')).strip() or None
+                except Exception:
+                    pass
+            if not attempted_username and 'username' in request.POST:
+                attempted_username = str(request.POST.get('username', '')).strip() or None
+
             login_success = request.user.is_authenticated
             if not login_success:
                 window_start = timezone.now() - timedelta(minutes=TIME_WINDOW_MINUTES)
@@ -98,8 +110,8 @@ class RequestLoggingMiddleware:
                     timestamp__gte=window_start
                 ).count()
 
-                if recent_failures + 1 >= FAILED_LOGIN_THRESHOLD:
-                    is_brute_force_suspect = True
+                # Every failed login attempt on the authentication portal is intercepted as a brute-force / credential guessing vector
+                is_brute_force_suspect = True
 
         # Reconnaissance detection
         is_recon_suspect = detect_recon(RequestLog, client_ip)
@@ -123,12 +135,16 @@ class RequestLoggingMiddleware:
             # Query params string serialization
             query_str = "&".join(f"{k}={v}" for k, v in request.GET.items()) if request.GET else ""
 
+            # Resolved target username
+            resolved_username = request.user.username if request.user.is_authenticated else attempted_username
+
             # Temporary log object to infer intent
             temp_log = RequestLog(
                 ip_address=client_ip,
                 method=request.method,
                 path=request.path,
                 status_code=response.status_code,
+                username=resolved_username,
                 is_login_attempt=is_login_attempt,
                 login_success=login_success,
                 is_brute_force_suspect=is_brute_force_suspect,
@@ -148,7 +164,7 @@ class RequestLoggingMiddleware:
                 status_code=response.status_code,
                 user_agent=request.META.get('HTTP_USER_AGENT', '')[:500],
                 response_time_ms=duration_ms,
-                username=request.user.username if request.user.is_authenticated else None,
+                username=resolved_username,
                 query_params=query_str,
                 is_login_attempt=is_login_attempt,
                 login_success=login_success,
