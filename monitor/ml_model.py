@@ -1,10 +1,22 @@
 import os
 import joblib
 import numpy as np
+import warnings
 from django.conf import settings
+
+# Suppress sklearn version warnings across environments
+try:
+    from sklearn.exceptions import InconsistentVersionWarning
+    warnings.filterwarnings("ignore", category=InconsistentVersionWarning)
+except ImportError:
+    pass
 
 RF_MODEL_PATH = os.path.join(settings.BASE_DIR, 'monitor', 'rf_model.pkl')
 ANOMALY_MODEL_PATH = os.path.join(settings.BASE_DIR, 'monitor', 'isolation_forest.pkl')
+
+# In-memory cached model singletons to eliminate repeated disk I/O and latency
+_CACHED_RF_MODEL = None
+_CACHED_ANOMALY_MODEL = None
 
 
 def get_features(log):
@@ -41,6 +53,7 @@ def get_features(log):
 
 def train_model():
     """Train a supervised Random Forest Classifier on historical RequestLog telemetry."""
+    global _CACHED_RF_MODEL
     from sklearn.ensemble import RandomForestClassifier
     from .models import RequestLog
 
@@ -64,23 +77,29 @@ def train_model():
 
     X, y = np.array(X), np.array(y)
 
-    # Ensure at least 2 classes exist if possible, or train standard RF
     clf = RandomForestClassifier(n_estimators=100, random_state=42, max_depth=10)
     clf.fit(X, y)
 
     joblib.dump(clf, RF_MODEL_PATH)
+    _CACHED_RF_MODEL = clf
     print(f"[SentinelML] Random Forest model trained on {len(X)} samples.")
     return clf
 
 
 def load_model():
-    """Load cached Random Forest model or train on demand."""
+    """Load cached in-memory Random Forest model (instantaneous, 0 disk I/O)."""
+    global _CACHED_RF_MODEL
+    if _CACHED_RF_MODEL is not None:
+        return _CACHED_RF_MODEL
+
     if os.path.exists(RF_MODEL_PATH):
         try:
-            return joblib.load(RF_MODEL_PATH)
+            _CACHED_RF_MODEL = joblib.load(RF_MODEL_PATH)
+            return _CACHED_RF_MODEL
         except Exception:
             pass
-    return train_model()
+    _CACHED_RF_MODEL = train_model()
+    return _CACHED_RF_MODEL
 
 
 def predict(log):
@@ -104,6 +123,7 @@ def predict(log):
 
 def train_anomaly_model():
     """Train unsupervised Isolation Forest on clean (baseline) traffic only."""
+    global _CACHED_ANOMALY_MODEL
     from sklearn.ensemble import IsolationForest
     from .models import RequestLog
 
@@ -116,7 +136,6 @@ def train_anomaly_model():
     )
 
     if clean_logs.count() < 6:
-        # Fallback to all logs if clean logs are few in early initialization
         clean_logs = RequestLog.objects.all()
         if clean_logs.count() < 6:
             return None
@@ -127,18 +146,25 @@ def train_anomaly_model():
     clf.fit(X)
 
     joblib.dump(clf, ANOMALY_MODEL_PATH)
+    _CACHED_ANOMALY_MODEL = clf
     print(f"[SentinelML] Isolation Forest anomaly model trained on {len(X)} samples.")
     return clf
 
 
 def load_anomaly_model():
-    """Load cached Isolation Forest or train on demand."""
+    """Load cached in-memory Isolation Forest model (instantaneous, 0 disk I/O)."""
+    global _CACHED_ANOMALY_MODEL
+    if _CACHED_ANOMALY_MODEL is not None:
+        return _CACHED_ANOMALY_MODEL
+
     if os.path.exists(ANOMALY_MODEL_PATH):
         try:
-            return joblib.load(ANOMALY_MODEL_PATH)
+            _CACHED_ANOMALY_MODEL = joblib.load(ANOMALY_MODEL_PATH)
+            return _CACHED_ANOMALY_MODEL
         except Exception:
             pass
-    return train_anomaly_model()
+    _CACHED_ANOMALY_MODEL = train_anomaly_model()
+    return _CACHED_ANOMALY_MODEL
 
 
 def predict_anomaly(log):
@@ -154,9 +180,6 @@ def predict_anomaly(log):
         prediction = clf.predict(features)[0]  # -1 = anomaly, 1 = normal
         raw_score = round(float(clf.decision_function(features)[0]), 3)
         is_anomaly = bool(prediction == -1)
-        
-        # Normalize decision function to 0-100 anomaly scale
-        # decision_function typically ranges from -0.3 (very anomalous) to +0.3 (very normal)
         normalized = max(0.0, min(100.0, (0.25 - raw_score) * 160.0))
         return is_anomaly, raw_score, round(normalized, 1)
     except Exception as e:
