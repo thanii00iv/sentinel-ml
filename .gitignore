@@ -1,25 +1,24 @@
-# Python artifacts
+# Python / Django
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
-.Python
+
+# Environments
+.env
+.venv
 env/
 venv/
 ENV/
-.venv
+env.bak/
+venv.bak/
 
-# Django
-*.log
-local_settings.py
-db.sqlite3-journal
+# Static compilation (WhiteNoise generates this from monitor/static)
+staticfiles/
 
-# IDEs
+# IDE & OS
+.DS_Store
+Thumbs.db
 .vscode/
 .idea/
-*.swp
-*.swo
-
-# OS
-Thumbs.db
-.DS_Store
+*.log

@@ -4,225 +4,993 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Security Gateway Clearance — SentinelML</title>
+  <title>Operator Clearance Gateway — SentinelML</title>
 
   <!-- Cyber Brand Favicon -->
   <link rel="icon" type="image/svg+xml" href="{% static 'monitor/img/favicon.svg' %}">
 
-  <!-- Preload Theme Preference -->
-  <script>
-    (function() {
-      const savedTheme = localStorage.getItem('iml_sentinel_theme');
-      const theme = savedTheme || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-      document.documentElement.setAttribute('data-theme', theme);
-    })();
-  </script>
-
-  <!-- Google Fonts -->
+  <!-- Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Orbitron:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- FontAwesome -->
+  <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-  <!-- Custom Futuristic Stylesheet -->
-  <link rel="stylesheet" href="{% static 'monitor/css/sentinel.css' %}">
-
   <style>
-    .login-wrapper {
+    /* ==========================================================================
+       Realistic VisionOS Optical Frosted Glass (High-Precision Minimal Aesthetics)
+       ========================================================================== */
+    :root {
+      --font-system: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Plus Jakarta Sans", sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+
+      /* Optical Glass Material Tokens */
+      --glass-base: rgba(14, 20, 32, 0.64);
+      --glass-surface-highlight: rgba(255, 255, 255, 0.35);
+      --glass-border: rgba(255, 255, 255, 0.14);
+      --glass-depth-shadow: 
+        0 30px 60px -15px rgba(0, 0, 0, 0.75),
+        0 15px 30px -10px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.32),
+        inset 0 0 20px 0 rgba(255, 255, 255, 0.02);
+
+      --color-blue: #0a84ff;
+      --color-emerald: #30d158;
+      --color-red: #ff453a;
+      --color-text-main: #f5f5f7;
+      --color-text-sub: rgba(235, 235, 245, 0.72);
+      --color-text-muted: rgba(235, 235, 245, 0.42);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      font-family: var(--font-system);
+      background: #050811;
+      color: var(--color-text-main);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem 1.5rem;
       position: relative;
-      z-index: 1;
+      overflow-x: hidden;
     }
 
-    .login-top-bar {
+    /* Ambient Cinematic Atmosphere */
+    .cinematic-backdrop {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+      background: 
+        radial-gradient(circle at 50% -20%, rgba(26, 54, 93, 0.42) 0%, transparent 60%),
+        radial-gradient(circle at 10% 90%, rgba(13, 37, 63, 0.35) 0%, transparent 50%),
+        radial-gradient(circle at 90% 80%, rgba(30, 27, 75, 0.28) 0%, transparent 50%),
+        #050811;
+    }
+
+    .optical-orb {
       position: absolute;
-      top: 1.5rem;
-      right: 1.5rem;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      opacity: 0.35;
+      will-change: transform;
+    }
+
+    .optical-orb-1 {
+      width: 620px;
+      height: 620px;
+      top: -120px;
+      left: 20%;
+      background: radial-gradient(circle, rgba(14, 116, 144, 0.45) 0%, rgba(3, 105, 161, 0.2) 50%, transparent 70%);
+      animation: driftA 24s ease-in-out infinite alternate;
+    }
+
+    .optical-orb-2 {
+      width: 540px;
+      height: 540px;
+      bottom: -100px;
+      right: 15%;
+      background: radial-gradient(circle, rgba(67, 56, 202, 0.35) 0%, rgba(49, 46, 129, 0.18) 50%, transparent 70%);
+      animation: driftB 28s ease-in-out infinite alternate;
+    }
+
+    @keyframes driftA {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(50px, 35px) scale(1.06); }
+    }
+
+    @keyframes driftB {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(-45px, -35px) scale(0.96); }
+    }
+
+    /* Page Layout Shell */
+    .viewport-shell {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem;
+    }
+
+    /* Top Floating Island Header */
+    .top-island-nav {
+      width: 100%;
+      max-width: 980px;
       display: flex;
       align-items: center;
-      gap: 1rem;
+      justify-content: space-between;
+      padding: 0.65rem 1.25rem;
+      background: var(--glass-base);
+      backdrop-filter: blur(40px) saturate(180%);
+      -webkit-backdrop-filter: blur(40px) saturate(180%);
+      border: 1px solid var(--glass-border);
+      border-radius: 999px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), inset 0 1px 0 var(--glass-surface-highlight);
     }
 
-    .login-card-futuristic {
-      background: var(--bg-surface);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid var(--border-color);
-      border-radius: 18px;
-      padding: 2.75rem 2.25rem;
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--color-text-main);
+    }
+
+    .brand-icon-gem {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: linear-gradient(145deg, #1e293b, #0f172a);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+      color: #38bdf8;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    }
+
+    .brand-label {
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .nav-pill-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.45rem 1rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-decoration: none;
+      color: var(--color-text-sub);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.25s ease;
+    }
+
+    .nav-pill-btn:hover {
+      color: var(--color-text-main);
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.25);
+      transform: translateY(-1px);
+    }
+
+    /* ==========================================================================
+       Center Glass Card Container
+       ========================================================================== */
+    .login-stage {
+      margin: auto 0;
       width: 100%;
       max-width: 440px;
-      box-shadow: var(--card-shadow), var(--card-glow);
       position: relative;
-      overflow: hidden;
     }
 
-    .login-card-futuristic::before {
+    .realistic-glass-panel {
+      background: var(--glass-base);
+      backdrop-filter: blur(50px) saturate(190%) contrast(102%);
+      -webkit-backdrop-filter: blur(50px) saturate(190%) contrast(102%);
+      border: 1px solid var(--glass-border);
+      border-radius: 34px;
+      padding: 2.85rem 2.25rem 2.4rem;
+      box-shadow: var(--glass-depth-shadow);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s ease, box-shadow 0.3s ease, border-color 0.4s ease;
+    }
+
+    /* Specular Physical Top Highlight */
+    .realistic-glass-panel::before {
       content: '';
       position: absolute;
       top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple), var(--accent-cyan));
-      background-size: 200% 100%;
-      animation: gradient-slide 4s linear infinite;
+      left: 10%;
+      right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
     }
 
-    @keyframes gradient-slide {
-      0% { background-position: 0% 50%; }
-      100% { background-position: 200% 50%; }
+    /* Soft Natural Mouse Sheen */
+    .glass-specular-sheen {
+      position: absolute;
+      top: var(--cursor-y, 50%);
+      left: var(--cursor-x, 50%);
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 65%);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      border-radius: 50%;
+      opacity: 0;
+      transition: opacity 0.3s ease;
     }
 
-    .brand-header-login {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.85rem;
-      margin-bottom: 2rem;
-      text-align: center;
+    .realistic-glass-panel:hover .glass-specular-sheen {
+      opacity: 1;
     }
 
-    .login-brand-icon {
-      width: 58px;
-      height: 58px;
-      background: linear-gradient(135deg, #0284c7, #7c3aed);
-      border-radius: 14px;
+    /* Biometric Badge Icon */
+    .biometric-lens-wrapper {
+      width: 68px;
+      height: 68px;
+      margin: 0 auto 1.35rem;
+      border-radius: 22px;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.02));
+      border: 1px solid rgba(255, 255, 255, 0.2);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.75rem;
-      color: #fff;
-      box-shadow: 0 0 25px var(--accent-cyan-glow);
       position: relative;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), inset 0 1.5px 1px rgba(255, 255, 255, 0.35);
     }
 
-    .input-field-group {
-      margin-bottom: 1.35rem;
+    .biometric-lens-wrapper i {
+      font-size: 1.85rem;
+      color: #38bdf8;
     }
 
-    .input-field-group label {
-      display: block;
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--text-secondary);
-      margin-bottom: 0.5rem;
-      letter-spacing: 0.05em;
-      font-family: 'JetBrains Mono', monospace;
-    }
-
-    .input-wrapper {
-      position: relative;
-    }
-
-    .input-wrapper i {
+    .lens-status-ring {
       position: absolute;
-      left: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-muted);
-      font-size: 0.95rem;
+      inset: -4px;
+      border-radius: 26px;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      opacity: 0.6;
     }
 
-    .input-wrapper input {
-      width: 100%;
-      background: var(--bg-input);
-      border: 1px solid var(--border-color);
-      color: var(--text-primary);
-      padding: 0.8rem 1rem 0.8rem 2.6rem;
-      border-radius: 10px;
+    /* Header */
+    .card-header-block {
+      text-align: center;
+      margin-bottom: 1.85rem;
+    }
+
+    .card-heading {
+      font-size: 1.55rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      color: var(--color-text-main);
+      margin-bottom: 0.35rem;
+    }
+
+    .card-subtext {
+      font-size: 0.85rem;
+      color: var(--color-text-sub);
+      font-weight: 400;
+      letter-spacing: -0.01em;
+    }
+
+    /* Form Fields */
+    .field-block {
+      margin-bottom: 1.25rem;
+      position: relative;
+    }
+
+    .field-caption {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.45rem;
+      margin-left: 0.4rem;
+    }
+
+    .field-inset {
+      position: relative;
+      display: flex;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.24);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .field-inset:focus-within {
+      background: rgba(0, 0, 0, 0.35);
+      border-color: rgba(56, 189, 248, 0.6);
+      box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.18), inset 0 2px 4px rgba(0, 0, 0, 0.4);
+    }
+
+    .field-icon-left {
+      position: absolute;
+      left: 1.15rem;
+      color: var(--color-text-muted);
       font-size: 0.95rem;
+      pointer-events: none;
+      transition: color 0.2s ease;
+    }
+
+    .field-inset:focus-within .field-icon-left {
+      color: #38bdf8;
+    }
+
+    .form-input-text {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: var(--color-text-main);
+      font-family: var(--font-system);
+      font-size: 0.92rem;
+      font-weight: 500;
+      padding: 0.9rem 2.85rem;
       outline: none;
     }
 
-    .input-wrapper input:focus {
-      border-color: var(--accent-cyan);
-      box-shadow: 0 0 12px var(--accent-cyan-glow);
+    .form-input-text::placeholder {
+      color: var(--color-text-muted);
+      font-weight: 400;
+    }
+
+    .eye-toggle-btn {
+      position: absolute;
+      right: 0.75rem;
+      background: transparent;
+      border: none;
+      color: var(--color-text-muted);
+      font-size: 0.95rem;
+      cursor: pointer;
+      padding: 0.4rem;
+      border-radius: 8px;
+      transition: color 0.2s ease;
+    }
+
+    .eye-toggle-btn:hover {
+      color: var(--color-text-main);
+    }
+
+    /* Action Button */
+    .submit-action-btn {
+      width: 100%;
+      margin-top: 0.85rem;
+      padding: 0.95rem 1.5rem;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      background: linear-gradient(180deg, #0a84ff 0%, #0066cc 100%);
+      color: #ffffff;
+      font-family: var(--font-system);
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      box-shadow: 0 8px 20px rgba(10, 132, 255, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .submit-action-btn:hover {
+      background: linear-gradient(180deg, #1f90ff 0%, #0a74e0 100%);
+      box-shadow: 0 12px 28px rgba(10, 132, 255, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+      transform: translateY(-1px);
+    }
+
+    .submit-action-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* Return Link */
+    .back-action-wrap {
+      margin-top: 1.65rem;
+      text-align: center;
+    }
+
+    .back-action-wrap a {
+      color: var(--color-text-sub);
+      font-size: 0.82rem;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: color 0.2s ease, transform 0.2s ease;
+    }
+
+    .back-action-wrap a:hover {
+      color: var(--color-text-main);
+      transform: translateX(-3px);
+    }
+
+    /* ==========================================================================
+       CINEMATIC VERIFICATION OVERLAY (Animated Loading, Grant & Deny States)
+       ========================================================================== */
+    .verification-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(8, 13, 24, 0.94);
+      backdrop-filter: blur(48px) saturate(210%);
+      -webkit-backdrop-filter: blur(48px) saturate(210%);
+      border-radius: 34px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2.25rem 2rem;
+      z-index: 50;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .verification-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Big Animated Vault Iris Hub */
+    .vault-iris-stage {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      margin-bottom: 1.65rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .iris-dial-outer {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 2px dashed rgba(56, 189, 248, 0.35);
+      animation: dialSpin 10s linear infinite;
+      transition: border-color 0.4s ease;
+    }
+
+    .iris-dial-inner {
+      position: absolute;
+      inset: 12px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      border-top-color: #0a84ff;
+      border-right-color: #38bdf8;
+      animation: dialSpinRev 1.8s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+      transition: border-color 0.4s ease;
+    }
+
+    @keyframes dialSpin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes dialSpinRev {
+      from { transform: rotate(360deg); }
+      to { transform: rotate(0deg); }
+    }
+
+    /* Core Big Animated Vault Icon */
+    .vault-center-core {
+      position: relative;
+      width: 72px;
+      height: 72px;
+      border-radius: 24px;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03));
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      color: #38bdf8;
+      z-index: 2;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Optical Ripple Shockwave Wave */
+    .optical-shockwave {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    /* Verification Typography */
+    .verif-main-title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      color: var(--color-text-main);
+      margin-bottom: 0.45rem;
+      text-align: center;
+      transition: color 0.3s ease;
+    }
+
+    .verif-phase-subtitle {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: #38bdf8;
+      letter-spacing: 0.04em;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      min-height: 1.3em;
+      transition: color 0.3s ease;
+    }
+
+    /* Optical Progress Bar */
+    .verif-meter-shell {
+      width: 100%;
+      max-width: 260px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 999px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .verif-meter-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #0a84ff, #38bdf8);
+      border-radius: 999px;
+      transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1), background 0.4s ease;
+    }
+
+    /* Diagnostic Telemetry Tag */
+    .verif-telemetry-badge {
+      margin-top: 1.25rem;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--color-text-muted);
+      letter-spacing: 0.05em;
+      text-align: center;
+      transition: color 0.3s ease;
+    }
+
+    /* ==========================================================================
+       1. ACCESS GRANTED POP ANIMATION STYLES (Emerald Unlock Wave)
+       ========================================================================== */
+    .verification-overlay.granted .vault-center-core {
+      background: linear-gradient(145deg, rgba(48, 209, 88, 0.25), rgba(48, 209, 88, 0.08));
+      border-color: rgba(48, 209, 88, 0.6);
+      color: #30d158;
+      box-shadow: 0 0 35px rgba(48, 209, 88, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+      transform: scale(1.15);
+      animation: popUnlock 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .verification-overlay.granted .iris-dial-outer {
+      border-color: rgba(48, 209, 88, 0.5);
+      animation: dialSpin 4s linear infinite;
+    }
+
+    .verification-overlay.granted .iris-dial-inner {
+      border-top-color: #30d158;
+      border-right-color: #34d399;
+      animation: dialSpinRev 1s linear infinite;
+    }
+
+    .verification-overlay.granted .optical-shockwave {
+      border-color: #30d158;
+      animation: shockwaveRipple 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .verification-overlay.granted .verif-main-title {
+      color: #30d158;
+    }
+
+    .verification-overlay.granted .verif-phase-subtitle {
+      color: #34d399;
+    }
+
+    .verification-overlay.granted .verif-meter-fill {
+      background: linear-gradient(90deg, #10b981, #30d158);
+      width: 100% !important;
+    }
+
+    .verification-overlay.granted .verif-telemetry-badge {
+      color: rgba(48, 209, 88, 0.85);
+    }
+
+    @keyframes popUnlock {
+      0% { transform: scale(0.8) rotate(-15deg); }
+      50% { transform: scale(1.25) rotate(5deg); }
+      100% { transform: scale(1.15) rotate(0deg); }
+    }
+
+    @keyframes shockwaveRipple {
+      0% { transform: scale(0.6); opacity: 1; }
+      100% { transform: scale(2.2); opacity: 0; }
+    }
+
+    /* ==========================================================================
+       2. ACCESS DENIED ANIMATION STYLES (Crimson Barrier Shockwave & Shake)
+       ========================================================================== */
+    .verification-overlay.denied .vault-center-core {
+      background: linear-gradient(145deg, rgba(255, 69, 58, 0.28), rgba(255, 69, 58, 0.08));
+      border-color: rgba(255, 69, 58, 0.7);
+      color: #ff453a;
+      box-shadow: 0 0 35px rgba(255, 69, 58, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+      animation: lockReject 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    }
+
+    .verification-overlay.denied .iris-dial-outer {
+      border-color: rgba(255, 69, 58, 0.5);
+      border-style: solid;
+    }
+
+    .verification-overlay.denied .iris-dial-inner {
+      border-top-color: #ff453a;
+      border-right-color: #ff3b30;
+    }
+
+    .verification-overlay.denied .optical-shockwave {
+      border-color: #ff453a;
+      animation: shockwaveRipple 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .verification-overlay.denied .verif-main-title {
+      color: #ff453a;
+    }
+
+    .verification-overlay.denied .verif-phase-subtitle {
+      color: #ff6961;
+    }
+
+    .verification-overlay.denied .verif-meter-fill {
+      background: linear-gradient(90deg, #dc2626, #ff453a);
+      width: 100% !important;
+    }
+
+    .verification-overlay.denied .verif-telemetry-badge {
+      color: rgba(255, 69, 58, 0.85);
+    }
+
+    /* Card shake on rejection */
+    .realistic-glass-panel.shake-lockout {
+      animation: panelRejectShake 0.55s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+      border-color: rgba(255, 69, 58, 0.5);
+    }
+
+    @keyframes lockReject {
+      0%, 100% { transform: translateX(0) scale(1.05); }
+      20%, 60% { transform: translateX(-8px) scale(1.05); }
+      40%, 80% { transform: translateX(8px) scale(1.05); }
+    }
+
+    @keyframes panelRejectShake {
+      0%, 100% { transform: translateX(0); }
+      15%, 45%, 75% { transform: translateX(-7px); }
+      30%, 60%, 90% { transform: translateX(7px); }
+    }
+
+    /* Bottom Status Bar */
+    .bottom-status-footer {
+      width: 100%;
+      max-width: 980px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      font-size: 0.74rem;
+      color: var(--color-text-muted);
+    }
+
+    .system-status-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      color: var(--color-emerald);
+      font-weight: 500;
+    }
+
+    .status-dot-emerald {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-emerald);
+      box-shadow: 0 0 6px var(--color-emerald);
     }
   </style>
 </head>
 <body>
 
-  <div class="login-wrapper">
+  <!-- Cinematic Ambient Backdrop -->
+  <div class="cinematic-backdrop" aria-hidden="true">
+    <div class="optical-orb optical-orb-1"></div>
+    <div class="optical-orb optical-orb-2"></div>
+  </div>
 
-    <!-- Top Bar Controls -->
-    <div class="login-top-bar">
-      <div class="system-status-pill">
-        <span class="pulse-dot"></span>
-        <span>PORTAL ENCRYPTED</span>
-      </div>
-      <button type="button" class="theme-toggle-btn" aria-label="Toggle Dark/Light Mode" title="Toggle Theme">
-        <i class="fa-solid fa-sun"></i>
-      </button>
-    </div>
+  <div class="viewport-shell">
 
-    <!-- Futuristic Login Box -->
-    <div class="login-card-futuristic hud-card">
-      
-      <div class="brand-header-login">
-        <div class="login-brand-icon">
+    <!-- Top Floating Capsule Navigation -->
+    <header class="top-island-nav">
+      <a href="{% url 'landing' %}" class="brand-group">
+        <div class="brand-icon-gem">
           <i class="fa-solid fa-shield-halved"></i>
         </div>
-        <div>
-          <h1 class="font-hud" style="font-size: 1.45rem; font-weight: 800; color: var(--text-primary); letter-spacing: 0.04em;">
-            IML SENTINEL GUARD
-          </h1>
-          <div class="font-mono" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">
-            SECURITY OPERATIONS CLEARANCE GATEWAY
+        <span class="brand-label">SentinelML</span>
+      </a>
+
+      <a href="{% url 'landing' %}" class="nav-pill-btn">
+        <i class="fa-solid fa-compass" style="font-size: 0.75rem;"></i>
+        <span>Overview</span>
+      </a>
+    </header>
+
+    <!-- Center Stage Glass Container -->
+    <div class="login-stage">
+
+      <main class="realistic-glass-panel" id="loginGlassPanel">
+        
+        <!-- Interactive Mouse Specular Light -->
+        <div class="glass-specular-sheen" id="mouseSheen"></div>
+
+        <!-- Biometric Lens Icon -->
+        <div class="biometric-lens-wrapper">
+          <div class="lens-status-ring"></div>
+          <i class="fa-solid fa-fingerprint" id="lensIcon"></i>
+        </div>
+
+        <!-- Header Titles -->
+        <div class="card-header-block">
+          <h1 class="card-heading">Security Clearance</h1>
+          <p class="card-subtext">Enter authorized operator credentials to access SOC</p>
+        </div>
+
+        <!-- Form -->
+        <form method="post" action="{% url 'login' %}" id="clearanceLoginForm">
+          {% csrf_token %}
+
+          <!-- Identity Field -->
+          <div class="field-block">
+            <label class="field-caption" for="id_username">Operator Identity</label>
+            <div class="field-inset">
+              <i class="fa-solid fa-user-astronaut field-icon-left"></i>
+              <input type="text" name="username" id="id_username" class="form-input-text" required autofocus placeholder="Username" autocomplete="username">
+            </div>
           </div>
-        </div>
-      </div>
 
-      {% if form.errors %}
-      <div class="badge badge-critical" style="width: 100%; padding: 0.75rem 1rem; margin-bottom: 1.5rem; justify-content: center; font-size: 0.82rem;">
-        <i class="fa-solid fa-triangle-exclamation"></i>
-        <span>Access Denied: Invalid Security Credentials</span>
-      </div>
-      {% endif %}
-
-      <form method="post">
-        {% csrf_token %}
-
-        <div class="input-field-group">
-          <label for="id_username">USERNAME</label>
-          <div class="input-wrapper">
-            <i class="fa-solid fa-user-astronaut"></i>
-            <input type="text" name="username" id="id_username" required autofocus placeholder="Enter security operator identity">
+          <!-- Password Field -->
+          <div class="field-block">
+            <label class="field-caption" for="id_password">Clearance Key</label>
+            <div class="field-inset">
+              <i class="fa-solid fa-lock field-icon-left"></i>
+              <input type="password" name="password" id="id_password" class="form-input-text" required placeholder="Key / Password" autocomplete="current-password">
+              <button type="button" class="eye-toggle-btn" id="togglePasswordBtn" aria-label="Show or hide password" title="Toggle Visibility">
+                <i class="fa-regular fa-eye" id="togglePasswordIcon"></i>
+              </button>
+            </div>
           </div>
+
+          <!-- Action Button -->
+          <button type="submit" class="submit-action-btn" id="submitBtn">
+            <i class="fa-solid fa-arrow-right-to-bracket"></i>
+            <span>Authenticate & Access</span>
+          </button>
+        </form>
+
+        <!-- Return Overview Link -->
+        <div class="back-action-wrap">
+          <a href="{% url 'landing' %}">
+            <span>Return to Project Overview</span>
+          </a>
         </div>
 
-        <div class="input-field-group">
-          <label for="id_password">PASSWORD</label>
-          <div class="input-wrapper">
-            <i class="fa-solid fa-key"></i>
-            <input type="password" name="password" id="id_password" required placeholder="Enter encrypted clearance key">
+        <!-- ==========================================================================
+             CINEMATIC BIOMETRIC POP VERIFICATION OVERLAY (GRANTED vs DENIED)
+             ========================================================================== -->
+        <div class="verification-overlay" id="verificationOverlay">
+          
+          <!-- Iris Dial & Big Animated Vault Core -->
+          <div class="vault-iris-stage">
+            <div class="iris-dial-outer"></div>
+            <div class="iris-dial-inner"></div>
+            <div class="optical-shockwave" id="shockwaveRing"></div>
+            <div class="vault-center-core" id="vaultCore">
+              <i class="fa-solid fa-fingerprint" id="vaultIcon"></i>
+            </div>
           </div>
+
+          <!-- Titles & Dynamic Telemetry -->
+          <div class="verif-main-title" id="verifTitle">Authenticating Identity</div>
+          <div class="verif-phase-subtitle" id="verifPhase">Initializing cryptographic handshake...</div>
+
+          <!-- Optical Progress Meter -->
+          <div class="verif-meter-shell">
+            <div class="verif-meter-fill" id="verifFill"></div>
+          </div>
+
+          <div class="verif-telemetry-badge" id="verifTelemetry">
+            HASH::SEC-AUTH-256 &bull; READY
+          </div>
+
         </div>
 
-        <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 0.85rem; font-size: 0.95rem; margin-top: 0.5rem;">
-          <i class="fa-solid fa-lock-open"></i>
-          <span>Authenticate & Access SOC</span>
-        </button>
-      </form>
-
-      <div style="margin-top: 2rem; text-align: center; border-top: 1px solid var(--border-color-subtle); padding-top: 1.25rem;">
-        <div class="font-mono" style="font-size: 0.72rem; color: var(--text-muted);">
-          <i class="fa-solid fa-fingerprint" style="color: var(--accent-cyan);"></i>
-          256-BIT ENCRYPTED TELEMETRY SESSION &bull; SOC CLEARANCE REQUIRED
-        </div>
-      </div>
+      </main>
 
     </div>
+
+    <!-- Bottom Status Bar -->
+    <footer class="bottom-status-footer">
+      <div>
+        <span>SENTINELML &bull; 256-BIT ENCRYPTED GATEWAY</span>
+      </div>
+      <div class="system-status-pill">
+        <span class="status-dot-emerald"></span>
+        <span>Gateway Operational</span>
+      </div>
+    </footer>
 
   </div>
 
-  <script src="{% static 'monitor/js/sentinel.js' %}"></script>
+  <script>
+    // 1. Password Visibility Toggle
+    const toggleBtn = document.getElementById('togglePasswordBtn');
+    const passInput = document.getElementById('id_password');
+    const passIcon = document.getElementById('togglePasswordIcon');
+
+    if (toggleBtn && passInput && passIcon) {
+      toggleBtn.addEventListener('click', function() {
+        if (passInput.type === 'password') {
+          passInput.type = 'text';
+          passIcon.className = 'fa-regular fa-eye-slash';
+        } else {
+          passInput.type = 'password';
+          passIcon.className = 'fa-regular fa-eye';
+        }
+      });
+    }
+
+    // 2. Natural Mouse Specular Sheen Tracker
+    const panel = document.getElementById('loginGlassPanel');
+    if (panel) {
+      panel.addEventListener('mousemove', function(e) {
+        const rect = panel.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        panel.style.setProperty('--cursor-x', `${mouseX}px`);
+        panel.style.setProperty('--cursor-y', `${mouseY}px`);
+      });
+    }
+
+    // 3. Cinematic Verification Engine (Access Granted POP vs Access Denied)
+    const form = document.getElementById('clearanceLoginForm');
+    const overlay = document.getElementById('verificationOverlay');
+    const title = document.getElementById('verifTitle');
+    const phaseText = document.getElementById('verifPhase');
+    const fill = document.getElementById('verifFill');
+    const vaultIcon = document.getElementById('vaultIcon');
+    const telemetry = document.getElementById('verifTelemetry');
+    let isProcessing = false;
+
+    if (form && overlay) {
+      form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        if (isProcessing) return;
+
+        const username = document.getElementById('id_username').value.trim();
+        const password = document.getElementById('id_password').value;
+
+        if (!username || !password) return;
+
+        isProcessing = true;
+
+        // Reset Overlay State
+        overlay.className = 'verification-overlay active';
+        panel.classList.remove('shake-lockout');
+        title.innerText = 'Authenticating Identity';
+        phaseText.innerText = 'Initiating cryptographic handshake...';
+        vaultIcon.className = 'fa-solid fa-fingerprint';
+        fill.style.width = '30%';
+        telemetry.innerText = 'HANDSHAKE::VALIDATING_KEY...';
+
+        // Optical Scan Step 1
+        setTimeout(() => {
+          fill.style.width = '65%';
+          phaseText.innerText = 'Verifying operator clearance token...';
+          telemetry.innerText = 'DECRYPTING_TOKEN::SHA-256...';
+        }, 320);
+
+        try {
+          // Asynchronous Authentication Request
+          const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+          const response = await fetch("{% url 'login' %}", {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': csrfToken,
+              'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ username: username, password: password })
+          });
+
+          const data = await response.json();
+
+          // Wait brief moment for dramatic optical timing
+          setTimeout(() => {
+            if (response.ok && data.success) {
+              /* =======================================================
+                 🟢 ACCESS GRANTED // BIG UNLOCK ANIMATION
+                 ======================================================= */
+              overlay.classList.add('granted');
+              vaultIcon.className = 'fa-solid fa-lock-open';
+              title.innerText = 'ACCESS GRANTED';
+              phaseText.innerText = 'Clearance Verified // Vault Unlocked';
+              fill.style.width = '100%';
+              telemetry.innerText = 'TOKEN::0x9A4F_VERIFIED • REDIRECTING SOC';
+
+              setTimeout(() => {
+                window.location.href = data.redirect_url || '/dashboard/';
+              }, 950);
+
+            } else {
+              /* =======================================================
+                 🔴 ACCESS DENIED // BIG LOCKOUT REJECTION ANIMATION
+                 ======================================================= */
+              overlay.classList.add('denied');
+              panel.classList.add('shake-lockout');
+              vaultIcon.className = 'fa-solid fa-shield-xmark';
+              title.innerText = 'ACCESS DENIED';
+              phaseText.innerText = 'Clearance Rejected // Invalid Key';
+              fill.style.width = '100%';
+              telemetry.innerText = 'ERR_AUTH_REJECTED • SECURITY LOGGED';
+
+              // Recover gracefully after 2.2s
+              setTimeout(() => {
+                overlay.classList.remove('active', 'denied');
+                panel.classList.remove('shake-lockout');
+                isProcessing = false;
+                passInput.value = '';
+                passInput.focus();
+              }, 2200);
+            }
+          }, 650);
+
+        } catch (err) {
+          // Fallback on network/server anomaly
+          setTimeout(() => {
+            overlay.classList.add('denied');
+            vaultIcon.className = 'fa-solid fa-triangle-exclamation';
+            title.innerText = 'ACCESS DENIED';
+            phaseText.innerText = 'Authentication Error // Check Server';
+            setTimeout(() => {
+              overlay.classList.remove('active', 'denied');
+              isProcessing = false;
+            }, 2000);
+          }, 600);
+        }
+      });
+    }
+  </script>
 </body>
 </html>

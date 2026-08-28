@@ -78,7 +78,7 @@
       <span>Attack Simulator</span>
     </a>
     <a href="{% url 'threat_hunting' %}" class="btn-primary">
-      <i class="fa-solid fa-radar"></i>
+      <i class="fa-solid fa-satellite-dish"></i>
       <span>Threat Hunting Center</span>
     </a>
   </div>
@@ -197,7 +197,7 @@
   <div class="cyber-card hud-card" style="border-top: 3px solid var(--accent-purple);">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
       <h3 class="font-hud" style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
-        <i class="fa-solid fa-radar" style="color: var(--accent-purple);"></i> Autonomous Threat Hunt Discoveries
+        <i class="fa-solid fa-crosshairs" style="color: var(--accent-purple);"></i> Autonomous Threat Hunt Discoveries
       </h3>
       <a href="{% url 'threat_hunting' %}" class="btn-outline btn-sm">View All Hunts</a>
     </div>
@@ -285,7 +285,7 @@
     <!-- Recon -->
     <div class="cyber-card hud-card" style="border-top: 3px solid var(--accent-purple);">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-        <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary);"><i class="fa-solid fa-radar" style="color: var(--accent-purple);"></i> Reconnaissance</h4>
+        <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary);"><i class="fa-solid fa-compass" style="color: var(--accent-purple);"></i> Reconnaissance</h4>
         <span class="badge badge-medium">RECON</span>
       </div>
       <div class="code-font animate-counter" data-target="{{ recon_count }}" style="font-size: 1.85rem; font-weight: 800; color: var(--accent-purple); margin-bottom: 0.25rem;">{{ recon_count }}</div>
@@ -342,36 +342,50 @@
         SHOWING LATEST {{ recent_attacks|length }} INCIDENTS
       </div>
     </div>    <div class="table-responsive">
-      <table id="recentAttacksTable" style="min-width: 900px;">
+      <table id="recentAttacksTable" style="min-width: 1050px;">
         <thead>
           <tr>
-            <th style="width: 150px;">Timestamp</th>
-            <th style="width: 170px;">Attacker IP</th>
-            <th style="width: 220px;">Inferred Attacker Intent</th>
+            <th style="width: 140px;">Timestamp</th>
+            <th style="width: 160px;">Attacker IP</th>
+            <th style="width: 220px;">Origin Device & Location</th>
+            <th style="width: 200px;">Inferred Attacker Intent</th>
             <th>HTTP Target Path</th>
-            <th style="width: 100px;">Status</th>
-            <th style="width: 130px; text-align: right;">Action</th>
+            <th style="width: 90px;">Status</th>
+            <th style="width: 120px; text-align: right;">Action</th>
           </tr>
         </thead>
         <tbody>
           {% for attack in recent_attacks %}
-          <tr>
+          <tr data-log-id="{{ attack.id }}">
             <td class="font-mono" style="color: var(--text-muted); font-size: 0.82rem; white-space: nowrap;">
               <i class="fa-regular fa-clock" style="margin-right: 0.35rem; color: var(--accent-cyan);"></i>
               {{ attack.timestamp|date:"Y-m-d H:i:s" }}
             </td>
             <td class="font-mono" style="font-weight: 700; white-space: nowrap;">
-              <span>{{ attack.ip_address }}</span>
+              <span style="color: var(--accent-cyan);">{{ attack.ip_address }}</span>
               <button type="button" class="copy-ip-btn" data-ip="{{ attack.ip_address }}" title="Copy IP">
                 <i class="fa-regular fa-copy"></i>
               </button>
+            </td>
+            <td>
+              <div style="display: flex; flex-direction: column; gap: 2px;">
+                <span style="font-weight: 700; font-size: 0.82rem; color: var(--text-primary); display: flex; align-items: center; gap: 0.4rem;">
+                  <i class="{{ attack.device.icon }}" style="color: var(--accent-cyan);"></i>
+                  <span>{{ attack.device.badge }}</span>
+                  <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 400;">({{ attack.device.browser }})</span>
+                </span>
+                <span style="font-size: 0.74rem; color: var(--text-muted);" class="font-mono">
+                  <i class="fa-solid fa-location-dot" style="color: #ff4d6d; margin-right: 2px;"></i>
+                  {{ attack.geo.city }}, {{ attack.geo.country }}
+                </span>
+              </div>
             </td>
             <td>
               <span class="badge {% if 'SQL' in attack.inferred_intent or 'Injection' in attack.inferred_intent %}badge-critical{% elif 'Brute' in attack.inferred_intent %}badge-high{% elif 'Recon' in attack.inferred_intent %}badge-medium{% else %}badge-cyan{% endif %}" style="font-size: 0.72rem; white-space: nowrap;">
                 {{ attack.inferred_intent }}
               </span>
             </td>
-            <td class="font-mono" style="max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            <td class="font-mono" style="max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
               <span style="color: var(--accent-cyan); font-weight: 700; margin-right: 0.3rem;">{{ attack.method }}</span>
               <span>{{ attack.path }}</span>
             </td>
@@ -389,12 +403,12 @@
           </tr>
           {% empty %}
           <tr class="no-filter">
-            <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 3.5rem 1.5rem;">
+            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 3.5rem 1.5rem;">
               <div style="display: flex; flex-direction: column; align-items: center; gap: 0.75rem;">
                 <i class="fa-solid fa-shield-check" style="font-size: 2.5rem; color: var(--accent-emerald);"></i>
                 <div style="font-weight: 700; font-size: 1.1rem; color: var(--text-primary);">All Systems Clean</div>
                 <p style="font-size: 0.88rem; color: var(--text-secondary); max-width: 400px;">
-                  No malicious threat events recorded. Launch a test attack from the <strong>Attack Simulator</strong> to see real-time detection!
+                  No threat events recorded. Access the app or simulate attacks from other devices on your Wi-Fi network to observe live device & location detection!
                 </p>
               </div>
             </td>
@@ -408,65 +422,87 @@
 
 {% block extra_scripts %}
 <script>
-  // 1. Initialize Interactive Global Threat Map
+  // =========================================================================
+  // 1. Rock-Solid Cyber Threat Map (Zero Zoom Glitch, Multi-Tier Markers)
+  // =========================================================================
   let map = null;
   let markersLayer = null;
+  const markerMap = new Map(); // Store markers by IP to prevent rebuilding on zoom/update
+  let hasAutoFitted = false;   // Only fit bounds on first load, never interrupt user zoom
 
   function initThreatMap() {
     const mapContainer = document.getElementById('threatMap');
     if (!mapContainer || typeof L === 'undefined') return;
 
     map = L.map('threatMap', {
-      center: [20.0, 10.0],
+      center: [20.0, 15.0],
       zoom: 2,
       minZoom: 2,
-      maxZoom: 10,
+      maxZoom: 18,
       zoomControl: true,
+      zoomAnimation: true,
+      fadeAnimation: true,
+      markerZoomAnimation: true,
       attributionControl: false
     });
 
-    // 100% Free Cyber Dark Map Tile Layer (No API Key Required)
+    // 100% Free Cyber Dark Map Tile Layer (No API Key, No Watermark)
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
-      maxZoom: 16,
+      maxZoom: 18,
+      maxNativeZoom: 16,
       attribution: 'Esri, DeLorme, NAVTEQ'
     }).addTo(map);
 
     markersLayer = L.layerGroup().addTo(map);
-    loadThreatMapData();
+
+    // Initial load
+    loadThreatMapData(true);
+
+    // Periodic background sync without resetting zoom or clearing view
+    setInterval(() => {
+      loadThreatMapData(false);
+    }, 8000);
   }
 
-  async function loadThreatMapData() {
+  async function loadThreatMapData(isFirstLoad = false) {
     if (!map || !markersLayer) return;
     try {
       const res = await fetch('/api/threat-map/');
       const data = await res.json();
-      markersLayer.clearLayers();
+      if (!data || !data.markers) return;
+
+      const currentIpsInPayload = new Set();
 
       data.markers.forEach(marker => {
+        currentIpsInPayload.add(marker.ip);
+
         const tierClass = marker.risk_score >= 70 ? 'critical' : (marker.risk_score >= 40 ? 'high' : (marker.risk_score >= 15 ? 'medium' : 'low'));
-        const customIcon = L.divIcon({
-          className: 'custom-pulse-icon',
-          html: `<span class="pulse-marker ${tierClass}"></span>`,
-          iconSize: [14, 14],
-          iconAnchor: [7, 7]
-        });
+        const deviceBadge = marker.device_badge || '💻 Client Device';
+        const deviceIcon = marker.device_icon || 'fa-solid fa-laptop';
+        const browser = marker.browser || 'Web Browser';
 
         const popupContent = `
-          <div style="font-size: 0.85rem; line-height: 1.5; min-width: 180px;">
-            <div style="font-weight: 800; font-family: monospace; color: var(--accent-cyan); font-size: 0.95rem; margin-bottom: 0.2rem;">
-              <i class="fa-solid fa-network-wired"></i> ${marker.ip}
+          <div style="font-size: 0.85rem; line-height: 1.5; min-width: 210px;">
+            <div style="font-weight: 800; font-family: monospace; color: var(--accent-cyan); font-size: 0.95rem; margin-bottom: 0.2rem; display: flex; justify-content: space-between; align-items: center;">
+              <span><i class="fa-solid fa-network-wired"></i> ${marker.ip}</span>
+              <span style="font-size: 0.72rem; padding: 0.15rem 0.4rem; border-radius: 4px; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4);">LIVE</span>
             </div>
-            <div style="color: #94a3b8; font-size: 0.78rem; margin-bottom: 0.4rem;">
-              ${marker.city}, ${marker.country} &bull; <span style="color: #cbd5e1;">${marker.asn}</span>
+            <div style="margin-bottom: 0.4rem; font-weight: 600; color: #f1f5f9; display: flex; align-items: center; gap: 0.4rem;">
+              <i class="${deviceIcon}" style="color: #38bdf8;"></i>
+              <span>${deviceBadge} &bull; ${browser}</span>
+            </div>
+            <div style="color: #94a3b8; font-size: 0.78rem; margin-bottom: 0.45rem;">
+              <i class="fa-solid fa-location-dot" style="color: #ff4d6d;"></i> ${marker.city}, ${marker.country}
+              <div style="color: #64748b; font-size: 0.72rem; margin-top: 1px;">${marker.asn}</div>
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
               <span>Threat Score:</span>
               <strong style="color: ${marker.risk_score >= 70 ? '#ff4d6d' : '#fb923c'}; font-family: monospace;">${marker.fused_score}/100 (${marker.threat_level})</strong>
             </div>
             <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.5rem;">
-              Forecast: <span style="color: #38bdf8; font-weight: 600;">${marker.predicted_stage || 'Active Monitoring'}</span>
+              Status: <span style="color: #38bdf8; font-weight: 600;">${marker.predicted_stage || 'Live Monitoring'}</span>
             </div>
-            <div style="text-align: right;">
+            <div style="text-align: right; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.4rem;">
               <a href="/threats/${marker.ip}/" style="color: #38bdf8; text-decoration: underline; font-weight: 700; font-size: 0.8rem;">
                 Open IP Dossier &rarr;
               </a>
@@ -474,27 +510,58 @@
           </div>
         `;
 
-        L.marker([marker.lat, marker.lng], { icon: customIcon })
-          .bindPopup(popupContent)
-          .addTo(markersLayer);
+        if (markerMap.has(marker.ip)) {
+          // Smoothly update popup content without re-creating marker DOM element
+          const existingMarker = markerMap.get(marker.ip);
+          existingMarker.setPopupContent(popupContent);
+        } else {
+          // Create marker once
+          const customIcon = L.divIcon({
+            className: 'custom-pulse-icon',
+            html: `<span class="pulse-marker ${tierClass}"></span>`,
+            iconSize: [14, 14],
+            iconAnchor: [7, 7]
+          });
+
+          const newMarker = L.marker([marker.lat, marker.lng], { icon: customIcon })
+            .bindPopup(popupContent);
+
+          markersLayer.addLayer(newMarker);
+          markerMap.set(marker.ip, newMarker);
+        }
       });
 
-      // Fit map view if markers are present
-      if (markersLayer.getLayers().length > 0) {
+      // Fit bounds ONCE on initial page render only, never resetting user's zoom/pan
+      if ((isFirstLoad || !hasAutoFitted) && markersLayer.getLayers().length > 0) {
         const group = new L.featureGroup(markersLayer.getLayers());
-        map.fitBounds(group.getBounds().pad(0.12), { maxZoom: 5 });
+        map.fitBounds(group.getBounds().pad(0.18), { maxZoom: 5 });
+        hasAutoFitted = true;
       }
     } catch (err) {
-      console.error('Failed to load threat map points:', err);
+      console.warn('Threat map sync notice:', err);
     }
   }
 
-  // 2. Real-Time Server-Sent Events (SSE) Live Feed
+  // =========================================================================
+  // 2. Real-Time Server-Sent Events (SSE) Live Feed (Glitch-Free & Deduplicated)
+  // =========================================================================
+  const renderedLogIds = new Set();
+
   function initLiveStream() {
     if (typeof EventSource === 'undefined') return;
 
+    // Pre-populate rendered IDs from initial SSR table
+    document.querySelectorAll('#recentAttacksTable tbody tr[data-log-id]').forEach(row => {
+      const id = parseInt(row.getAttribute('data-log-id'), 10);
+      if (id) renderedLogIds.add(id);
+    });
+
     let evtSource = null;
     function connect() {
+      if (evtSource) {
+        evtSource.close();
+      }
+
       evtSource = new EventSource('/api/live-stream/');
 
       evtSource.onmessage = function(e) {
@@ -503,13 +570,13 @@
           const log = JSON.parse(e.data);
           handleLiveLog(log);
         } catch (err) {
-          console.error('SSE JSON error:', err);
+          console.warn('SSE payload warning:', err);
         }
       };
 
       evtSource.onerror = function() {
         evtSource.close();
-        setTimeout(connect, 4000); // Auto reconnect
+        setTimeout(connect, 4000); // Reconnect gracefully
       };
     }
 
@@ -517,7 +584,9 @@
   }
 
   function handleLiveLog(log) {
-    // 1. Update KPI numbers dynamically if changed
+    if (!log || !log.id) return;
+
+    // 1. Update KPI counters
     const totalEl = document.querySelector('.stat-card:nth-child(1) .animate-counter');
     const malEl = document.querySelector('.stat-card:nth-child(2) .animate-counter');
     const flaggedEl = document.querySelector('.stat-card:nth-child(3) .animate-counter');
@@ -528,18 +597,31 @@
     if (flaggedEl && log.flagged_ips !== undefined) flaggedEl.innerText = log.flagged_ips;
     if (blockedEl && log.blocked_ips !== undefined) blockedEl.innerText = log.blocked_ips;
 
-    // 2. Prepend row to incident feed if it is an attack
-    if (log.is_attack) {
+    // 2. Check if this is an attack incident
+    const isSecurityIncident = log.is_attack || (log.intent && !log.intent.toLowerCase().includes('legitimate'));
+
+    if (isSecurityIncident) {
+      // Prevent duplicate row glitch
+      if (renderedLogIds.has(log.id)) return;
+      renderedLogIds.add(log.id);
+
       const tableBody = document.querySelector('#recentAttacksTable tbody');
       if (tableBody) {
-        // Remove empty state row if present
+        // Remove empty state placeholder
         const emptyRow = tableBody.querySelector('.no-filter');
         if (emptyRow) emptyRow.remove();
 
         const badgeClass = (log.intent.includes('SQL') || log.intent.includes('Injection')) ? 'badge-critical' : (log.intent.includes('Brute') ? 'badge-high' : 'badge-cyan');
         const statusStyle = log.status_code >= 400 ? 'background: rgba(255, 77, 109, 0.12); color: var(--accent-red); border: 1px solid rgba(255,77,109,0.3);' : 'background: rgba(16, 185, 129, 0.12); color: var(--accent-emerald); border: 1px solid rgba(16,185,129,0.3);';
 
+        const deviceBadge = log.device_badge || '📱 Mobile Device';
+        const deviceIcon = log.device_icon || 'fa-solid fa-mobile-screen-button';
+        const browser = log.browser || 'Browser';
+        const city = log.city || 'Local Area';
+        const country = log.country || 'Network';
+
         const newRow = document.createElement('tr');
+        newRow.setAttribute('data-log-id', log.id);
         newRow.className = 'new-row-pulse';
         newRow.innerHTML = `
           <td class="font-mono" style="color: var(--text-muted); font-size: 0.82rem; white-space: nowrap;">
@@ -547,17 +629,30 @@
             ${log.timestamp}
           </td>
           <td class="font-mono" style="font-weight: 700; white-space: nowrap;">
-            <span>${log.ip}</span>
+            <span style="color: var(--accent-cyan);">${log.ip}</span>
             <button type="button" class="copy-ip-btn" data-ip="${log.ip}" title="Copy IP">
               <i class="fa-regular fa-copy"></i>
             </button>
+          </td>
+          <td>
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+              <span style="font-weight: 700; font-size: 0.82rem; color: var(--text-primary); display: flex; align-items: center; gap: 0.4rem;">
+                <i class="${deviceIcon}" style="color: var(--accent-cyan);"></i>
+                <span>${deviceBadge}</span>
+                <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 400;">(${browser})</span>
+              </span>
+              <span style="font-size: 0.74rem; color: var(--text-muted);" class="font-mono">
+                <i class="fa-solid fa-location-dot" style="color: #ff4d6d; margin-right: 2px;"></i>
+                ${city}, ${country}
+              </span>
+            </div>
           </td>
           <td>
             <span class="badge ${badgeClass}" style="font-size: 0.72rem; white-space: nowrap;">
               ${log.intent}
             </span>
           </td>
-          <td class="font-mono" style="max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+          <td class="font-mono" style="max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
             <span style="color: var(--accent-cyan); font-weight: 700; margin-right: 0.3rem;">${log.method}</span>
             <span>${log.path}</span>
           </td>
@@ -576,13 +671,33 @@
 
         tableBody.insertBefore(newRow, tableBody.firstChild);
 
-        // Keep maximum 12 rows
-        while (tableBody.children.length > 12) {
-          tableBody.removeChild(tableBody.lastChild);
+        // Bind copy button on newly created row
+        const copyBtn = newRow.querySelector('.copy-ip-btn');
+        if (copyBtn) {
+          copyBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            try {
+              await navigator.clipboard.writeText(log.ip);
+              const icon = copyBtn.querySelector('i');
+              if (icon) icon.className = 'fa-solid fa-check';
+              copyBtn.style.color = 'var(--accent-emerald)';
+              setTimeout(() => {
+                if (icon) icon.className = 'fa-regular fa-copy';
+                copyBtn.style.color = '';
+              }, 1800);
+            } catch (_) {}
+          });
         }
 
-        // Refresh Threat Map markers
-        loadThreatMapData();
+        // Limit table to 15 rows cleanly
+        while (tableBody.children.length > 15) {
+          const removedRow = tableBody.removeChild(tableBody.lastChild);
+          const oldId = parseInt(removedRow.getAttribute('data-log-id'), 10);
+          if (oldId) renderedLogIds.delete(oldId);
+        }
+
+        // Soft sync threat map marker without snapping viewport
+        loadThreatMapData(false);
       }
     }
   }

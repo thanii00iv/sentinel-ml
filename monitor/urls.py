@@ -4,11 +4,15 @@ from . import views
 
 urlpatterns = [
     # Authentication
-    path('login/', auth_views.LoginView.as_view(template_name='monitor/login.html'), name='login'),
+    path('login/', views.login_view, name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
 
+    # Root & Public Landing Page
+    path('', views.root_entry, name='root'),
+    path('landing/', views.landing, name='landing'),
+
     # Core SOC Pages
-    path('', views.home, name='home'),
+    path('dashboard/', views.home, name='home'),
     path('threats/', views.threat_list, name='threat_list'),
     path('threats/<str:ip>/', views.threat_journey, name='threat_journey'),
     path('hunting/', views.threat_hunting, name='threat_hunting'),

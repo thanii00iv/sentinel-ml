@@ -106,6 +106,16 @@ class RequestLoggingMiddleware:
 
         # Feature & Entropy calculations
         full_url = request.get_full_path()
+
+        # Ignore static files and internal streaming/polling APIs from polluting request logs
+        if (
+            request.path.startswith('/static/') or
+            request.path.startswith('/api/live-stream/') or
+            request.path.startswith('/api/threat-map/') or
+            request.path.startswith('/favicon')
+        ):
+            return response
+
         entropy = calculate_entropy(full_url)
         rate = calculate_request_rate(RequestLog, client_ip)
 

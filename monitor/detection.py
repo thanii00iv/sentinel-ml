@@ -225,3 +225,101 @@ HONEYPOT_PATHS = {
     '/.aws/credentials',
     '/actuator/health',
 }
+
+
+def parse_device_info(user_agent: str) -> dict:
+    """
+    Parse a User-Agent string to extract precise Device Model, OS, Browser, and Icon.
+    """
+    if not user_agent:
+        return {
+            'device_name': 'Unknown Node',
+            'device_type': 'Network Client',
+            'os': 'Unknown OS',
+            'browser': 'Direct Connection',
+            'icon': 'fa-solid fa-microchip',
+            'badge': '🛰️ Unknown Device',
+            'display': 'Unknown Device &bull; Web Client'
+        }
+
+    ua = user_agent.lower()
+
+    # 1. Device Type & OS Detection
+    if 'iphone' in ua:
+        device_name = 'Apple iPhone'
+        device_type = 'Mobile'
+        os_name = 'iOS'
+        icon = 'fa-brands fa-apple'
+        badge = '📱 iPhone'
+    elif 'ipad' in ua:
+        device_name = 'Apple iPad'
+        device_type = 'Tablet'
+        os_name = 'iPadOS'
+        icon = 'fa-brands fa-apple'
+        badge = '📱 iPad'
+    elif 'android' in ua:
+        device_name = 'Android Smartphone'
+        device_type = 'Mobile'
+        os_name = 'Android'
+        icon = 'fa-brands fa-android'
+        badge = '🤖 Android'
+    elif 'macintosh' in ua or 'mac os x' in ua:
+        device_name = 'Apple Mac'
+        device_type = 'Desktop'
+        os_name = 'macOS'
+        icon = 'fa-brands fa-apple'
+        badge = '💻 Mac'
+    elif 'windows nt 10.0' in ua or 'windows' in ua:
+        device_name = 'Windows PC'
+        device_type = 'Desktop'
+        os_name = 'Windows 10/11'
+        icon = 'fa-brands fa-windows'
+        badge = '💻 Windows PC'
+    elif 'linux' in ua:
+        device_name = 'Linux Station'
+        device_type = 'Desktop'
+        os_name = 'Linux'
+        icon = 'fa-brands fa-linux'
+        badge = '🐧 Linux'
+    elif 'curl' in ua or 'postman' in ua or 'python' in ua or 'httpclient' in ua or 'nmap' in ua or 'nikto' in ua:
+        device_name = 'Automated Attack Engine'
+        device_type = 'Scanner'
+        os_name = 'CLI'
+        icon = 'fa-solid fa-terminal'
+        badge = '👾 Automated Script'
+    else:
+        device_name = 'Network Workstation'
+        device_type = 'Client'
+        os_name = 'OS Client'
+        icon = 'fa-solid fa-laptop'
+        badge = '💻 Client Station'
+
+    # 2. Browser Detection
+    if 'edg/' in ua or 'edge/' in ua:
+        browser = 'Microsoft Edge'
+    elif 'chrome' in ua and 'safari' in ua and 'edg' not in ua:
+        browser = 'Google Chrome'
+    elif 'safari' in ua and 'chrome' not in ua:
+        browser = 'Apple Safari'
+    elif 'firefox' in ua:
+        browser = 'Mozilla Firefox'
+    elif 'opera' in ua or 'opr/' in ua:
+        browser = 'Opera'
+    elif 'curl' in ua:
+        browser = 'cURL CLI'
+    elif 'postman' in ua:
+        browser = 'Postman Client'
+    elif 'python' in ua:
+        browser = 'Python Requests'
+    else:
+        browser = 'Web Browser'
+
+    return {
+        'device_name': device_name,
+        'device_type': device_type,
+        'os': os_name,
+        'browser': browser,
+        'icon': icon,
+        'badge': badge,
+        'display': f"{badge} &bull; {browser}"
+    }

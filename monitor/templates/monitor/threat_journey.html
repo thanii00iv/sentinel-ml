@@ -481,18 +481,22 @@
       paper_bgcolor: 'rgba(0,0,0,0)',
       plot_bgcolor: 'rgba(0,0,0,0)',
       font: { color: fontColor, family: 'Plus Jakarta Sans, sans-serif' },
-      margin: { t: 30, r: 30, b: 85, l: 85 },
+      margin: { t: 30, r: 30, b: 70, l: 75 },
+      dragmode: false, // Prevent accidental box zoom on touch/drag
+      hovermode: 'closest',
       xaxis: {
         gridcolor: gridColor,
         zerolinecolor: gridColor,
         tickfont: { color: fontColor, size: 10 },
         automargin: true,
-        tickangle: -25
+        fixedrange: true // Lock x-axis from distortion on drag/touch
       },
       yaxis: {
         gridcolor: gridColor,
         zerolinecolor: gridColor,
-        tickfont: { color: fontColor }
+        tickfont: { color: fontColor, size: 11 },
+        automargin: true,
+        fixedrange: true // Lock y-axis from distortion on drag/touch
       }
     };
 
@@ -505,9 +509,14 @@
         mode: 'markers',
         type: 'scatter',
         name: types[y],
-        marker: { color: colors[y], size: 13, line: { color: '#ffffff', width: 1 } },
+        marker: { 
+          color: colors[y], 
+          size: 14, 
+          line: { color: '#ffffff', width: 1.5 },
+          opacity: 0.95
+        },
         text: filtered.map(e => `${escapeHtml(e.method)} ${escapeHtml(e.path)} (Status ${e.status_code})<br>Intent: ${escapeHtml(e.intent || types[y])}`),
-        hovertemplate: '<b>%{text}</b><br>%{x}<extra></extra>'
+        hovertemplate: '<b>%{text}</b><br>Time: %{x}<extra></extra>'
       };
     });
 
@@ -515,51 +524,71 @@
       ...baseLayout,
       xaxis: {
         ...baseLayout.xaxis,
-        title: { text: 'Timeline (Indian Standard Time)', standoff: 25 },
-        type: 'date',
-        tickformat: '%H:%M:%S<br>%d %b',
-        nticks: 7
+        title: { text: 'Timeline (Indian Standard Time)', standoff: 20 },
+        type: 'category',
+        tickangle: -15,
+        nticks: Math.min(events.length, 8)
       },
       yaxis: {
         ...baseLayout.yaxis,
-        title: { text: 'Attack Vector', standoff: 20 },
+        title: { text: 'Attack Vector', standoff: 15 },
         tickvals: [1, 2, 3, 4, 5],
         ticktext: ['Recon', 'Brute Force', 'SQL Injection', 'XSS', 'Path Traversal'],
         range: [0.5, 5.5]
-      },
-      hovermode: 'closest'
-    }, { responsive: true, displayModeBar: false });
+      }
+    }, { 
+      responsive: true, 
+      displayModeBar: false, 
+      scrollZoom: false,
+      doubleClick: false
+    });
 
-    // 2. Full Timeline Bar Chart (Auto-sampled Date Axis)
+    // 2. Full Timeline Bar Chart (Fixed-width bars, Category Axis)
+    const minutes = density.minutes || [];
+    const formattedTimelineLabels = minutes.map(m => {
+      if (!m) return '';
+      // Format YYYY-MM-DD HH:MM to clean "HH:MM (DD MMM)"
+      if (m.length >= 16) {
+        const timePart = m.substring(11, 16);
+        const datePart = m.substring(8, 10);
+        return `${timePart} (${datePart}th)`;
+      }
+      return m;
+    });
+
     const densityTraces = [
-      { x: density.minutes || [], y: density.recon || [], name: 'Recon', type: 'bar', marker: { color: '#c084fc' } },
-      { x: density.minutes || [], y: density.brute_force || [], name: 'Brute Force', type: 'bar', marker: { color: '#fb923c' } },
-      { x: density.minutes || [], y: density.sqli || [], name: 'SQL Injection', type: 'bar', marker: { color: '#ff4d6d' } },
-      { x: density.minutes || [], y: density.xss || [], name: 'XSS', type: 'bar', marker: { color: '#38bdf8' } },
-      { x: density.minutes || [], y: density.path_traversal || [], name: 'Path Traversal', type: 'bar', marker: { color: '#e11d48' } }
+      { x: formattedTimelineLabels, y: density.recon || [], name: 'Recon', type: 'bar', marker: { color: '#c084fc' } },
+      { x: formattedTimelineLabels, y: density.brute_force || [], name: 'Brute Force', type: 'bar', marker: { color: '#fb923c' } },
+      { x: formattedTimelineLabels, y: density.sqli || [], name: 'SQL Injection', type: 'bar', marker: { color: '#ff4d6d' } },
+      { x: formattedTimelineLabels, y: density.xss || [], name: 'XSS', type: 'bar', marker: { color: '#38bdf8' } },
+      { x: formattedTimelineLabels, y: density.path_traversal || [], name: 'Path Traversal', type: 'bar', marker: { color: '#e11d48' } }
     ];
 
     Plotly.newPlot('densityChart', densityTraces, {
       ...baseLayout,
       barmode: 'stack',
+      bargap: 0.45,
+      bargroupgap: 0.1,
       xaxis: {
         ...baseLayout.xaxis,
-        title: { text: 'Time Interval (Indian Standard Time)', standoff: 25 },
-        type: 'date',
-        tickformat: '%H:%M<br>%d %b',
-        nticks: 6
+        title: { text: 'Time Window (IST)', standoff: 20 },
+        type: 'category',
+        tickangle: -15
       },
       yaxis: {
         ...baseLayout.yaxis,
-        title: { text: 'Attack Volume', standoff: 20 }
-      },
-      hovermode: 'closest'
-    }, { responsive: true, displayModeBar: false });
+        title: { text: 'Attack Volume', standoff: 15 }
+      }
+    }, { 
+      responsive: true, 
+      displayModeBar: false, 
+      scrollZoom: false,
+      doubleClick: false
+    });
 
-    // 3. Zoomed Burst Density Chart (Only Peak Window Slice)
+    // 3. Zoomed Burst Density Chart (Peak Window Slice with crisp bars)
     let maxTotal = 0;
     let maxIndex = 0;
-    const minutes = density.minutes || [];
     if (minutes.length > 0) {
       minutes.forEach((m, i) => {
         const total = (density.recon[i] || 0) + (density.brute_force[i] || 0) + (density.sqli[i] || 0) + (density.xss[i] || 0) + (density.path_traversal[i] || 0);
@@ -573,34 +602,38 @@
     const startIdx = Math.max(0, maxIndex - 3);
     const endIdx = Math.min(minutes.length, maxIndex + 4);
     const zoomMinutes = minutes.slice(startIdx, endIdx);
-
-    // Format peak labels to clean short time (HH:MM)
-    const formattedLabels = zoomMinutes.map(m => (m && m.length >= 16) ? m.substring(11, 16) : m);
+    const zoomFormattedLabels = zoomMinutes.map(m => (m && m.length >= 16) ? m.substring(11, 16) : m);
 
     const zoomTraces = [
-      { x: formattedLabels, y: (density.recon || []).slice(startIdx, endIdx), name: 'Recon', type: 'bar', marker: { color: '#c084fc' } },
-      { x: formattedLabels, y: (density.brute_force || []).slice(startIdx, endIdx), name: 'Brute Force', type: 'bar', marker: { color: '#fb923c' } },
-      { x: formattedLabels, y: (density.sqli || []).slice(startIdx, endIdx), name: 'SQL Injection', type: 'bar', marker: { color: '#ff4d6d' } },
-      { x: formattedLabels, y: (density.xss || []).slice(startIdx, endIdx), name: 'XSS', type: 'bar', marker: { color: '#38bdf8' } },
-      { x: formattedLabels, y: (density.path_traversal || []).slice(startIdx, endIdx), name: 'Path Traversal', type: 'bar', marker: { color: '#e11d48' } }
+      { x: zoomFormattedLabels, y: (density.recon || []).slice(startIdx, endIdx), name: 'Recon', type: 'bar', marker: { color: '#c084fc' } },
+      { x: zoomFormattedLabels, y: (density.brute_force || []).slice(startIdx, endIdx), name: 'Brute Force', type: 'bar', marker: { color: '#fb923c' } },
+      { x: zoomFormattedLabels, y: (density.sqli || []).slice(startIdx, endIdx), name: 'SQL Injection', type: 'bar', marker: { color: '#ff4d6d' } },
+      { x: zoomFormattedLabels, y: (density.xss || []).slice(startIdx, endIdx), name: 'XSS', type: 'bar', marker: { color: '#38bdf8' } },
+      { x: zoomFormattedLabels, y: (density.path_traversal || []).slice(startIdx, endIdx), name: 'Path Traversal', type: 'bar', marker: { color: '#e11d48' } }
     ];
 
     Plotly.newPlot('densityChartZoom', zoomTraces, {
       ...baseLayout,
       barmode: 'stack',
+      bargap: 0.45,
+      bargroupgap: 0.1,
       xaxis: {
         ...baseLayout.xaxis,
-        title: { text: 'Peak Burst Window (HH:MM IST)', standoff: 25 },
+        title: { text: 'Peak Burst Window (HH:MM IST)', standoff: 20 },
         type: 'category',
         tickangle: 0,
         tickfont: { color: fontColor, size: 11 }
       },
       yaxis: {
         ...baseLayout.yaxis,
-        title: { text: 'Requests / Minute', standoff: 20 }
-      },
-      hovermode: 'closest'
-    }, { responsive: true, displayModeBar: false });
+        title: { text: 'Requests / Minute', standoff: 15 }
+      }
+    }, { 
+      responsive: true, 
+      displayModeBar: false, 
+      scrollZoom: false,
+      doubleClick: false
+    });
   }
 
   // Ensure DOM is fully ready before rendering

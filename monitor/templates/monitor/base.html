@@ -27,7 +27,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
   <!-- Custom Futuristic Stylesheet -->
-  <link rel="stylesheet" href="{% static 'monitor/css/sentinel.css' %}">
+  <link rel="stylesheet" href="{% static 'monitor/css/sentinel.css' %}?v=3.0.1">
 
   {% block extra_head %}{% endblock %}
 </head>
@@ -63,6 +63,12 @@
       <div style="display: flex; align-items: center; gap: 0.75rem;">
         <ul class="nav-links">
           <li>
+            <a href="{% url 'landing' %}" class="{% if request.resolver_match.url_name == 'landing' %}active{% endif %}">
+              <i class="fa-solid fa-compass"></i>
+              <span>Overview</span>
+            </a>
+          </li>
+          <li>
             <a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">
               <i class="fa-solid fa-gauge-high"></i>
               <span>SOC Dashboard</span>
@@ -76,7 +82,7 @@
           </li>
           <li>
             <a href="{% url 'threat_hunting' %}" class="{% if request.resolver_match.url_name == 'threat_hunting' %}active{% endif %}">
-              <i class="fa-solid fa-radar"></i>
+              <i class="fa-solid fa-satellite-dish"></i>
               <span>Threat Hunting</span>
             </a>
           </li>
@@ -116,6 +122,9 @@
       </div>
       {% else %}
       <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <a href="{% url 'landing' %}" class="btn-secondary btn-sm" style="text-decoration: none;">
+          <i class="fa-solid fa-compass"></i> Overview
+        </a>
         <button type="button" class="theme-toggle-btn" aria-label="Toggle Dark/Light Mode" title="Toggle Theme">
           <i class="fa-solid fa-sun"></i>
         </button>
@@ -143,6 +152,8 @@
         </span>
       </div>
       <div style="display: flex; align-items: center; gap: 1.25rem; font-size: 0.8rem;" class="font-mono">
+        <a href="{% url 'landing' %}" style="color: var(--accent-cyan); text-decoration: none;">Overview</a>
+        <span style="color: var(--text-muted);">&bull;</span>
         <span style="color: var(--accent-emerald);"><i class="fa-solid fa-shield-halved"></i> FIREWALL ACTIVE</span>
         <span style="color: var(--text-muted);">&bull;</span>
         <span>LATENCY: &lt;1.1ms</span>
@@ -151,7 +162,7 @@
   </footer>
 
   <!-- Scripts -->
-  <script src="{% static 'monitor/js/sentinel.js' %}"></script>
+  <script src="{% static 'monitor/js/sentinel.js' %}?v=3.0.1"></script>
   {% block extra_scripts %}{% endblock %}
 
 </body>

@@ -1,0 +1,828 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SentinelML — Autonomous Threat Hunting & Predictive Forensics</title>
+
+  <!-- Cyber Brand Favicon -->
+  <link rel="icon" type="image/svg+xml" href="{% static 'monitor/img/favicon.svg' %}">
+
+  <!-- Preload Theme Preference -->
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('iml_sentinel_theme');
+      const theme = savedTheme || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Orbitron:wght@600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Custom Futuristic Stylesheet -->
+  <link rel="stylesheet" href="{% static 'monitor/css/sentinel.css' %}?v=3.0.1">
+</head>
+<body class="landing-body future-page" style="position: relative; overflow-x: hidden;">
+
+  <!-- Ambient Holographic Glow Mesh & Auroras -->
+  <div class="cyber-aurora-container" aria-hidden="true">
+    <div class="aurora-orb aurora-1"></div>
+    <div class="aurora-orb aurora-2"></div>
+    <div class="aurora-orb aurora-3"></div>
+    <div class="cyber-grid-overlay"></div>
+    <div class="cyber-scanlines"></div>
+  </div>
+
+  <!-- Interactive 3D Particle Canvas Background -->
+  <div class="motion-canvas-container">
+    <canvas id="cyberMotionCanvas"></canvas>
+  </div>
+
+  <!-- Custom Futuristic Cursor Glow -->
+  <div class="cyber-cursor-glow" id="cyberCursor"></div>
+
+  <div class="landing-wrapper">
+
+    <!-- Future Glass Navbar -->
+    <nav class="future-navbar" id="mainNav">
+      <div class="nav-glass-shell">
+        
+        <!-- Brand & Quantum Core Badge -->
+        <a href="{% url 'landing' %}" class="future-brand">
+          <div class="brand-hologram-shield">
+            <i class="fa-solid fa-shield-halved"></i>
+            <div class="shield-ring"></div>
+          </div>
+          <div class="brand-text-group">
+            <div class="brand-title">SENTINEL<span class="neon-cyan">ML</span></div>
+            <div class="brand-micro-tag">ICMF NEURAL CORE v3.0</div>
+          </div>
+        </a>
+
+        <!-- Live Autonomous System Status Pill -->
+        <div class="nav-system-status d-none-mobile">
+          <span class="status-orb pulse-green"></span>
+          <span class="status-text font-mono"><span class="neon-emerald">ONLINE</span> // QUANTUM DEFENSE ACTIVE</span>
+          <span class="status-divider">|</span>
+          <span class="status-threat font-mono">THREAT LEVEL: <span class="neon-cyan">0.04 (NOMINAL)</span></span>
+        </div>
+
+        <!-- Navigation Links -->
+        <div class="nav-actions-group">
+          <ul class="future-nav-links">
+            <li><a href="#overview"><i class="fa-solid fa-compass"></i> <span>Overview</span></a></li>
+            <li><a href="#icmf-layers"><i class="fa-solid fa-layer-group"></i> <span>5-Layer ICMF</span></a></li>
+            <li><a href="#killchain"><i class="fa-solid fa-diagram-project"></i> <span>Kill-Chain</span></a></li>
+            <li><a href="#features"><i class="fa-solid fa-cubes"></i> <span>Bento Arsenal</span></a></li>
+            <li><a href="#playground"><i class="fa-solid fa-terminal"></i> <span>Live Sim</span></a></li>
+          </ul>
+
+          <!-- Controls: Gateway Access CTA -->
+          <div class="nav-buttons-cluster">
+
+            {% if user.is_authenticated %}
+            <a href="{% url 'home' %}" class="btn-future-glass btn-glow-cyan">
+              <i class="fa-solid fa-gauge-high"></i>
+              <span>SOC Command</span>
+            </a>
+            {% else %}
+            <a href="{% url 'login' %}" class="btn-future-glass btn-glow-cyan">
+              <i class="fa-solid fa-fingerprint"></i>
+              <span>Security Clearance</span>
+            </a>
+            {% endif %}
+          </div>
+        </div>
+
+      </div>
+    </nav>
+
+    <!-- HERO SECTION: Ultra-Glassy Futuristic Command Deck -->
+    <header class="future-hero" id="hero">
+      <div class="hero-container">
+        
+        <!-- Left Hero Content -->
+        <div class="hero-left-col motion-fade-up">
+          
+          <div class="future-pill-badge">
+            <span class="pulse-beacon"></span>
+            <span class="badge-glitch" data-text="AUTONOMOUS CYBER DEFENSE">AUTONOMOUS CYBER DEFENSE</span>
+            <span class="badge-accent font-mono">&bull; ICMF ENGINE</span>
+          </div>
+
+          <h1 class="future-hero-title">
+            Next-Gen Threat Hunting & <span class="holographic-gradient-text">Predictive Forensics</span>
+          </h1>
+
+          <p class="future-hero-subtitle">
+            SentinelML fuses deterministic micro-heuristics, supervised 12D ensembles, unsupervised anomaly isolation, stochastic Markov transitions, and neural LLM synthesis into real-time <strong>Threat-Journey Graphs</strong> to intercept multi-stage attack campaigns before breach execution.
+          </p>
+
+          <!-- Future CTA Action Hub -->
+          <div class="future-cta-cluster">
+            {% if user.is_authenticated %}
+            <a href="{% url 'home' %}" class="future-primary-btn">
+              <span class="btn-shine"></span>
+              <i class="fa-solid fa-gauge-high"></i>
+              <span>Launch SOC Command Center</span>
+              <i class="fa-solid fa-arrow-right-long arrow-icon"></i>
+            </a>
+            {% else %}
+            <a href="{% url 'login' %}" class="future-primary-btn">
+              <span class="btn-shine"></span>
+              <i class="fa-solid fa-shield-halved"></i>
+              <span>Enter Security Gateway</span>
+              <i class="fa-solid fa-arrow-right-long arrow-icon"></i>
+            </a>
+            {% endif %}
+            
+            <a href="#playground" class="future-secondary-btn">
+              <i class="fa-solid fa-play-circle"></i>
+              <span>Execute Live Attack Sim</span>
+            </a>
+          </div>
+
+          <!-- Glass Floating Telemetry Metrics Bar -->
+          <div class="hero-glass-stats-grid">
+            <div class="glass-stat-card" data-spotlight>
+              <div class="stat-top-row">
+                <i class="fa-solid fa-microchip stat-icon neon-cyan"></i>
+                <span class="stat-sub font-mono">INGESTED</span>
+              </div>
+              <div class="stat-number font-orbitron animate-counter" data-target="{{ total_requests }}">{{ total_requests }}</div>
+              <div class="stat-label">Packets Scanned</div>
+            </div>
+
+            <div class="glass-stat-card" data-spotlight>
+              <div class="stat-top-row">
+                <i class="fa-solid fa-hand-holding-hand stat-icon neon-red"></i>
+                <span class="stat-sub font-mono">NEUTRALIZED</span>
+              </div>
+              <div class="stat-number font-orbitron neon-red"><span class="animate-counter" data-target="{{ malicious_total }}">{{ malicious_total }}</span></div>
+              <div class="stat-label">Threats Neutralized</div>
+            </div>
+
+            <div class="glass-stat-card" data-spotlight>
+              <div class="stat-top-row">
+                <i class="fa-solid fa-bullseye stat-icon neon-emerald"></i>
+                <span class="stat-sub font-mono">PRECISION</span>
+              </div>
+              <div class="stat-number font-orbitron neon-emerald">99.4%</div>
+              <div class="stat-label">ML Accuracy Score</div>
+            </div>
+
+            <div class="glass-stat-card" data-spotlight>
+              <div class="stat-top-row">
+                <i class="fa-solid fa-bolt-lightning stat-icon neon-purple"></i>
+                <span class="stat-sub font-mono">SPEED</span>
+              </div>
+              <div class="stat-number font-orbitron neon-cyan">&lt;1.1<span style="font-size: 0.9rem;">ms</span></div>
+              <div class="stat-label">Decision Latency</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Hero: 3D Holographic Quantum Sphere / Threat Matrix Deck -->
+        <div class="hero-right-col motion-fade-up">
+          <div class="quantum-hologram-stage" data-tilt>
+            
+            <!-- Floating Glass Chip: Top -->
+            <div class="floating-glass-chip chip-upper">
+              <div class="chip-status-dot pulse-emerald"></div>
+              <div class="chip-content">
+                <span class="chip-title font-mono">HONEYPOT TRIPWIRES</span>
+                <span class="chip-value neon-emerald"><strong>{{ honeypots_count }} DECOYS ACTIVE</strong></span>
+              </div>
+            </div>
+
+            <!-- 3D Rotating Cyber Sphere Canvas & HUD Overlay -->
+            <div class="quantum-sphere-wrapper">
+              <canvas id="quantumGlobeCanvas" width="440" height="440"></canvas>
+              
+              <!-- Reticle & Orbit Rings -->
+              <div class="holo-hud-reticle">
+                <div class="hud-bracket top-left"></div>
+                <div class="hud-bracket top-right"></div>
+                <div class="hud-bracket bottom-left"></div>
+                <div class="hud-bracket bottom-right"></div>
+                
+                <div class="hud-center-crosshair"></div>
+                <div class="hud-radar-sweep"></div>
+                
+                <div class="hud-coordinate-tag font-mono">
+                  <span>LAT 37.7749 // LNG -122.4194</span>
+                  <span>AUTONOMOUS_MATRIX::RUNNING</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Floating Glass Chip: Bottom -->
+            <div class="floating-glass-chip chip-lower">
+              <i class="fa-solid fa-brain neon-purple chip-icon-large"></i>
+              <div class="chip-content">
+                <span class="chip-title font-mono">MARKOV KILL-CHAIN HORIZON</span>
+                <span class="chip-value neon-amber"><strong>$S_2 \rightarrow S_3$ PROBABILITY 91.4%</strong></span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- LIVE TELEMETRY TICKER BAR -->
+    <div class="future-ticker-bar">
+      <div class="ticker-content-track">
+        <span class="ticker-item"><i class="fa-solid fa-shield-halved neon-cyan"></i> SYSTEM: <strong>ICMF FUSION v3.0 ACTIVE</strong></span>
+        <span class="ticker-divider">&bull;</span>
+        <span class="ticker-item"><i class="fa-solid fa-crosshairs neon-amber"></i> MITRE ATT&CK: <strong>5 MAPPED VECTORS</strong></span>
+        <span class="ticker-divider">&bull;</span>
+        <span class="ticker-item"><i class="fa-solid fa-network-wired neon-emerald"></i> SSE STREAM: <strong>REAL-TIME TELEMETRY PUSH</strong></span>
+        <span class="ticker-divider">&bull;</span>
+        <span class="ticker-item"><i class="fa-solid fa-brain neon-purple"></i> MARKOV ENGINE: <strong>KILL-CHAIN STAGE FORECASTING</strong></span>
+        <span class="ticker-divider">&bull;</span>
+        <span class="ticker-item"><i class="fa-solid fa-lock neon-red"></i> CANARY DECOYS: <strong>ZERO FALSE-POSITIVE QUARANTINE</strong></span>
+        <span class="ticker-divider">&bull;</span>
+        <!-- Duplicated for smooth continuous marquee loop -->
+        <span class="ticker-item"><i class="fa-solid fa-shield-halved neon-cyan"></i> SYSTEM: <strong>ICMF FUSION v3.0 ACTIVE</strong></span>
+        <span class="ticker-divider">&bull;</span>
+        <span class="ticker-item"><i class="fa-solid fa-crosshairs neon-amber"></i> MITRE ATT&CK: <strong>5 MAPPED VECTORS</strong></span>
+        <span class="ticker-divider">&bull;</span>
+        <span class="ticker-item"><i class="fa-solid fa-network-wired neon-emerald"></i> SSE STREAM: <strong>REAL-TIME TELEMETRY PUSH</strong></span>
+        <span class="ticker-divider">&bull;</span>
+        <span class="ticker-item"><i class="fa-solid fa-brain neon-purple"></i> MARKOV ENGINE: <strong>KILL-CHAIN STAGE FORECASTING</strong></span>
+        <span class="ticker-divider">&bull;</span>
+        <span class="ticker-item"><i class="fa-solid fa-lock neon-red"></i> CANARY DECOYS: <strong>ZERO FALSE-POSITIVE QUARANTINE</strong></span>
+      </div>
+    </div>
+
+    <!-- SECTION 1: ARCHITECTURAL PARADIGM COMPARISON -->
+    <section id="overview" class="future-section">
+      <div class="section-badge-center motion-fade-up">
+        <span class="section-pretitle font-mono neon-cyan">// SYSTEMIC SUPERIORITY</span>
+        <h2 class="section-heading font-orbitron">Why Legacy Firewalls Fail Against Multi-Stage Attacks</h2>
+        <p class="section-paragraph">
+          Traditional WAFs inspect single requests with amnesiac rules. SentinelML introduces <strong>Intent-Centric Multi-Layer Fusion (ICMF)</strong> to observe the continuum of adversary behavior across time and multi-vector dimensions.
+        </p>
+      </div>
+
+      <div class="comparison-glass-grid">
+        
+        <!-- Legacy Flaw Card -->
+        <div class="future-glass-card flaw-card motion-fade-up" data-spotlight data-tilt>
+          <div class="card-corner-tag font-mono">LEGACY_PARADIGM</div>
+          <div class="card-header-flex">
+            <div class="icon-avatar avatar-danger">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div>
+              <h3 class="font-orbitron card-title text-danger">Legacy Firewalls & Single Models</h3>
+              <div class="font-mono card-subtitle">STATIC &bull; ISOLATED &bull; REACTIVE</div>
+            </div>
+          </div>
+
+          <div class="card-points-list">
+            <div class="point-item">
+              <div class="point-bullet bullet-danger"><i class="fa-solid fa-xmark"></i></div>
+              <div>
+                <strong>Amnesiac Request Processing:</strong> Treats every HTTP request in vacuum; completely blind to slow, multi-hour reconnaissance campaigns.
+              </div>
+            </div>
+            <div class="point-item">
+              <div class="point-bullet bullet-danger"><i class="fa-solid fa-xmark"></i></div>
+              <div>
+                <strong>Obfuscation & Zero-Day Blindspot:</strong> Simple base64/hex encoding or novel SQL syntax bypasses regex signature tables.
+              </div>
+            </div>
+            <div class="point-item">
+              <div class="point-bullet bullet-danger"><i class="fa-solid fa-xmark"></i></div>
+              <div>
+                <strong>Excessive False Positives:</strong> Aggressive regex triggers on legitimate JSON payloads, hurting user retention and operations.
+              </div>
+            </div>
+          </div>
+
+          <div class="card-status-footer font-mono">
+            <span>RESILIENCE RATING:</span>
+            <span class="text-danger font-bold">24.0% (VULNERABLE)</span>
+          </div>
+        </div>
+
+        <!-- SentinelML Solution Card -->
+        <div class="future-glass-card solution-card motion-fade-up" data-spotlight data-tilt>
+          <div class="card-corner-tag font-mono neon-emerald">SENTINEL_ICMF_PARADIGM</div>
+          <div class="card-header-flex">
+            <div class="icon-avatar avatar-success">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div>
+              <h3 class="font-orbitron card-title text-success">SentinelML Autonomous ICMF Engine</h3>
+              <div class="font-mono card-subtitle neon-cyan">TEMPORAL &bull; MULTI-LAYER &bull; PREDICTIVE</div>
+            </div>
+          </div>
+
+          <div class="card-points-list">
+            <div class="point-item">
+              <div class="point-bullet bullet-success"><i class="fa-solid fa-check"></i></div>
+              <div>
+                <strong>5-View Multi-Layer Fusion:</strong> Harmonizes deterministic regex, Random Forest, Isolation Forest, Markov transition graph, and neural LLM reasoning.
+              </div>
+            </div>
+            <div class="point-item">
+              <div class="point-bullet bullet-success"><i class="fa-solid fa-check"></i></div>
+              <div>
+                <strong>Predictive Kill-Chain State Forecasting:</strong> Computes transition probability matrix $P(S_{t+1}|S_t)$ to lock down downstream assets in advance.
+              </div>
+            </div>
+            <div class="point-item">
+              <div class="point-bullet bullet-success"><i class="fa-solid fa-check"></i></div>
+              <div>
+                <strong>Autonomous Canary Tripwires:</strong> Zero false-positive decoy routes trigger immediate deterministic IP quarantine without admin latency.
+              </div>
+            </div>
+          </div>
+
+          <div class="card-status-footer font-mono">
+            <span>RESILIENCE RATING:</span>
+            <span class="text-success font-bold">99.8% (AUTONOMOUS SHIELD)</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 2: 5-LAYER ICMF ARCHITECTURE INTERACTIVE EXPLORER -->
+    <section id="icmf-layers" class="future-section section-gradient-glass">
+      <div class="section-badge-center motion-fade-up">
+        <span class="section-pretitle font-mono neon-cyan">// 5-TIER FUSION ARCHITECTURE</span>
+        <h2 class="section-heading font-orbitron">Intent-Centric Multi-Layer Fusion (ICMF)</h2>
+        <p class="section-paragraph">
+          Explore the five autonomous analysis layers working in synchronous synergy to score, isolate, and neutralize cyber adversaries with microsecond precision.
+        </p>
+      </div>
+
+      <!-- Interactive Circuit Visualizer Flow Bar -->
+      <div class="icmf-pipeline-circuit motion-fade-up">
+        <div class="pipeline-track"></div>
+        <div class="pipeline-pulse"></div>
+        
+        <div class="pipeline-node active" data-layer-trigger="layer1">
+          <div class="node-circle"><span class="node-id">L1</span></div>
+          <span class="node-title font-mono">Deterministic Heuristics</span>
+        </div>
+        <div class="pipeline-node" data-layer-trigger="layer2">
+          <div class="node-circle"><span class="node-id">L2</span></div>
+          <span class="node-title font-mono">Random Forest 12D</span>
+        </div>
+        <div class="pipeline-node" data-layer-trigger="layer3">
+          <div class="node-circle"><span class="node-id">L3</span></div>
+          <span class="node-title font-mono">Isolation Anomaly</span>
+        </div>
+        <div class="pipeline-node" data-layer-trigger="layer4">
+          <div class="node-circle"><span class="node-id">L4</span></div>
+          <span class="node-title font-mono">Markov Kill-Chain</span>
+        </div>
+        <div class="pipeline-node" data-layer-trigger="layer5">
+          <div class="node-circle"><span class="node-id">L5</span></div>
+          <span class="node-title font-mono">Neural LLM Forensics</span>
+        </div>
+      </div>
+
+      <!-- Main Layer Explorer Dynamic Glass Display -->
+      <div class="icmf-display-layout motion-fade-up">
+        
+        <!-- Left: Layer Selector Tabs -->
+        <div class="layer-tabs-column">
+          
+          <div class="glass-layer-tab active" data-layer="layer1" data-spotlight>
+            <div class="tab-indicator"></div>
+            <div class="tab-content-wrap">
+              <div class="tab-header-row">
+                <span class="layer-badge-tag neon-cyan">LAYER 01</span>
+                <span class="layer-latency font-mono">&lt;0.1ms</span>
+              </div>
+              <h4 class="font-orbitron tab-name">Deterministic Heuristics</h4>
+              <p class="tab-desc">Regex signature inspection & Shannon entropy \(H(X)\)</p>
+            </div>
+            <i class="fa-solid fa-chevron-right tab-arrow"></i>
+          </div>
+
+          <div class="glass-layer-tab" data-layer="layer2" data-spotlight>
+            <div class="tab-indicator"></div>
+            <div class="tab-content-wrap">
+              <div class="tab-header-row">
+                <span class="layer-badge-tag neon-blue">LAYER 02</span>
+                <span class="layer-latency font-mono">~0.8ms</span>
+              </div>
+              <h4 class="font-orbitron tab-name">Supervised Random Forest</h4>
+              <p class="tab-desc">12-dimensional vector decision tree ensemble</p>
+            </div>
+            <i class="fa-solid fa-chevron-right tab-arrow"></i>
+          </div>
+
+          <div class="glass-layer-tab" data-layer="layer3" data-spotlight>
+            <div class="tab-indicator"></div>
+            <div class="tab-content-wrap">
+              <div class="tab-header-row">
+                <span class="layer-badge-tag neon-purple">LAYER 03</span>
+                <span class="layer-latency font-mono">~1.2ms</span>
+              </div>
+              <h4 class="font-orbitron tab-name">Unsupervised Isolation Forest</h4>
+              <p class="tab-desc">High-dimensional anomaly scoring & zero-day isolation</p>
+            </div>
+            <i class="fa-solid fa-chevron-right tab-arrow"></i>
+          </div>
+
+          <div class="glass-layer-tab" data-layer="layer4" data-spotlight>
+            <div class="tab-indicator"></div>
+            <div class="tab-content-wrap">
+              <div class="tab-header-row">
+                <span class="layer-badge-tag neon-amber">LAYER 04</span>
+                <span class="layer-latency font-mono">Predictive</span>
+              </div>
+              <h4 class="font-orbitron tab-name">Markov Sequence Modeling</h4>
+              <p class="tab-desc">Stochastic state transitions across temporal kill-chains</p>
+            </div>
+            <i class="fa-solid fa-chevron-right tab-arrow"></i>
+          </div>
+
+          <div class="glass-layer-tab" data-layer="layer5" data-spotlight>
+            <div class="tab-indicator"></div>
+            <div class="tab-content-wrap">
+              <div class="tab-header-row">
+                <span class="layer-badge-tag neon-emerald">LAYER 05</span>
+                <span class="layer-latency font-mono">Synthesis</span>
+              </div>
+              <h4 class="font-orbitron tab-name">Neural LLM Forensic Agent</h4>
+              <p class="tab-desc">Adversary intent attribution & CISO audit dossiers</p>
+            </div>
+            <i class="fa-solid fa-chevron-right tab-arrow"></i>
+          </div>
+
+        </div>
+
+        <!-- Right: Holographic Interactive Detail Card -->
+        <div class="layer-detail-column">
+          <div id="icmfLayerDetails" class="future-glass-card layer-showcase-card" data-spotlight>
+            <!-- Rendered dynamically by sentinel_motion.js -->
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 3: MARKOV KILL-CHAIN STATE PREDICTION -->
+    <section id="killchain" class="future-section">
+      <div class="section-badge-center motion-fade-up">
+        <span class="section-pretitle font-mono neon-purple">// TEMPORAL ADVERSARY MODELING</span>
+        <h2 class="section-heading font-orbitron">Markov Threat-Journey State Forecast</h2>
+        <p class="section-paragraph">
+          Adversaries execute multi-stage campaigns step by step. SentinelML models attacks as stochastic Markov state sequences, calculating transition probabilities \(P(S_{t+1} \mid S_t)\) to lock down targeted assets before breach execution.
+        </p>
+      </div>
+
+      <div class="future-killchain-deck motion-fade-up">
+        <div class="killchain-stage-card stage-recon" data-spotlight data-tilt>
+          <div class="stage-top font-mono">STAGE 01</div>
+          <div class="stage-icon-glass"><i class="fa-solid fa-satellite-dish"></i></div>
+          <h4 class="font-orbitron stage-title">Reconnaissance</h4>
+          <p class="stage-desc">Vulnerability scanning, Nmap probing, automated directory enumeration.</p>
+          <div class="stage-badge font-mono neon-cyan">T1595.002 Active Probing</div>
+          <div class="stage-connector"></div>
+        </div>
+
+        <div class="killchain-stage-card stage-access" data-spotlight data-tilt>
+          <div class="stage-top font-mono">STAGE 02</div>
+          <div class="stage-icon-glass"><i class="fa-solid fa-key"></i></div>
+          <h4 class="font-orbitron stage-title">Credential Access</h4>
+          <p class="stage-desc">High-velocity credential stuffing, distributed password spray bursts.</p>
+          <div class="stage-badge font-mono neon-amber">T1110.001 Password Spray</div>
+          <div class="stage-connector"></div>
+        </div>
+
+        <div class="killchain-stage-card stage-exploit" data-spotlight data-tilt>
+          <div class="stage-top font-mono">STAGE 03</div>
+          <div class="stage-icon-glass"><i class="fa-solid fa-bug"></i></div>
+          <h4 class="font-orbitron stage-title">Exploitation</h4>
+          <p class="stage-desc">SQL injection UNION payloads, remote command execution, XSS execution.</p>
+          <div class="stage-badge font-mono neon-red">T1190 Exploit Public App</div>
+          <div class="stage-connector"></div>
+        </div>
+
+        <div class="killchain-stage-card stage-exfil" data-spotlight data-tilt>
+          <div class="stage-top font-mono">STAGE 04</div>
+          <div class="stage-icon-glass"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+          <h4 class="font-orbitron stage-title">Exfiltration</h4>
+          <p class="stage-desc">Database dumps, confidential configuration reads, unauthorized data transfer.</p>
+          <div class="stage-badge font-mono neon-purple">T1005 Data Local System</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: BENTO GRID PLATFORM ARSENAL -->
+    <section id="features" class="future-section section-gradient-glass">
+      <div class="section-badge-center motion-fade-up">
+        <span class="section-pretitle font-mono neon-emerald">// ENTERPRISE SOC CAPABILITIES</span>
+        <h2 class="section-heading font-orbitron">The SentinelML Cyber Arsenal</h2>
+        <p class="section-paragraph">
+          Engineered for autonomous security operations centers, delivering full-spectrum threat intelligence, automated response, and deep telemetry analytics.
+        </p>
+      </div>
+
+      <!-- Bento Grid Layout -->
+      <div class="future-bento-grid motion-fade-up">
+        
+        <!-- Bento 1: Large Threat Map Spotlight (Span 2 Cols) -->
+        <div class="bento-card bento-span-2" data-spotlight data-tilt>
+          <div class="bento-glow-bg"></div>
+          <div class="bento-header">
+            <div class="icon-avatar avatar-cyan"><i class="fa-solid fa-earth-americas"></i></div>
+            <div>
+              <span class="bento-tag font-mono neon-cyan">GEO-TELEMETRY SENSORS</span>
+              <h3 class="font-orbitron bento-title">Global Cyber Threat Map</h3>
+            </div>
+          </div>
+          <p class="bento-desc">
+            Real-time interactive Leaflet.js adversary sensor grid plotting malicious IP origins, ASN telecom routing, and live threat tiers with zero external API key requirements.
+          </p>
+          
+          <!-- Mini Interactive Map Simulation Frame -->
+          <div class="bento-interactive-preview">
+            <div class="mini-map-grid">
+              <div class="map-target-node node-a" title="Adversary Vector: 198.51.100.44">
+                <span class="ping-pulse"></span>
+                <span class="node-label font-mono">IP: 198.51.100.44 [SQLi]</span>
+              </div>
+              <div class="map-target-node node-b" title="Honeypot Trigger: 203.0.113.89">
+                <span class="ping-pulse pulse-red"></span>
+                <span class="node-label font-mono">IP: 203.0.113.89 [CANARY]</span>
+              </div>
+              <div class="map-radar-line"></div>
+            </div>
+          </div>
+          
+          <div class="bento-footer font-mono">
+            <span><i class="fa-solid fa-satellite-dish neon-cyan"></i> ZERO EXTERNAL API DEPENDENCY</span>
+            <span class="neon-emerald">REAL-TIME ACTIVE</span>
+          </div>
+        </div>
+
+        <!-- Bento 2: SSE Live Stream -->
+        <div class="bento-card" data-spotlight data-tilt>
+          <div class="bento-header">
+            <div class="icon-avatar avatar-blue"><i class="fa-solid fa-bolt-lightning"></i></div>
+            <div>
+              <span class="bento-tag font-mono neon-blue">REACTIVE FEED</span>
+              <h3 class="font-orbitron bento-title">Live Telemetry (SSE)</h3>
+            </div>
+          </div>
+          <p class="bento-desc">
+            Server-Sent Events continuously stream incoming attack vectors, response latencies, and payload entropy meters dynamically without page refreshes.
+          </p>
+          <div class="mini-stream-feed font-mono">
+            <div class="feed-row"><span class="feed-time">18:12:04</span> <span class="neon-red">BLOCK</span> 192.168.1.102 &rarr; /login</div>
+            <div class="feed-row"><span class="feed-time">18:12:08</span> <span class="neon-cyan">ALLOW</span> 10.0.0.15 &rarr; /api/v1/health</div>
+            <div class="feed-row"><span class="feed-time">18:12:15</span> <span class="neon-amber">QUARANTINE</span> 45.33.32.1 &rarr; /.env</div>
+          </div>
+          <div class="bento-footer font-mono">
+            <span class="neon-blue"><i class="fa-solid fa-network-wired"></i> Zero-Polling Push</span>
+          </div>
+        </div>
+
+        <!-- Bento 3: Canary Decoy Traps -->
+        <div class="bento-card" data-spotlight data-tilt>
+          <div class="bento-header">
+            <div class="icon-avatar avatar-danger"><i class="fa-solid fa-box-open"></i></div>
+            <div>
+              <span class="bento-tag font-mono neon-red">CANARY TRIPWIRES</span>
+              <h3 class="font-orbitron bento-title">Decoy Honeypots</h3>
+            </div>
+          </div>
+          <p class="bento-desc">
+            Zero false-positive decoy routes (<code>/.env</code>, <code>/backup.sql</code>, <code>/.git/config</code>) trigger instant automated firewall blacklisting.
+          </p>
+          <div class="honeypot-pill-cluster font-mono">
+            <span class="hp-pill">/.env</span>
+            <span class="hp-pill">/backup.sql</span>
+            <span class="hp-pill">/.git/config</span>
+            <span class="hp-pill">/wp-login.php</span>
+          </div>
+          <div class="bento-footer font-mono">
+            <span class="text-danger"><i class="fa-solid fa-lock"></i> 100% Deterministic Attribution</span>
+          </div>
+        </div>
+
+        <!-- Bento 4: MITRE ATT&CK Matrix -->
+        <div class="bento-card" data-spotlight data-tilt>
+          <div class="bento-header">
+            <div class="icon-avatar avatar-amber"><i class="fa-solid fa-bullseye"></i></div>
+            <div>
+              <span class="bento-tag font-mono neon-amber">TTP ALIGNMENT</span>
+              <h3 class="font-orbitron bento-title">MITRE ATT&CK® Enterprise</h3>
+            </div>
+          </div>
+          <p class="bento-desc">
+            Automatic correlation of suspicious payloads to standardized techniques including T1595.002, T1110.001, T1190, T1059.007, and T1005.
+          </p>
+          <div class="mitre-tag-matrix font-mono">
+            <span class="mitre-tag">T1190 Exploit</span>
+            <span class="mitre-tag">T1110.001 Spray</span>
+            <span class="mitre-tag">T1595 Recon</span>
+            <span class="mitre-tag">T1005 Exfil</span>
+          </div>
+          <div class="bento-footer font-mono">
+            <span class="neon-amber"><i class="fa-solid fa-shield"></i> Standardized Intelligence</span>
+          </div>
+        </div>
+
+        <!-- Bento 5: Autonomous Hunting Sweeper -->
+        <div class="bento-card" data-spotlight data-tilt>
+          <div class="bento-header">
+            <div class="icon-avatar avatar-purple"><i class="fa-solid fa-satellite-dish"></i></div>
+            <div>
+              <span class="bento-tag font-mono neon-purple">STEALTH HUNTER</span>
+              <h3 class="font-orbitron bento-title">Autonomous Sweeper</h3>
+            </div>
+          </div>
+          <p class="bento-desc">
+            Continuous background daemon that hunts for low-and-slow stealth attacks, distributed botnets, and multi-IP coordinated campaigns across historical access logs.
+          </p>
+          <div class="bento-footer font-mono">
+            <span class="neon-purple"><i class="fa-solid fa-magnifying-glass-chart"></i> Multi-Actor Correlation</span>
+          </div>
+        </div>
+
+        <!-- Bento 6: 1-Click Forensic Dossier PDF Export -->
+        <div class="bento-card" data-spotlight data-tilt>
+          <div class="bento-header">
+            <div class="icon-avatar avatar-success"><i class="fa-solid fa-file-shield"></i></div>
+            <div>
+              <span class="bento-tag font-mono neon-emerald">AUDIT READY</span>
+              <h3 class="font-orbitron bento-title">CISO Forensic Dossier</h3>
+            </div>
+          </div>
+          <p class="bento-desc">
+            Generate printable, audit-grade forensic executive summaries with MITRE heatmaps, timeline transition graphs, and neural forensic advisories with 1 click.
+          </p>
+          <div class="bento-footer font-mono">
+            <span class="neon-emerald"><i class="fa-solid fa-file-pdf"></i> Printable Executive Export</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 5: LIVE INTERACTIVE ATTACK SIMULATOR PLAYGROUND -->
+    <section id="playground" class="future-section">
+      <div class="section-badge-center motion-fade-up">
+        <span class="section-pretitle font-mono neon-cyan">// HANDS-ON DETECTION LAB</span>
+        <h2 class="section-heading font-orbitron">Interactive Threat Playground</h2>
+        <p class="section-paragraph">
+          Select an attack payload vector below to simulate a live multi-layer assault against SentinelML's 5-view fusion core and observe instantaneous threat scoring and automated containment.
+        </p>
+      </div>
+
+      <!-- Glass Terminal Command Console -->
+      <div class="future-glass-card terminal-deck-card motion-fade-up" data-spotlight>
+        
+        <!-- Console Top Bar -->
+        <div class="terminal-deck-topbar">
+          <div class="terminal-window-dots">
+            <span class="dot dot-red"></span>
+            <span class="dot dot-yellow"></span>
+            <span class="dot dot-green"></span>
+            <span class="terminal-deck-title font-mono">ICMF_INSPECTOR_V3.0 &bull; LIVE TELEMETRY SIMULATOR</span>
+          </div>
+
+          <!-- Attack Vector Selector Buttons -->
+          <div class="vector-selector-cluster font-mono">
+            <span class="vector-select-label">CHOOSE VECTOR:</span>
+            <button type="button" class="playground-vector-btn active" data-vector="sqli">
+              <i class="fa-solid fa-database"></i> SQLi
+            </button>
+            <button type="button" class="playground-vector-btn" data-vector="brute">
+              <i class="fa-solid fa-key"></i> Brute-Force
+            </button>
+            <button type="button" class="playground-vector-btn" data-vector="recon">
+              <i class="fa-solid fa-box-open"></i> Canary Recon
+            </button>
+            <button type="button" class="playground-vector-btn" data-vector="xss">
+              <i class="fa-solid fa-code"></i> XSS
+            </button>
+            <button type="button" class="playground-vector-btn" data-vector="traversal">
+              <i class="fa-solid fa-folder-tree"></i> Traversal
+            </button>
+          </div>
+        </div>
+
+        <!-- Terminal Output Screen -->
+        <div id="playgroundTerminal" class="future-terminal-screen">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Terminal Metrics Dashboard Footer -->
+        <div class="terminal-deck-footer">
+          <div class="footer-metric-block">
+            <div class="footer-metric-label font-mono">
+              <span>ICMF FUSION THREAT SCORE:</span>
+              <span id="playgroundScoreText" class="neon-red font-bold">98.5%</span>
+            </div>
+            <div class="future-progress-bar">
+              <div id="playgroundMeterFill" class="future-progress-fill" style="width: 98.5%;"></div>
+            </div>
+          </div>
+
+          <div class="footer-metric-block">
+            <div class="footer-metric-label font-mono">KILL-CHAIN STAGE:</div>
+            <div id="playgroundKillChainStep" class="font-orbitron neon-amber font-bold">Stage 3 (Exploitation)</div>
+          </div>
+
+          <div class="footer-metric-block text-right">
+            <div class="footer-metric-label font-mono">AUTOMATED DEFENSE ACTION:</div>
+            <span id="playgroundMitigation" class="future-badge-danger">
+              <i class="fa-solid fa-shield-halved"></i> INSTANT IP DROP & FIREWALL BLACKLIST
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 6: GATEWAY CALL TO ACTION -->
+    <section class="future-section cta-section">
+      <div class="future-glass-card cta-portal-card motion-fade-up" data-spotlight data-tilt>
+        <div class="portal-grid-bg"></div>
+        <div class="portal-core-icon">
+          <i class="fa-solid fa-shield-halved"></i>
+          <div class="portal-core-pulse"></div>
+        </div>
+
+        <h2 class="font-orbitron cta-portal-title">
+          Ready to Deploy Autonomous Cyber Defense?
+        </h2>
+
+        <p class="cta-portal-desc">
+          Enter the dedicated SentinelML Security Clearance Gateway to inspect live threat journey graphs, manage adversary quarantines, and train predictive ML models.
+        </p>
+
+        <div class="cta-portal-buttons">
+          {% if user.is_authenticated %}
+          <a href="{% url 'home' %}" class="future-primary-btn btn-large">
+            <span class="btn-shine"></span>
+            <i class="fa-solid fa-gauge-high"></i>
+            <span>Access SOC Command Center</span>
+          </a>
+          {% else %}
+          <a href="{% url 'login' %}" class="future-primary-btn btn-large">
+            <span class="btn-shine"></span>
+            <i class="fa-solid fa-lock-open"></i>
+            <span>Launch Security Gateway Login</span>
+          </a>
+          {% endif %}
+          <a href="#hero" class="future-secondary-btn btn-large">
+            <i class="fa-solid fa-arrow-up"></i>
+            <span>Return to Top</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- FUTURE GLASS FOOTER -->
+    <footer class="future-footer">
+      <div class="footer-glass-bar">
+        <div class="footer-left font-mono">
+          <i class="fa-solid fa-microchip neon-cyan"></i>
+          <span>SENTINELML &bull; INTENT-CENTRIC MULTI-LAYER FUSION (ICMF) THREAT ENGINE</span>
+        </div>
+        <div class="footer-links font-mono">
+          <a href="#overview">Overview</a>
+          <span class="footer-dot">&bull;</span>
+          <a href="#icmf-layers">5-Layer ICMF</a>
+          <span class="footer-dot">&bull;</span>
+          <a href="#playground">Attack Sim</a>
+          <span class="footer-dot">&bull;</span>
+          <a href="{% url 'login' %}">Gateway Login</a>
+          <span class="footer-dot">&bull;</span>
+          <span class="neon-emerald"><i class="fa-solid fa-shield-halved"></i> FIREWALL ACTIVE</span>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Audio SFX Elements (Web Audio API Synthesized, fully self-contained) -->
+
+  <!-- Scripts -->
+  <script src="{% static 'monitor/js/sentinel.js' %}?v=3.0.1"></script>
+  <script src="{% static 'monitor/js/sentinel_motion.js' %}?v=3.0.1"></script>
+</body>
+</html>
