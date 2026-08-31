@@ -959,7 +959,7 @@
                  ======================================================= */
               overlay.classList.add('denied');
               panel.classList.add('shake-lockout');
-              vaultIcon.className = 'fa-solid fa-shield-xmark';
+              vaultIcon.className = 'fa-solid fa-lock';
               title.innerText = 'ACCESS DENIED';
               phaseText.innerText = 'Clearance Rejected // Invalid Key';
               fill.style.width = '100%';
@@ -980,7 +980,7 @@
           // Fallback on network/server anomaly
           setTimeout(() => {
             overlay.classList.add('denied');
-            vaultIcon.className = 'fa-solid fa-triangle-exclamation';
+            vaultIcon.className = 'fa-solid fa-lock';
             title.innerText = 'ACCESS DENIED';
             phaseText.innerText = 'Authentication Error // Check Server';
             setTimeout(() => {
