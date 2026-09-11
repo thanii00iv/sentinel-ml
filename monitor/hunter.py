@@ -1,5 +1,5 @@
 """
-Autonomous Threat Hunting Orchestrator for SentinelML
+Autonomous Threat Hunting Orchestrator for CyberOracle Intelligence
 Continuously scans security telemetry to identify stealthy, distributed, and emerging threats.
 """
 
@@ -69,7 +69,7 @@ def run_autonomous_threat_hunt():
                     profile.save()
                     quarantined_ips.append(ip)
                     finding.status = 'MITIGATED'
-                    finding.mitigation_action = 'Automated IP quarantine enforced by SentinelML.'
+                    finding.mitigation_action = 'Automated IP quarantine enforced by CyberOracle Intel.'
                     finding.save()
 
     # -------------------------------------------------------------

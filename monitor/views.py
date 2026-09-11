@@ -94,7 +94,7 @@ def root_entry(request):
 
 def landing(request):
     """
-    Futuristic Motion Landing Page showcasing SentinelML Overview,
+    Futuristic Motion Landing Page showcasing CyberOracle Intel Overview,
     5-Layer Intent-Centric Multi-Layer Fusion (ICMF) Architecture, and Features.
     """
     total_requests = RequestLog.objects.count()
@@ -504,12 +504,12 @@ def export_telemetry(request, format_type='csv'):
                 'request_rate': l.request_rate,
             })
         response = HttpResponse(json.dumps(data, indent=2), content_type='application/json')
-        response['Content-Disposition'] = 'attachment; filename="sentinel_security_telemetry.json"'
+        response['Content-Disposition'] = 'attachment; filename="cyberoracle_security_telemetry.json"'
         return response
 
     # Default: CSV export
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="sentinel_security_telemetry.csv"'
+    response['Content-Disposition'] = 'attachment; filename="cyberoracle_security_telemetry.csv"'
 
     writer = csv.writer(response)
     writer.writerow([
@@ -738,7 +738,7 @@ def honeypot_trap(request):
     evaluate_and_fuse_profile(profile, latest_log=log)
 
     return HttpResponse(
-        "<!DOCTYPE html><html><body style='background:#060913;color:#ff4d6d;font-family:monospace;padding:2rem;text-align:center;'><h1>403 FORBIDDEN</h1><p>SentinelML Autonomous Honeypot Trap Engaged. Entity IP Quarantined.</p></body></html>",
+        "<!DOCTYPE html><html><body style='background:#060913;color:#ff4d6d;font-family:monospace;padding:2rem;text-align:center;'><h1>403 FORBIDDEN</h1><p>CyberOracle Intel Autonomous Honeypot Trap Engaged. Entity IP Quarantined.</p></body></html>",
         status=403,
         content_type="text/html"
     )

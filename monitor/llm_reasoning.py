@@ -30,7 +30,7 @@ def generate_threat_explanation(profile):
         try:
             import urllib.request
             prompt = (
-                f"You are SentinelML Cyber Intelligence AI. Analyze this attacker entity:\n"
+                f"You are CyberOracle Intel AI. Analyze this attacker entity:\n"
                 f"IP: {profile.ip_address}\n"
                 f"Observed Signals: {', '.join(signals)}\n"
                 f"Current Risk Score: {profile.risk_score}/100\n"
@@ -63,7 +63,7 @@ def generate_threat_explanation(profile):
                 if llm_response:
                     return f"[GPT-4o-mini Synthesis] {llm_response}"
         except Exception as e:
-            print(f"[SentinelML] OpenAI API call fallback: {e}")
+            print(f"[CyberOracle Intel] OpenAI API call fallback: {e}")
 
     # High-Fidelity Heuristic Threat Synthesis Fallback
     signal_summary = "; ".join(signals)

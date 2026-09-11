@@ -6,8 +6,8 @@ from .models import RequestLog, IPRiskProfile, ThreatHuntFinding, PredictiveAler
 
 
 # Customize Global Django Admin Site Header & Titles
-admin.site.site_header = "SentinelML — SOC Master Administration"
-admin.site.site_title = "SentinelML Admin Portal"
+admin.site.site_header = "CyberOracle Intel — SOC Master Administration"
+admin.site.site_title = "CyberOracle Intel Admin Portal"
 admin.site.index_title = "SOC Database & Security Entity Management"
 
 

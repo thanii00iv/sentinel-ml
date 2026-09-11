@@ -1,22 +1,26 @@
 {% extends "admin/base.html" %}
 {% load static %}
 
-{% block title %}{{ title }} | SentinelML Master Administration{% endblock %}
+{% block title %}{{ title }} | CyberOracle Intel Master Administration{% endblock %}
 
 {% block extrahead %}
 {{ block.super }}
-<link rel="icon" type="image/svg+xml" href="{% static 'monitor/img/favicon.svg' %}">
+<link rel="icon" type="image/svg+xml" href="{% static 'monitor/img/favicon.svg' %}?v=7.0">
+<link rel="icon" type="image/png" sizes="32x32" href="{% static 'monitor/img/favicon-32x32.png' %}?v=7.0">
+<link rel="icon" type="image/png" sizes="16x16" href="{% static 'monitor/img/favicon-16x16.png' %}?v=7.0">
+<link rel="shortcut icon" href="{% static 'monitor/img/favicon.ico' %}?v=7.0">
+<link rel="apple-touch-icon" sizes="180x180" href="{% static 'monitor/img/apple-touch-icon.png' %}?v=7.0">
 <link rel="stylesheet" type="text/css" href="{% static 'monitor/css/cyber_admin.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 {% endblock %}
 
 {% block branding %}
 <div id="site-name" style="display: flex; align-items: center; gap: 0.75rem;">
-  <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #0284c7, #7c3aed); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1rem; box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);">
-    <i class="fa-solid fa-shield-halved"></i>
+  <div style="width: 34px; height: 34px; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: transparent;">
+    <img src="{% static 'monitor/img/logo.png' %}?v=8.0" alt="CyberOracle Intel" style="width: 34px; height: 34px; object-fit: contain; filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.5));">
   </div>
   <h1 id="site-name" style="margin: 0;">
-    <a href="{% url 'admin:index' %}">SENTINEL<span style="color: #38bdf8;">ML</span> <span style="font-size: 0.8rem; font-weight: normal; color: #94a3b8;">// SOC Master Administration</span></a>
+    <a href="{% url 'admin:index' %}">CYBERORACLE<span style="color: #38bdf8;"> INTEL</span> <span style="font-size: 0.8rem; font-weight: normal; color: #94a3b8;">// SOC Master Administration</span></a>
   </h1>
 </div>
 {% endblock %}

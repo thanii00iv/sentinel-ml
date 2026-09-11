@@ -10,7 +10,7 @@ def ensure_default_superuser(sender, **kwargs):
         user.is_staff = True
         user.is_superuser = True
         user.save()
-        print("[SentinelML] Superuser 'admin' with password 'admin123' verified.")
+        print("[CyberOracle Intel] Superuser 'admin' with password 'admin123' verified.")
     except Exception:
         pass
 

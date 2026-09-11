@@ -82,7 +82,7 @@ def train_model():
 
     joblib.dump(clf, RF_MODEL_PATH)
     _CACHED_RF_MODEL = clf
-    print(f"[SentinelML] Random Forest model trained on {len(X)} samples.")
+    print(f"[CyberOracle Intel] Random Forest model trained on {len(X)} samples.")
     return clf
 
 
@@ -117,7 +117,7 @@ def predict(log):
         prob = round(float(probabilities[1] if len(probabilities) > 1 else label) * 100, 1)
         return label, prob
     except Exception as e:
-        print(f"[SentinelML] RF prediction error: {e}")
+        print(f"[CyberOracle Intel] RF prediction error: {e}")
         return None, None
 
 
@@ -147,7 +147,7 @@ def train_anomaly_model():
 
     joblib.dump(clf, ANOMALY_MODEL_PATH)
     _CACHED_ANOMALY_MODEL = clf
-    print(f"[SentinelML] Isolation Forest anomaly model trained on {len(X)} samples.")
+    print(f"[CyberOracle Intel] Isolation Forest anomaly model trained on {len(X)} samples.")
     return clf
 
 
@@ -183,7 +183,7 @@ def predict_anomaly(log):
         normalized = max(0.0, min(100.0, (0.25 - raw_score) * 160.0))
         return is_anomaly, raw_score, round(normalized, 1)
     except Exception as e:
-        print(f"[SentinelML] Isolation Forest anomaly error: {e}")
+        print(f"[CyberOracle Intel] Isolation Forest anomaly error: {e}")
         return False, 0.0, 0.0
 
 

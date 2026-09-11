@@ -1,5 +1,5 @@
 """
-Attack & Live Traffic Simulation Engine for SentinelML
+Attack & Live Traffic Simulation Engine for CyberOracle Intelligence
 Generates realistic cyber attack telemetry and legitimate traffic to demonstrate
 real-time detection, ICMF multi-view scoring, and autonomous hunting.
 """

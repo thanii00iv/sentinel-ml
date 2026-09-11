@@ -45,7 +45,7 @@ class RequestLoggingMiddleware:
                         <!DOCTYPE html>
                         <html>
                         <head>
-                            <title>403 Forbidden — SentinelML Cyber Quarantine</title>
+                            <title>403 Forbidden — CyberOracle Intel Cyber Quarantine</title>
                             <style>
                                 body {{ font-family: system-ui, sans-serif; background: #060913; color: #f1f5f9; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }}
                                 .card {{ background: #0d1526; border: 1px solid #ff4d6d; border-radius: 12px; padding: 2.5rem; max-width: 520px; text-align: center; box-shadow: 0 0 30px rgba(255, 77, 109, 0.25); }}
@@ -58,7 +58,7 @@ class RequestLoggingMiddleware:
                         <body>
                             <div class="card">
                                 <div class="badge">ACCESS DENIED // IP QUARANTINED</div>
-                                <h1>SentinelML Security Interception</h1>
+                                <h1>CyberOracle Intel Security Interception</h1>
                                 <p>Your IP address (<strong>{client_ip}</strong>) has been quarantined due to critical risk scoring and autonomous threat hunting mitigation.</p>
                                 <p style="font-size: 0.8rem; color: #64748b;">Risk Score: {blocked_profile.risk_score}/100 &bull; Policy: Automated Threat Mitigation</p>
                             </div>
@@ -190,7 +190,7 @@ class RequestLoggingMiddleware:
             )
 
         except Exception as e:
-            print(f"[SentinelML] Middleware logging error: {e}")
+            print(f"[CyberOracle Intel] Middleware logging error: {e}")
 
         return response
 

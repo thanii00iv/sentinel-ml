@@ -1,4 +1,4 @@
-# SentinelML: Autonomous Threat Hunting & Predictive Analytics Engine
+# CyberOracle Intel: Autonomous Threat Hunting & Predictive Analytics Engine
 
 > **An Autonomous Cyber Threat Hunting & Predictive Analytics Engine Using Intent-Centric Multi-Layer Fusion (ICMF)**
 
@@ -10,9 +10,9 @@
 
 ## 📌 Overview
 
-**SentinelML** is an intelligent, autonomous cyber defense platform designed to protect modern web applications against multi-stage attack campaigns (such as SQL Injection, Authentication Brute-Force, Reconnaissance, Cross-Site Scripting, and Path Traversal). 
+**CyberOracle Intel** is an intelligent, autonomous cyber defense platform designed to protect modern web applications against multi-stage attack campaigns (such as SQL Injection, Authentication Brute-Force, Reconnaissance, Cross-Site Scripting, and Path Traversal). 
 
-Unlike traditional point-in-time WAFs or standalone machine learning classifiers, SentinelML introduces **Intent-Centric Multi-Layer Fusion (ICMF)**—fusing deterministic heuristics, supervised ensembles, unsupervised anomaly detectors, Markov state transitions, and neural LLM reasoning to construct temporal **Threat-Journey Graphs** and predict future attack trajectories in real time.
+Unlike traditional point-in-time WAFs or standalone machine learning classifiers, CyberOracle Intel introduces **Intent-Centric Multi-Layer Fusion (ICMF)**—fusing deterministic heuristics, supervised ensembles, unsupervised anomaly detectors, Markov state transitions, and neural LLM reasoning to construct temporal **Threat-Journey Graphs** and predict future attack trajectories in real time.
 
 ---
 

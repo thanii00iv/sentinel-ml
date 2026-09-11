@@ -1,5 +1,5 @@
 """
-Dynamic & Intelligent GeoIP and Live Location Resolution Engine for SentinelML
+Dynamic & Intelligent GeoIP and Live Location Resolution Engine for CyberOracle Intelligence
 Resolves real public IP addresses, local network IPs (Wi-Fi / LAN demonstration devices),
 and simulated threat actors with accurate geographical coordinates and telemetry.
 """
@@ -114,7 +114,7 @@ def get_host_public_location() -> dict:
     try:
         req = urllib.request.Request(
             "http://ip-api.com/json/",
-            headers={"User-Agent": "SentinelML-GeoIP/3.0"}
+            headers={"User-Agent": "CyberOracle-GeoIP/3.0"}
         )
         with urllib.request.urlopen(req, timeout=1.8) as resp:
             data = json.loads(resp.read().decode('utf-8'))
@@ -179,7 +179,7 @@ def resolve_ip_geo(ip: str) -> dict:
     try:
         req = urllib.request.Request(
             f"http://ip-api.com/json/{ip}",
-            headers={"User-Agent": "SentinelML-ThreatGeo/3.0"}
+            headers={"User-Agent": "CyberOracle-ThreatGeo/3.0"}
         )
         with urllib.request.urlopen(req, timeout=1.8) as resp:
             data = json.loads(resp.read().decode('utf-8'))

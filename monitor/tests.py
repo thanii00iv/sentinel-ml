@@ -10,7 +10,7 @@ from monitor.hunter import run_autonomous_threat_hunt
 from monitor.prediction import predict_next_stage_and_asset
 
 
-class SentinelMLComprehensiveTests(TestCase):
+class CyberOracleIntelligenceComprehensiveTests(TestCase):
     def setUp(self):
         # Create test operator user
         self.username = 'testadmin'

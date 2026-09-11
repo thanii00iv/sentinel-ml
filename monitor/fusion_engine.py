@@ -1,5 +1,5 @@
 """
-Intent-Centric Multi-Layer Fusion (ICMF) Engine for SentinelML
+Intent-Centric Multi-Layer Fusion (ICMF) Engine for CyberOracle Intelligence
 Unifies Rule View, Supervised ML View, Anomaly View, Sequence View, and LLM View.
 """
 
@@ -135,7 +135,7 @@ def evaluate_and_fuse_profile(profile, latest_log=None):
         try:
             profile.llm_explanation = generate_threat_explanation(profile)
         except Exception as e:
-            print(f"[SentinelML] LLM explanation synthesis error: {e}")
+            print(f"[CyberOracle Intel] LLM explanation synthesis error: {e}")
 
     profile.save()
     return profile

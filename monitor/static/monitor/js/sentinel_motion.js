@@ -1,5 +1,5 @@
 /**
- * SentinelML — Next-Gen Futuristic Motion & Cybernetic Simulation Engine
+ * CyberOracle Intelligence — Next-Gen Futuristic Motion & Cybernetic Simulation Engine
  * Features:
  *  1. Interactive Cybernetic Particle Neural Mesh
  *  2. 3D Rotating Holographic Quantum Globe / Threat Sphere (Canvas 3D Projection)

@@ -4,10 +4,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}SentinelML — Autonomous Threat Hunting & Predictive Analytics Engine{% endblock %}</title>
+  <title>{% block title %}CyberOracle Intel — Autonomous Threat Hunting & Predictive Analytics Engine{% endblock %}</title>
 
-  <!-- Cyber Brand Favicon -->
-  <link rel="icon" type="image/svg+xml" href="{% static 'monitor/img/favicon.svg' %}">
+  <!-- Cyber Brand Favicon Multi-Resolution Suite -->
+  <link rel="icon" type="image/svg+xml" href="{% static 'monitor/img/favicon.svg' %}?v=7.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'monitor/img/favicon-32x32.png' %}?v=7.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'monitor/img/favicon-16x16.png' %}?v=7.0">
+  <link rel="shortcut icon" href="{% static 'monitor/img/favicon.ico' %}?v=7.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'monitor/img/apple-touch-icon.png' %}?v=7.0">
 
   <!-- Preload Theme Preference to Prevent Flash of Wrong Theme -->
   <script>
@@ -27,7 +31,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
   <!-- Custom Futuristic Stylesheet -->
-  <link rel="stylesheet" href="{% static 'monitor/css/sentinel.css' %}?v=3.0.1">
+  <link rel="stylesheet" href="{% static 'monitor/css/sentinel.css' %}?v=3.1.0">
 
   {% block extra_head %}{% endblock %}
 </head>
@@ -39,11 +43,11 @@
       
       <!-- Brand & Radar -->
       <a href="{% url 'home' %}" class="brand">
-        <div class="brand-icon-wrap">
-          <i class="fa-solid fa-shield-halved"></i>
+        <div class="brand-icon-wrap" style="padding: 1px; display: flex; align-items: center; justify-content: center; background: transparent; border: none; box-shadow: none;">
+          <img src="{% static 'monitor/img/logo.png' %}?v=8.0" alt="CyberOracle Intel" style="width: 32px; height: 32px; object-fit: contain; display: block; filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.5));">
         </div>
         <div>
-          <div class="brand-title">SENTINEL<span style="color: var(--accent-cyan);">ML</span></div>
+          <div class="brand-title">CYBERORACLE <span style="color: var(--accent-cyan);">INTEL</span></div>
         </div>
         <span class="brand-tag">ICMF CORE</span>
       </a>
@@ -148,7 +152,7 @@
       <div style="display: flex; align-items: center; gap: 0.5rem;">
         <i class="fa-solid fa-microchip" style="color: var(--accent-cyan);"></i>
         <span class="font-mono" style="font-size: 0.8rem; letter-spacing: 0.05em;">
-          SENTINELML &bull; INTENT-CENTRIC MULTI-LAYER FUSION (ICMF) THREAT ENGINE
+          CYBERORACLE INTEL &bull; INTENT-CENTRIC MULTI-LAYER FUSION (ICMF) THREAT ENGINE
         </span>
       </div>
       <div style="display: flex; align-items: center; gap: 1.25rem; font-size: 0.8rem;" class="font-mono">

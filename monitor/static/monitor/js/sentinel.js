@@ -1,5 +1,5 @@
 /**
- * IML Sentinel Guard — Futuristic Theme & Client Interactions Engine
+ * CyberOracle Intelligence — Futuristic Theme & Client Interactions Engine
  */
 
 (function () {
