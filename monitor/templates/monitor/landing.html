@@ -87,8 +87,13 @@
             <li><a href="#playground"><i class="fa-solid fa-terminal"></i> <span>Live Sim</span></a></li>
           </ul>
 
-          <!-- Controls: Gateway Access CTA -->
+          <!-- Controls: Gateway Access CTA & Theme Toggle -->
           <div class="nav-buttons-cluster">
+
+            <!-- Light / Dark Mode Toggle Button -->
+            <button type="button" class="theme-toggle-btn glass-icon-btn" aria-label="Toggle Dark/Light Mode" title="Toggle Theme">
+              <i class="fa-solid fa-sun"></i>
+            </button>
 
             {% if user.is_authenticated %}
             <a href="{% url 'home' %}" class="btn-future-glass btn-glow-cyan">
@@ -805,7 +810,7 @@
           <i class="fa-solid fa-microchip neon-cyan"></i>
           <span>CYBERORACLE INTEL &bull; INTENT-CENTRIC MULTI-LAYER FUSION (ICMF) THREAT ENGINE</span>
         </div>
-        <div class="footer-links font-mono">
+        <div class="footer-links font-mono" style="display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap;">
           <a href="#overview">Overview</a>
           <span class="footer-dot">&bull;</span>
           <a href="#icmf-layers">5-Layer ICMF</a>
@@ -815,6 +820,10 @@
           <a href="{% url 'login' %}">Gateway Login</a>
           <span class="footer-dot">&bull;</span>
           <span class="neon-emerald"><i class="fa-solid fa-shield-halved"></i> FIREWALL ACTIVE</span>
+          <span class="footer-dot">&bull;</span>
+          <button type="button" class="theme-toggle-btn glass-icon-btn" style="width: 32px; height: 32px; font-size: 0.85rem; border-radius: 8px;" aria-label="Toggle Dark/Light Mode" title="Toggle Theme">
+            <i class="fa-solid fa-sun"></i>
+          </button>
         </div>
       </div>
     </footer>
