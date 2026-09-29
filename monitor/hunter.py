@@ -3,6 +3,7 @@ Autonomous Threat Hunting Orchestrator for CyberOracle Intelligence
 Continuously scans security telemetry to identify stealthy, distributed, and emerging threats.
 """
 
+import json
 from datetime import timedelta
 from django.utils import timezone
 from django.db.models import Count, Q
@@ -57,7 +58,7 @@ def run_autonomous_threat_hunt():
                     target_entity=ip,
                     severity='HIGH' if stat['attacks'] > 0 else 'MEDIUM',
                     description=f"Autonomous hunter detected low-and-slow probing from {ip}: {stat['total_reqs']} requests across {stat['unique_paths']} paths over 60m.",
-                    evidence_data=f'{{"total_requests": {stat["total_reqs"]}, "unique_paths": {stat["unique_paths"]}, "failed_logins": {stat["failed_logins"]}}}',
+                    evidence_data=json.dumps({"total_requests": stat["total_reqs"], "unique_paths": stat["unique_paths"], "failed_logins": stat["failed_logins"]}),
                     mitigation_action="Apply proactive rate-limiting and enforce enhanced behavioral scrutiny.",
                     status='ACTIVE'
                 )
@@ -99,7 +100,7 @@ def run_autonomous_threat_hunt():
                 target_entity=path,
                 severity='CRITICAL',
                 description=f"Coordinated multi-source campaign detected targeting endpoint '{path}' from {len(attackers)} distinct IPs.",
-                evidence_data=f'{{"target_path": "{path}", "attacker_ips": {attackers}, "total_hits": {target["hit_count"]}}}',
+                evidence_data=json.dumps({"target_path": path, "attacker_ips": attackers, "total_hits": target["hit_count"]}),
                 mitigation_action="Enforce strict rate limits and signature filters on targeted path.",
                 status='ACTIVE'
             )
@@ -126,7 +127,7 @@ def run_autonomous_threat_hunt():
                 target_entity=ip,
                 severity='HIGH',
                 description=f"Volumetric anomaly burst detected from {ip}: {burst['req_count']} requests inside 60m.",
-                evidence_data=f'{{"request_volume": {burst["req_count"]}}}',
+                evidence_data=json.dumps({"request_volume": burst["req_count"]}),
                 mitigation_action="Temporary connection throttling and bot challenge activated.",
                 status='ACTIVE'
             )

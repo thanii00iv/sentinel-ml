@@ -433,9 +433,12 @@ def run_simulation_api(request):
         except Exception:
             data = {}
 
-        sim_type = data.get('type', 'sqli')
-        target_ip = data.get('ip', '198.51.100.45')
-        count = int(data.get('count', 3))
+        sim_type = str(data.get('type', 'sqli')).strip().lower()
+        target_ip = str(data.get('ip', '198.51.100.45')).strip() or '198.51.100.45'
+        try:
+            count = max(1, min(int(data.get('count', 3) or 3), 50))
+        except (ValueError, TypeError):
+            count = 3
 
         if sim_type == 'sqli':
             res = simulate_sqli(ip=target_ip, count=count)
