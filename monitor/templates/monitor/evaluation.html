@@ -204,9 +204,9 @@
 <div style="margin-bottom: 2.5rem;">
   <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
     <h2 class="font-hud" style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
-      <i class="fa-solid fa-table-cells" style="color: var(--accent-cyan);"></i> Random Forest Classification Heatmap Matrix
+      <i class="fa-solid fa-table-cells" style="color: var(--accent-cyan);"></i> Ingested Telemetry Confusion Matrix
     </h2>
-    <span class="font-mono" style="font-size: 0.8rem; color: var(--text-muted);">BINARY ACCURACY BREAKDOWN</span>
+    <span class="font-mono" style="font-size: 0.8rem; color: var(--text-muted);">ALL COMBINED TELEMETRY SAMPLES</span>
   </div>
 
   <div class="table-container" style="max-width: 680px;">
@@ -245,6 +245,134 @@
     </table>
   </div>
 </div>
+
+{% if network_metrics %}
+<!-- Network Flow Intrusion Benchmark Lab Section -->
+<div style="margin-bottom: 1rem; border-top: 1px dashed rgba(255, 255, 255, 0.1); padding-top: 2rem;">
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+        <span class="badge badge-cyan"><i class="fa-solid fa-network-wired"></i> NETWORK DATASET BENCHMARK</span>
+        <span class="font-mono" style="font-size: 0.8rem; color: var(--text-muted);">TABULAR INTRUSION CLASSIFIER (18 FEATURES)</span>
+      </div>
+      <h2 class="font-hud" style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary);">
+        Network Traffic Flow Intrusion Evaluation (1,430 Flows)
+      </h2>
+    </div>
+    <span class="badge badge-emerald" style="font-size: 0.85rem; padding: 0.4rem 0.8rem;">
+      <i class="fa-solid fa-check-circle"></i> ACCURACY: {{ network_metrics.accuracy }}%
+    </span>
+  </div>
+</div>
+
+<!-- Dataset Distribution Grid -->
+<div class="grid-cards" style="margin-bottom: 2rem;">
+  <div class="stat-card hud-card" style="border-left: 4px solid var(--accent-cyan);">
+    <div class="label">
+      <span>DDoS Floods</span>
+      <i class="fa-solid fa-burst" style="color: var(--accent-cyan);"></i>
+    </div>
+    <div class="value font-mono animate-counter" data-target="{{ network_metrics.attack_counts.ddos|default:377 }}">
+      {{ network_metrics.attack_counts.ddos|default:377 }}
+    </div>
+    <div class="sub-meta">High Packet-Rate Attacks</div>
+  </div>
+
+  <div class="stat-card hud-card" style="border-left: 4px solid var(--accent-red);">
+    <div class="label">
+      <span>Ransomware Vectors</span>
+      <i class="fa-solid fa-file-shield" style="color: var(--accent-red);"></i>
+    </div>
+    <div class="value font-mono animate-counter" data-target="{{ network_metrics.attack_counts.ransomware|default:361 }}" style="color: var(--accent-red);">
+      {{ network_metrics.attack_counts.ransomware|default:361 }}
+    </div>
+    <div class="sub-meta">C2 Exfiltration Flows</div>
+  </div>
+
+  <div class="stat-card hud-card" style="border-left: 4px solid var(--accent-amber);">
+    <div class="label">
+      <span>Brute-Force Flows</span>
+      <i class="fa-solid fa-key" style="color: var(--accent-amber);"></i>
+    </div>
+    <div class="value font-mono animate-counter" data-target="{{ network_metrics.attack_counts.brute_force|default:352 }}" style="color: var(--accent-amber);">
+      {{ network_metrics.attack_counts.brute_force|default:352 }}
+    </div>
+    <div class="sub-meta">Auth Probing Sequences</div>
+  </div>
+
+  <div class="stat-card hud-card" style="border-left: 4px solid var(--accent-emerald);">
+    <div class="label">
+      <span>Normal Traffic</span>
+      <i class="fa-solid fa-circle-check" style="color: var(--accent-emerald);"></i>
+    </div>
+    <div class="value font-mono animate-counter" data-target="{{ network_metrics.attack_counts.normal|default:340 }}" style="color: var(--accent-emerald);">
+      {{ network_metrics.attack_counts.normal|default:340 }}
+    </div>
+    <div class="sub-meta">Baseline Clean Flows</div>
+  </div>
+</div>
+
+<!-- Network Flow Performance Meters & Top Feature Importances -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem;">
+  
+  <!-- Metric Meters Card -->
+  <div class="cyber-card hud-card" style="border-top: 3px solid var(--accent-cyan);">
+    <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+      <i class="fa-solid fa-gauge-high" style="color: var(--accent-cyan);"></i> Network Classifier Metrics
+    </h3>
+    <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+      <div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.88rem; margin-bottom: 0.35rem;">
+          <span style="color: var(--text-secondary); font-weight: 600;">Precision</span>
+          <span class="font-mono" style="font-weight: 800; color: var(--accent-cyan);">{{ network_metrics.precision }}%</span>
+        </div>
+        <div class="cyber-meter-track">
+          <div class="cyber-meter-fill" style="width: {{ network_metrics.precision }}%; background: var(--accent-cyan);"></div>
+        </div>
+      </div>
+      <div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.88rem; margin-bottom: 0.35rem;">
+          <span style="color: var(--text-secondary); font-weight: 600;">Recall</span>
+          <span class="font-mono" style="font-weight: 800; color: var(--accent-cyan);">{{ network_metrics.recall }}%</span>
+        </div>
+        <div class="cyber-meter-track">
+          <div class="cyber-meter-fill" style="width: {{ network_metrics.recall }}%; background: var(--accent-cyan);"></div>
+        </div>
+      </div>
+      <div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.88rem; margin-bottom: 0.35rem;">
+          <span style="color: var(--text-secondary); font-weight: 600;">F1-Score</span>
+          <span class="font-mono" style="font-weight: 800; color: var(--accent-cyan);">{{ network_metrics.f1 }}%</span>
+        </div>
+        <div class="cyber-meter-track">
+          <div class="cyber-meter-fill" style="width: {{ network_metrics.f1 }}%; background: var(--accent-cyan);"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Predictive Features Card -->
+  <div class="cyber-card hud-card" style="border-top: 3px solid var(--accent-purple);">
+    <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+      <i class="fa-solid fa-ranking-star" style="color: var(--accent-purple);"></i> Top Predictive Network Flow Features
+    </h3>
+    <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+      {% for feat, imp in network_metrics.top_features %}
+      <div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.3rem;">
+          <span class="font-mono" style="color: var(--text-primary); font-weight: 600;">{{ feat }}</span>
+          <span class="font-mono" style="color: var(--accent-purple); font-weight: 800;">{{ imp }}</span>
+        </div>
+        <div class="cyber-meter-track">
+          <div class="cyber-meter-fill" style="width: {% widthratio imp 0.15 100 %}%; background: var(--accent-purple);"></div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+{% endif %}
 
 {% endif %}
 {% endblock %}

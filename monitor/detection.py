@@ -213,6 +213,22 @@ MITRE_ATTACK_MAPPING = {
         'severity': 'CRITICAL',
         'description': 'Automated bot scraper hit a zero-traffic canary endpoint, proving automated adversarial intent.',
     },
+    'DDoS': {
+        'id': 'T1498',
+        'sub_id': 'T1498.001',
+        'name': 'Network Denial of Service: Direct Volume Flood',
+        'tactic': 'Impact',
+        'severity': 'CRITICAL',
+        'description': 'Adversary executes high packet-rate volumetric floods targeting network endpoints to saturate bandwidth and cause service outages.',
+    },
+    'Ransomware': {
+        'id': 'T1486',
+        'sub_id': 'T1048',
+        'name': 'Data Encrypted for Impact & Exfiltration Over C2',
+        'tactic': 'Impact',
+        'severity': 'CRITICAL',
+        'description': 'Adversary establishes command-and-control connection, encrypting critical file vaults and exfiltrating sensitive sub-flow payloads.',
+    },
 }
 
 HONEYPOT_PATHS = {

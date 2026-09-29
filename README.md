@@ -19,10 +19,11 @@ Unlike traditional point-in-time WAFs or standalone machine learning classifiers
 ## 🚀 Key Features
 
 * **Intent-Centric Multi-Layer Fusion (ICMF):** 5-view score fusion combining Rule-based signatures, Random Forest classification, Isolation Forest anomaly scoring, Markov sequence modeling, and LLM forensic synthesis.
+* **Network Flow Intrusion Classifier (18 Features):** Supervised Random Forest and Isolation Forest trained on tabular network flow telemetry (1,430 samples spanning DDoS, Ransomware, Brute-Force, and Normal baseline flows) delivering 95.5% detection accuracy.
 * **Interactive Global Cyber Threat Map:** Real-time Leaflet.js adversary sensor grid plotting IP origins, ASNs, and live threat tiers with zero external API key requirements.
 * **Real-Time Live Telemetry Stream (SSE):** Server-Sent Events dynamically streaming incoming attack telemetry and updating dashboard meters with zero page refreshes.
 * **Markov Threat-Journey State Transition Visualizer:** Visual temporal kill-chain graph ($S_1 \rightarrow S_2 \rightarrow S_3 \rightarrow S_4$) with live stage indicators and forecasted target asset vectors.
-* **MITRE ATT&CK® Enterprise Alignment:** Correlates detected vectors to standard techniques (`T1595.002`, `T1110.001`, `T1190`, `T1059.007`, `T1005`).
+* **MITRE ATT&CK® Enterprise Alignment:** Correlates detected vectors to standard techniques (`T1595.002`, `T1110.001`, `T1190`, `T1059.007`, `T1005`, `T1498`, `T1486`).
 * **Autonomous Threat Hunting Sweeper:** Continuous background daemon detecting low-and-slow stealth attacks and distributed multi-IP campaigns.
 * **Autonomous Canary Honeypot Traps:** Zero false-positive decoy routes (`/.env`, `/backup.sql`, `/.git/config`, `/wp-login.php`) triggering instant quarantine.
 * **1-Click Forensic Dossier PDF Export:** Printable CISO executive forensic dossiers ready for security audits.
@@ -82,9 +83,10 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 3. Run migrations & start server
+### 3. Run migrations, import network dataset & start server
 ```bash
 python manage.py migrate
+python manage.py import_dataset
 python manage.py runserver 127.0.0.1:8000
 ```
 

@@ -10,7 +10,7 @@ import numpy as np
 from django.http import JsonResponse, HttpResponse, StreamingHttpResponse
 from django.utils import timezone
 from .models import RequestLog, IPRiskProfile, ThreatHuntFinding, PredictiveAlert
-from .ml_model import load_model, get_features, predict_anomaly, retrain_all_models
+from .ml_model import load_model, get_features, predict_anomaly, retrain_all_models, get_network_evaluation_metrics
 from .prediction import predict_next_stage_and_asset
 from .hunter import run_autonomous_threat_hunt
 from .geoip import resolve_ip_geo
@@ -391,6 +391,9 @@ def evaluation(request):
     malicious = sum(y_true)
     clean = total - malicious
 
+    # Network Flow Dataset metrics
+    network_metrics = get_network_evaluation_metrics()
+
     return render(request, 'monitor/evaluation.html', {
         'total': total,
         'malicious': malicious,
@@ -404,6 +407,7 @@ def evaluation(request):
         'ml_recall': round(ml_recall * 100, 1),
         'ml_f1': round(ml_f1 * 100, 1),
         'ml_cm': ml_cm,
+        'network_metrics': network_metrics,
     })
 
 
@@ -469,12 +473,15 @@ def toggle_ip_block(request, ip):
 
 @csrf_exempt
 def retrain_model_api(request):
-    """API endpoint to retrain Random Forest and Isolation Forest ML models."""
+    """API endpoint to retrain Random Forest, Isolation Forest, and Network Flow ML models."""
     if request.method == 'POST':
         success = retrain_all_models()
+        metrics = get_network_evaluation_metrics()
+        net_acc = metrics.get('accuracy', 0.0) if metrics else 0.0
         return JsonResponse({
             'status': 'SUCCESS' if success else 'INSUFFICIENT_DATA',
-            'message': 'Models successfully retrained on current telemetry.' if success else 'Need at least 6 request logs to train models.'
+            'message': f'Models successfully retrained on telemetry and network dataset (Network Accuracy: {net_acc}%).' if success else 'Need at least 6 request logs to train models.',
+            'network_accuracy': net_acc
         })
     return JsonResponse({'error': 'POST method required'}, status=405)
 
