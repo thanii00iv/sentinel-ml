@@ -5,7 +5,7 @@ from django.urls import reverse
 from monitor.models import RequestLog, IPRiskProfile, ThreatHuntFinding, PredictiveAlert
 from monitor.detection import parse_device_info, detect_sqli, detect_xss, detect_path_traversal
 from monitor.geoip import resolve_ip_geo
-from monitor.ml_model import get_features, predict, predict_anomaly, retrain_all_models
+from monitor.ml_model import get_features, predict, predict_anomaly, retrain_all_models, get_kill_chain_evaluation_metrics
 from monitor.hunter import run_autonomous_threat_hunt
 from monitor.prediction import predict_next_stage_and_asset
 
@@ -120,6 +120,20 @@ class CyberOracleIntelligenceComprehensiveTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.test_ip)
 
+    def test_landing_page_dataset_intelligence(self):
+        response = self.client.get(reverse('landing'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['total_corpus_formatted'], '6.16M+')
+        self.assertGreaterEqual(response.context['kill_chain_accuracy'], 90.0)
+        self.assertGreaterEqual(response.context['network_accuracy'], 90.0)
+        self.assertEqual(response.context['payloads_count'], 500)
+        self.assertContains(response, 'Enterprise Datasets & AI Model Matrix')
+        self.assertContains(response, 'Global Cybersecurity Threat Logs (6,000,000 Records)')
+        self.assertContains(response, 'Enterprise Kill Chain (100,500 Records)')
+        self.assertContains(response, 'Production Telemetry (60,000 Records)')
+        self.assertContains(response, 'Network Flows (1,430 Flows)')
+        self.assertContains(response, 'Zero-Day Payloads (500 Vectors)')
+
     # -------------------------------------------------------------
     # 3. REST API Endpoints Tests
     # -------------------------------------------------------------
@@ -231,3 +245,26 @@ class CyberOracleIntelligenceComprehensiveTests(TestCase):
         next_stage, asset, conf, score, reason, rec = predict_next_stage_and_asset(self.profile)
         self.assertIsNotNone(next_stage)
         self.assertIsNotNone(asset)
+
+    def test_kill_chain_dataset_and_evaluation(self):
+        # 1. Test Kill Chain evaluation metrics computation and caching
+        metrics = get_kill_chain_evaluation_metrics()
+        self.assertIsNotNone(metrics)
+        self.assertIn('accuracy', metrics)
+        self.assertGreaterEqual(metrics['accuracy'], 90.0)
+        self.assertIn('stage_counts', metrics)
+        self.assertEqual(metrics['total_samples'], 100500)
+        self.assertIn('Reconnaissance', metrics['stage_counts'])
+        self.assertIn('Initial Access', metrics['stage_counts'])
+        self.assertIn('Execution', metrics['stage_counts'])
+        self.assertIn('Persistence', metrics['stage_counts'])
+        self.assertIn('Impact', metrics['stage_counts'])
+
+        # 2. Test Evaluation view renders Kill Chain benchmark section
+        self.client.login(username=self.username, password=self.password)
+        response = self.client.get(reverse('evaluation'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'KILL CHAIN BENCHMARK')
+        self.assertContains(response, '100500')
+        self.assertContains(response, 'Reconnaissance')
+

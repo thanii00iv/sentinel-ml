@@ -374,6 +374,159 @@
 </div>
 {% endif %}
 
+{% if kill_chain_metrics %}
+<!-- Enterprise Cyber Kill Chain Benchmark Lab Section -->
+<div style="margin-bottom: 1rem; border-top: 1px dashed rgba(255, 255, 255, 0.1); padding-top: 2rem;">
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
+    <div>
+      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+        <span class="badge badge-purple"><i class="fa-solid fa-skull-crossbones"></i> KILL CHAIN BENCHMARK</span>
+        <span class="font-mono" style="font-size: 0.8rem; color: var(--text-muted);">LOCKHEED MARTIN & MITRE ATT&CK STAGE CLASSIFIER (50 ENTERPRISE TELEMETRY FEATURES)</span>
+      </div>
+      <h2 class="font-hud" style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary);">
+        Enterprise Cyber Kill Chain Incident Evaluation ({{ kill_chain_metrics.total_samples|default:100500 }} Incidents)
+      </h2>
+    </div>
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+      <span class="badge badge-emerald" style="font-size: 0.85rem; padding: 0.4rem 0.8rem;">
+        <i class="fa-solid fa-check-circle"></i> ACCURACY: {{ kill_chain_metrics.accuracy }}%
+      </span>
+      <span class="badge badge-cyan" style="font-size: 0.85rem; padding: 0.4rem 0.8rem;">
+        <i class="fa-solid fa-shield-virus"></i> BREACH SUCCESS: {{ kill_chain_metrics.success_rate }}%
+      </span>
+    </div>
+  </div>
+</div>
+
+<!-- Kill Chain Stages Breakdown Grid (5 Lockheed Martin Stages) -->
+<div class="grid-cards" style="margin-bottom: 2rem; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+  <div class="stat-card hud-card" style="border-left: 4px solid var(--accent-purple);">
+    <div class="label">
+      <span>Reconnaissance</span>
+      <i class="fa-solid fa-radar" style="color: var(--accent-purple);"></i>
+    </div>
+    <div class="value font-mono animate-counter" data-target="{{ kill_chain_metrics.stage_counts.Reconnaissance|default:57567 }}">
+      {{ kill_chain_metrics.stage_counts.Reconnaissance|default:57567 }}
+    </div>
+    <div class="sub-meta">Attack Surface Probing</div>
+  </div>
+
+  <div class="stat-card hud-card" style="border-left: 4px solid var(--accent-cyan);">
+    <div class="label">
+      <span>Initial Access</span>
+      <i class="fa-solid fa-door-open" style="color: var(--accent-cyan);"></i>
+    </div>
+    <div class="value font-mono animate-counter" data-target="{{ kill_chain_metrics.stage_counts.Initial_Access|default:12170 }}">
+      {{ kill_chain_metrics.stage_counts.Initial_Access|default:12170 }}
+    </div>
+    <div class="sub-meta">Perimeter & Phishing Entry</div>
+  </div>
+
+  <div class="stat-card hud-card" style="border-left: 4px solid var(--accent-amber);">
+    <div class="label">
+      <span>Execution</span>
+      <i class="fa-solid fa-terminal" style="color: var(--accent-amber);"></i>
+    </div>
+    <div class="value font-mono animate-counter" data-target="{{ kill_chain_metrics.stage_counts.Execution|default:10735 }}">
+      {{ kill_chain_metrics.stage_counts.Execution|default:10735 }}
+    </div>
+    <div class="sub-meta">Exploitation & Payload Run</div>
+  </div>
+
+  <div class="stat-card hud-card" style="border-left: 4px solid #38bdf8;">
+    <div class="label">
+      <span>Persistence</span>
+      <i class="fa-solid fa-anchor" style="color: #38bdf8;"></i>
+    </div>
+    <div class="value font-mono animate-counter" data-target="{{ kill_chain_metrics.stage_counts.Persistence|default:13051 }}">
+      {{ kill_chain_metrics.stage_counts.Persistence|default:13051 }}
+    </div>
+    <div class="sub-meta">Backdoor & Privilege Hold</div>
+  </div>
+
+  <div class="stat-card hud-card" style="border-left: 4px solid var(--accent-red);">
+    <div class="label">
+      <span>Impact</span>
+      <i class="fa-solid fa-radiation" style="color: var(--accent-red);"></i>
+    </div>
+    <div class="value font-mono animate-counter" data-target="{{ kill_chain_metrics.stage_counts.Impact|default:6977 }}" style="color: var(--accent-red);">
+      {{ kill_chain_metrics.stage_counts.Impact|default:6977 }}
+    </div>
+    <div class="sub-meta">Encryption & Exfiltration</div>
+  </div>
+</div>
+
+<!-- Kill Chain Performance & Top Features -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem;">
+  
+  <!-- Metric Meters Card -->
+  <div class="cyber-card hud-card" style="border-top: 3px solid var(--accent-purple);">
+    <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+      <i class="fa-solid fa-gauge-high" style="color: var(--accent-purple);"></i> Multi-Stage Kill Chain Classifier Metrics
+    </h3>
+    <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+      <div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.88rem; margin-bottom: 0.35rem;">
+          <span style="color: var(--text-secondary); font-weight: 600;">Accuracy</span>
+          <span class="font-mono" style="font-weight: 800; color: var(--accent-purple);">{{ kill_chain_metrics.accuracy }}%</span>
+        </div>
+        <div class="cyber-meter-track">
+          <div class="cyber-meter-fill" style="width: {{ kill_chain_metrics.accuracy }}%; background: var(--accent-purple);"></div>
+        </div>
+      </div>
+      <div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.88rem; margin-bottom: 0.35rem;">
+          <span style="color: var(--text-secondary); font-weight: 600;">Precision (Weighted)</span>
+          <span class="font-mono" style="font-weight: 800; color: var(--accent-cyan);">{{ kill_chain_metrics.precision }}%</span>
+        </div>
+        <div class="cyber-meter-track">
+          <div class="cyber-meter-fill" style="width: {{ kill_chain_metrics.precision }}%; background: var(--accent-cyan);"></div>
+        </div>
+      </div>
+      <div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.88rem; margin-bottom: 0.35rem;">
+          <span style="color: var(--text-secondary); font-weight: 600;">Recall (Weighted)</span>
+          <span class="font-mono" style="font-weight: 800; color: var(--accent-amber);">{{ kill_chain_metrics.recall }}%</span>
+        </div>
+        <div class="cyber-meter-track">
+          <div class="cyber-meter-fill" style="width: {{ kill_chain_metrics.recall }}%; background: var(--accent-amber);"></div>
+        </div>
+      </div>
+      <div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.88rem; margin-bottom: 0.35rem;">
+          <span style="color: var(--text-secondary); font-weight: 600;">F1-Score (Weighted)</span>
+          <span class="font-mono" style="font-weight: 800; color: var(--accent-emerald);">{{ kill_chain_metrics.f1 }}%</span>
+        </div>
+        <div class="cyber-meter-track">
+          <div class="cyber-meter-fill" style="width: {{ kill_chain_metrics.f1 }}%; background: var(--accent-emerald);"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Predictive Kill Chain Features Card -->
+  <div class="cyber-card hud-card" style="border-top: 3px solid var(--accent-cyan);">
+    <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+      <i class="fa-solid fa-ranking-star" style="color: var(--accent-cyan);"></i> Top MITRE ATT&CK Stage Discriminators
+    </h3>
+    <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+      {% for feat, imp in kill_chain_metrics.top_features %}
+      <div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.3rem;">
+          <span class="font-mono" style="color: var(--text-primary); font-weight: 600;">{{ feat }}</span>
+          <span class="font-mono" style="color: var(--accent-cyan); font-weight: 800;">{{ imp }}</span>
+        </div>
+        <div class="cyber-meter-track">
+          <div class="cyber-meter-fill" style="width: {% widthratio imp 0.25 100 %}%; background: var(--accent-cyan);"></div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+{% endif %}
+
 {% endif %}
 {% endblock %}
 

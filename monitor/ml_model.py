@@ -291,8 +291,144 @@ def get_network_evaluation_metrics():
 
 
 def retrain_all_models():
-    """Programmatically retrain Random Forest, Isolation Forest, and Network Flow models."""
+    """Programmatically retrain Random Forest, Isolation Forest, Network Flow, and Kill Chain models."""
     rf = train_model()
     iso = train_anomaly_model()
     net = train_network_flow_model()
-    return rf is not None and iso is not None and net is not None
+    kc = train_kill_chain_model()
+    return rf is not None and iso is not None and net is not None and kc is not None
+
+
+KILL_CHAIN_DATASET_PATH = os.path.join(settings.BASE_DIR, 'monitor', 'data', 'kill_chain_data.csv')
+KILL_CHAIN_MODEL_PATH = os.path.join(settings.BASE_DIR, 'monitor', 'kill_chain_model.pkl')
+
+_CACHED_KILL_CHAIN_MODEL = None
+
+
+def train_kill_chain_model(sample_size=25000):
+    """
+    Train an Enterprise Cyber Kill Chain Classifier on enterprise incident telemetry (100,500 samples).
+    Predicts Cyber Kill Chain Attack Stages (Reconnaissance, Initial Access, Execution, Persistence, Impact)
+    and evaluates breach risk characteristics across 50 multi-dimensional security features.
+    """
+    global _CACHED_KILL_CHAIN_MODEL
+    import pandas as pd
+    from sklearn.ensemble import RandomForestClassifier
+    from sklearn.preprocessing import LabelEncoder
+    from sklearn.model_selection import train_test_split
+    from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
+
+    if not os.path.exists(KILL_CHAIN_DATASET_PATH):
+        return None
+
+    try:
+        df_full = pd.read_csv(KILL_CHAIN_DATASET_PATH)
+        total_samples = len(df_full)
+
+        if sample_size and total_samples > sample_size:
+            df = df_full.sample(n=sample_size, random_state=42).copy()
+        else:
+            df = df_full.copy()
+
+        cat_cols = [
+            'Industry', 'Country', 'Company_Size', 'Attack_Vector',
+            'Threat_Actor', 'Password_Policy', 'Attack_Complexity', 'Compliance'
+        ]
+        label_encoders = {}
+        for col in cat_cols:
+            if col in df.columns:
+                le = LabelEncoder()
+                df[col + '_Enc'] = le.fit_transform(df[col].astype(str))
+                label_encoders[col] = le
+
+        feature_cols = [
+            'Employee_Count', 'Firewall', 'MFA', 'EDR', 'IDS', 'Security_Training',
+            'Patch_Age_Days', 'Open_Vulnerabilities', 'CVSS_Score', 'Internet_Exposed',
+            'Security_Audit_Score', 'Phishing_Click', 'Credential_Stolen', 'Privilege_Escalation',
+            'Lateral_Movement', 'Persistence', 'Data_Encrypted', 'Data_Exfiltration_GB',
+            'Detection_Time_Min', 'Response_Time_Min', 'Downtime_Hours',
+            'Zero_Day', 'Vendor_Count', 'ThirdParty_Risk', 'Insider_Risk',
+            'Security_Maturity', 'SOC_Team_Size',
+            'Industry_Enc', 'Country_Enc', 'Company_Size_Enc', 'Attack_Vector_Enc',
+            'Threat_Actor_Enc', 'Password_Policy_Enc', 'Attack_Complexity_Enc', 'Compliance_Enc'
+        ]
+
+        available_features = [c for c in feature_cols if c in df.columns]
+        X = df[available_features].fillna(0)
+        y = df['Attack_Stage'].astype(str)
+
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+
+        clf = RandomForestClassifier(n_estimators=100, max_depth=12, random_state=42, n_jobs=-1)
+        clf.fit(X_train, y_train)
+
+        y_pred = clf.predict(X_test)
+        acc = accuracy_score(y_test, y_pred)
+        prec = precision_score(y_test, y_pred, average='weighted', zero_division=0)
+        rec = recall_score(y_test, y_pred, average='weighted', zero_division=0)
+        f1 = f1_score(y_test, y_pred, average='weighted', zero_division=0)
+        classes = sorted(list(clf.classes_))
+        cm = confusion_matrix(y_test, y_pred, labels=classes).tolist()
+
+        importances = dict(zip(available_features, [round(float(v), 4) for v in clf.feature_importances_]))
+        sorted_importances = sorted(importances.items(), key=lambda item: item[1], reverse=True)
+
+        raw_stages = df_full['Attack_Stage'].value_counts().to_dict()
+        stage_counts = {
+            'Reconnaissance': raw_stages.get('Reconnaissance', 0),
+            'Initial_Access': raw_stages.get('Initial Access', 0),
+            'Initial Access': raw_stages.get('Initial Access', 0),
+            'Execution': raw_stages.get('Execution', 0),
+            'Persistence': raw_stages.get('Persistence', 0),
+            'Impact': raw_stages.get('Impact', 0),
+        }
+
+        raw_risks = df_full['Risk_Level'].value_counts().to_dict() if 'Risk_Level' in df_full.columns else {}
+        risk_counts = {
+            'Low': raw_risks.get('Low', 0),
+            'Medium': raw_risks.get('Medium', 0),
+            'High': raw_risks.get('High', 0),
+            'Critical': raw_risks.get('Critical', 0),
+        }
+
+        success_rate = round(float(df_full['Attack_Success'].mean() * 100), 1) if 'Attack_Success' in df_full.columns else 0.0
+
+        bundle = {
+            'classes': classes,
+            'feature_cols': available_features,
+            'total_samples': total_samples,
+            'trained_samples': len(X_train),
+            'stage_counts': stage_counts,
+            'risk_counts': risk_counts,
+            'success_rate': success_rate,
+            'accuracy': round(acc * 100, 1),
+            'precision': round(prec * 100, 1),
+            'recall': round(rec * 100, 1),
+            'f1': round(f1 * 100, 1),
+            'confusion_matrix': cm,
+            'top_features': sorted_importances[:8],
+        }
+
+        joblib.dump(bundle, KILL_CHAIN_MODEL_PATH)
+        _CACHED_KILL_CHAIN_MODEL = bundle
+        print(f"[CyberOracle Intel] Cyber Kill Chain Model trained on {len(X)} samples (Accuracy: {bundle['accuracy']}%).")
+        return bundle
+    except Exception as e:
+        print(f"[CyberOracle Intel] Error training Cyber Kill Chain model: {e}")
+        return None
+
+
+def get_kill_chain_evaluation_metrics():
+    """Load or calculate evaluation benchmarks for the Cyber Kill Chain dataset."""
+    global _CACHED_KILL_CHAIN_MODEL
+    if _CACHED_KILL_CHAIN_MODEL is not None:
+        return _CACHED_KILL_CHAIN_MODEL
+
+    if os.path.exists(KILL_CHAIN_MODEL_PATH):
+        try:
+            _CACHED_KILL_CHAIN_MODEL = joblib.load(KILL_CHAIN_MODEL_PATH)
+            return _CACHED_KILL_CHAIN_MODEL
+        except Exception:
+            pass
+
+    return train_kill_chain_model()

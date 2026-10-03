@@ -40,6 +40,40 @@ class RequestLoggingMiddleware:
             try:
                 blocked_profile = IPRiskProfile.objects.filter(ip_address=client_ip, is_blocked=True).first()
                 if blocked_profile:
+                    is_xss_attempt = detect_xss(request)
+                    is_sqli_attempt = detect_sqli(request)
+                    is_path_attempt = detect_path_traversal(request)
+                    
+                    if is_xss_attempt:
+                        blocked_profile.xss_count += 1
+                        blocked_intent = "Quarantined IP Attack Intercepted (XSS)"
+                    elif is_sqli_attempt:
+                        blocked_profile.sqli_count += 1
+                        blocked_intent = "Quarantined IP Attack Intercepted (SQLi)"
+                    elif is_path_attempt:
+                        blocked_profile.path_traversal_count += 1
+                        blocked_intent = "Quarantined IP Attack Intercepted (Path Traversal)"
+                    else:
+                        blocked_intent = "Quarantined IP Request Intercepted"
+                    blocked_profile.save()
+
+                    RequestLog.objects.create(
+                        ip_address=client_ip,
+                        method=request.method,
+                        path=request.path,
+                        status_code=403,
+                        user_agent=request.META.get('HTTP_USER_AGENT', '')[:500],
+                        response_time_ms=2.0,
+                        username=None,
+                        query_params=request.META.get('QUERY_STRING', '')[:500],
+                        is_sqli_suspect=is_sqli_attempt,
+                        is_xss_suspect=is_xss_attempt,
+                        is_path_traversal_suspect=is_path_attempt,
+                        inferred_intent=blocked_intent,
+                        entropy_score=calculate_entropy(request.get_full_path()),
+                        request_rate=1.0,
+                    )
+
                     return HttpResponseForbidden(
                         f"""
                         <!DOCTYPE html>
@@ -56,7 +90,7 @@ class RequestLoggingMiddleware:
                             </style>
                         </head>
                         <body>
-                            <div class="card">
+                        <div class="card">
                                 <div class="badge">ACCESS DENIED // IP QUARANTINED</div>
                                 <h1>CyberOracle Intel Security Interception</h1>
                                 <p>Your IP address (<strong>{client_ip}</strong>) has been quarantined due to critical risk scoring and autonomous threat hunting mitigation.</p>

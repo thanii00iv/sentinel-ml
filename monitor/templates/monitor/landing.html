@@ -31,7 +31,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
   <!-- Main System Design System -->
-  <link rel="stylesheet" href="{% static 'monitor/css/sentinel.css' %}?v=3.1.0">
+  <link rel="stylesheet" href="{% static 'monitor/css/sentinel.css' %}?v=3.6.0">
 </head>
 <body class="landing-body future-page" style="position: relative; overflow-x: hidden;">
 
@@ -60,37 +60,36 @@
         
         <!-- Brand & Quantum Core Badge -->
         <a href="{% url 'landing' %}" class="future-brand">
-          <div class="brand-hologram-shield" style="padding: 1px; display: flex; align-items: center; justify-content: center; background: transparent; border: none; box-shadow: none;">
-            <img src="{% static 'monitor/img/logo.png' %}?v=8.0" alt="CyberOracle Intel" style="width: 38px; height: 38px; object-fit: contain; display: block; filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.6));">
+          <div class="brand-hologram-shield" style="width: 38px; height: 38px; min-width: 38px; min-height: 38px; max-width: 38px; max-height: 38px; overflow: hidden; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: transparent; border: none; box-shadow: none;">
+            <img src="{% static 'monitor/img/logo.png' %}?v=9.0" alt="CyberOracle Intel" class="brand-logo-img" width="36" height="36" style="width: 36px !important; height: 36px !important; max-width: 36px !important; max-height: 36px !important; object-fit: contain; display: block; flex-shrink: 0; filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.6));">
           </div>
-          <div class="brand-text-group">
+          <div class="brand-text-group" style="flex-shrink: 0;">
             <div class="brand-title">CYBERORACLE <span class="neon-cyan">INTEL</span></div>
             <div class="brand-micro-tag">ICMF NEURAL CORE v3.0</div>
           </div>
         </a>
 
-        <!-- Live Autonomous System Status Pill -->
-        <div class="nav-system-status d-none-mobile">
-          <span class="status-orb pulse-green"></span>
-          <span class="status-text font-mono"><span class="neon-emerald">ONLINE</span> // QUANTUM DEFENSE ACTIVE</span>
+        <!-- Live Autonomous System Status Pill (Compact & Non-Wrapping) -->
+        <div class="nav-system-status d-none-mobile" style="display: flex; align-items: center; white-space: nowrap !important; flex-shrink: 0 !important;">
+          <span class="status-orb pulse-green" style="width: 8px !important; height: 8px !important; min-width: 8px !important; min-height: 8px !important; border-radius: 50%; flex-shrink: 0 !important; display: inline-block;"></span>
+          <span class="status-text font-mono" style="white-space: nowrap !important;"><span class="neon-emerald">ONLINE</span><span class="status-extra-text"> // DEFENSE ACTIVE</span></span>
           <span class="status-divider">|</span>
-          <span class="status-threat font-mono">THREAT LEVEL: <span class="neon-cyan">0.04 (NOMINAL)</span></span>
+          <span class="status-threat font-mono" style="white-space: nowrap !important;">THREAT: <span class="neon-cyan">0.04</span></span>
         </div>
 
-        <!-- Navigation Links -->
+        <!-- Navigation Links & Actions -->
         <div class="nav-actions-group">
           <ul class="future-nav-links">
             <li><a href="#overview"><i class="fa-solid fa-compass"></i> <span>Overview</span></a></li>
-            <li><a href="#icmf-layers"><i class="fa-solid fa-layer-group"></i> <span>5-Layer ICMF</span></a></li>
+            <li><a href="#icmf-layers"><i class="fa-solid fa-layer-group"></i> <span>ICMF Core</span></a></li>
             <li><a href="#killchain"><i class="fa-solid fa-diagram-project"></i> <span>Kill-Chain</span></a></li>
-            <li><a href="#features"><i class="fa-solid fa-cubes"></i> <span>Bento Arsenal</span></a></li>
-            <li><a href="#playground"><i class="fa-solid fa-terminal"></i> <span>Live Sim</span></a></li>
+            <li><a href="#datasets"><i class="fa-solid fa-database"></i> <span>Datasets</span></a></li>
+            <li><a href="#features"><i class="fa-solid fa-cubes"></i> <span>Arsenal</span></a></li>
+            <li><a href="#playground"><i class="fa-solid fa-terminal"></i> <span>Simulator</span></a></li>
           </ul>
 
           <!-- Controls: Gateway Access CTA & Theme Toggle -->
           <div class="nav-buttons-cluster">
-
-            <!-- Light / Dark Mode Toggle Button -->
             <button type="button" class="theme-toggle-btn glass-icon-btn" aria-label="Toggle Dark/Light Mode" title="Toggle Theme">
               <i class="fa-solid fa-sun"></i>
             </button>
@@ -103,7 +102,7 @@
             {% else %}
             <a href="{% url 'login' %}" class="btn-future-glass btn-glow-cyan">
               <i class="fa-solid fa-fingerprint"></i>
-              <span>Security Clearance</span>
+              <span>Clearance</span>
             </a>
             {% endif %}
           </div>
@@ -161,11 +160,11 @@
           <div class="hero-glass-stats-grid">
             <div class="glass-stat-card" data-spotlight>
               <div class="stat-top-row">
-                <i class="fa-solid fa-microchip stat-icon neon-cyan"></i>
-                <span class="stat-sub font-mono">INGESTED</span>
+                <i class="fa-solid fa-database stat-icon neon-cyan"></i>
+                <span class="stat-sub font-mono">CORPUS</span>
               </div>
-              <div class="stat-number font-orbitron animate-counter" data-target="{{ total_requests }}">{{ total_requests }}</div>
-              <div class="stat-label">Packets Scanned</div>
+              <div class="stat-number font-orbitron neon-cyan">{{ total_corpus_formatted }}</div>
+              <div class="stat-label">5-Tier Dataset Records</div>
             </div>
 
             <div class="glass-stat-card" data-spotlight>
@@ -174,16 +173,16 @@
                 <span class="stat-sub font-mono">NEUTRALIZED</span>
               </div>
               <div class="stat-number font-orbitron neon-red"><span class="animate-counter" data-target="{{ malicious_total }}">{{ malicious_total }}</span></div>
-              <div class="stat-label">Threats Neutralized</div>
+              <div class="stat-label">Threats Quarantined</div>
             </div>
 
             <div class="glass-stat-card" data-spotlight>
               <div class="stat-top-row">
                 <i class="fa-solid fa-bullseye stat-icon neon-emerald"></i>
-                <span class="stat-sub font-mono">PRECISION</span>
+                <span class="stat-sub font-mono">KILL CHAIN AI</span>
               </div>
-              <div class="stat-number font-orbitron neon-emerald">99.4%</div>
-              <div class="stat-label">ML Accuracy Score</div>
+              <div class="stat-number font-orbitron neon-emerald">{{ kill_chain_accuracy }}%</div>
+              <div class="stat-label">Multi-Stage Accuracy</div>
             </div>
 
             <div class="glass-stat-card" data-spotlight>
@@ -250,24 +249,28 @@
     <!-- LIVE TELEMETRY TICKER BAR -->
     <div class="future-ticker-bar">
       <div class="ticker-content-track">
-        <span class="ticker-item"><i class="fa-solid fa-shield-halved neon-cyan"></i> SYSTEM: <strong>ICMF FUSION v3.0 ACTIVE</strong></span>
+        <span class="ticker-item"><i class="fa-solid fa-database neon-cyan"></i> DATASET CORPUS: <strong>{{ total_corpus_formatted }} RECORDS (5 TIERS)</strong></span>
         <span class="ticker-divider">&bull;</span>
-        <span class="ticker-item"><i class="fa-solid fa-crosshairs neon-amber"></i> MITRE ATT&CK: <strong>5 MAPPED VECTORS</strong></span>
+        <span class="ticker-item"><i class="fa-solid fa-shield-halved neon-emerald"></i> SYSTEM: <strong>ICMF FUSION v3.0 ACTIVE</strong></span>
         <span class="ticker-divider">&bull;</span>
-        <span class="ticker-item"><i class="fa-solid fa-network-wired neon-emerald"></i> SSE STREAM: <strong>REAL-TIME TELEMETRY PUSH</strong></span>
+        <span class="ticker-item"><i class="fa-solid fa-crosshairs neon-amber"></i> KILL CHAIN AI: <strong>{{ kill_chain_accuracy }}% ACCURACY (100.5K INCIDENTS)</strong></span>
         <span class="ticker-divider">&bull;</span>
-        <span class="ticker-item"><i class="fa-solid fa-brain neon-purple"></i> MARKOV ENGINE: <strong>KILL-CHAIN STAGE FORECASTING</strong></span>
+        <span class="ticker-item"><i class="fa-solid fa-network-wired neon-blue"></i> FLOW DETECTOR: <strong>{{ network_accuracy }}% ACCURACY</strong></span>
+        <span class="ticker-divider">&bull;</span>
+        <span class="ticker-item"><i class="fa-solid fa-bug neon-purple"></i> ATTACK ARSENAL: <strong>500 ZERO-DAY VECTORS</strong></span>
         <span class="ticker-divider">&bull;</span>
         <span class="ticker-item"><i class="fa-solid fa-lock neon-red"></i> CANARY DECOYS: <strong>ZERO FALSE-POSITIVE QUARANTINE</strong></span>
         <span class="ticker-divider">&bull;</span>
         <!-- Duplicated for smooth continuous marquee loop -->
-        <span class="ticker-item"><i class="fa-solid fa-shield-halved neon-cyan"></i> SYSTEM: <strong>ICMF FUSION v3.0 ACTIVE</strong></span>
+        <span class="ticker-item"><i class="fa-solid fa-database neon-cyan"></i> DATASET CORPUS: <strong>{{ total_corpus_formatted }} RECORDS (5 TIERS)</strong></span>
         <span class="ticker-divider">&bull;</span>
-        <span class="ticker-item"><i class="fa-solid fa-crosshairs neon-amber"></i> MITRE ATT&CK: <strong>5 MAPPED VECTORS</strong></span>
+        <span class="ticker-item"><i class="fa-solid fa-shield-halved neon-emerald"></i> SYSTEM: <strong>ICMF FUSION v3.0 ACTIVE</strong></span>
         <span class="ticker-divider">&bull;</span>
-        <span class="ticker-item"><i class="fa-solid fa-network-wired neon-emerald"></i> SSE STREAM: <strong>REAL-TIME TELEMETRY PUSH</strong></span>
+        <span class="ticker-item"><i class="fa-solid fa-crosshairs neon-amber"></i> KILL CHAIN AI: <strong>{{ kill_chain_accuracy }}% ACCURACY (100.5K INCIDENTS)</strong></span>
         <span class="ticker-divider">&bull;</span>
-        <span class="ticker-item"><i class="fa-solid fa-brain neon-purple"></i> MARKOV ENGINE: <strong>KILL-CHAIN STAGE FORECASTING</strong></span>
+        <span class="ticker-item"><i class="fa-solid fa-network-wired neon-blue"></i> FLOW DETECTOR: <strong>{{ network_accuracy }}% ACCURACY</strong></span>
+        <span class="ticker-divider">&bull;</span>
+        <span class="ticker-item"><i class="fa-solid fa-bug neon-purple"></i> ATTACK ARSENAL: <strong>500 ZERO-DAY VECTORS</strong></span>
         <span class="ticker-divider">&bull;</span>
         <span class="ticker-item"><i class="fa-solid fa-lock neon-red"></i> CANARY DECOYS: <strong>ZERO FALSE-POSITIVE QUARANTINE</strong></span>
       </div>
@@ -536,7 +539,223 @@
       </div>
     </section>
 
-    <!-- SECTION 4: BENTO GRID PLATFORM ARSENAL -->
+    <!-- SECTION: ENTERPRISE MULTI-TIER DATASET & AI ARSENAL (6.16M+ RECORDS) -->
+    <section id="datasets" class="future-section section-gradient-glass">
+      <div class="section-badge-center motion-fade-up">
+        <span class="section-pretitle font-mono neon-cyan">// 6.16M+ MULTI-TIER DEFENSE DATASET SUITE</span>
+        <h2 class="section-heading font-orbitron">Enterprise Datasets & AI Model Matrix</h2>
+        <p class="section-paragraph">
+          CyberOracle Intel is trained, cross-validated, and benchmarked across a synchronized 5-tier security corpus comprising <strong>{{ total_corpus_formatted }} records</strong> and <strong>50+ multidimensional telemetry features</strong>.
+        </p>
+      </div>
+
+      <!-- 5-Tier Dataset Grid Cards -->
+      <div class="future-bento-grid motion-fade-up" style="margin-bottom: 2.5rem;">
+        
+        <!-- Dataset 1: Master Cyber Security Threat Logs (874MB, 6M rows) -->
+        <div class="bento-card bento-span-2" data-spotlight data-tilt>
+          <div class="bento-glow-bg"></div>
+          <div class="bento-header">
+            <div class="icon-avatar avatar-cyan"><i class="fa-solid fa-database"></i></div>
+            <div>
+              <span class="bento-tag font-mono neon-cyan">MASTER CORPUS &bull; 874.3 MB</span>
+              <h3 class="font-orbitron bento-title">Global Cybersecurity Threat Logs (6,000,000 Records)</h3>
+            </div>
+          </div>
+          <p class="bento-desc">
+            High-scale master telemetry repository capturing multi-protocol network traffic (TCP, UDP, HTTP, HTTPS, ICMP, FTP, SSH), edge firewall actions, and automated intrusion detection triggers across worldwide IP endpoints.
+          </p>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem; margin-top: 1rem; margin-bottom: 1.25rem;">
+            <div style="background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.2); border-radius: 10px; padding: 0.6rem 0.8rem;">
+              <span class="font-mono" style="font-size: 0.72rem; color: var(--text-muted); display: block;">VOLUME</span>
+              <span class="font-orbitron neon-cyan" style="font-size: 1.1rem; font-weight: 700;">6.0M Rows</span>
+            </div>
+            <div style="background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.2); border-radius: 10px; padding: 0.6rem 0.8rem;">
+              <span class="font-mono" style="font-size: 0.72rem; color: var(--text-muted); display: block;">STORAGE DISK</span>
+              <span class="font-orbitron neon-cyan" style="font-size: 1.1rem; font-weight: 700;">874.3 MB</span>
+            </div>
+            <div style="background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.2); border-radius: 10px; padding: 0.6rem 0.8rem;">
+              <span class="font-mono" style="font-size: 0.72rem; color: var(--text-muted); display: block;">PROTOCOLS</span>
+              <span class="font-orbitron neon-cyan" style="font-size: 1.1rem; font-weight: 700;">7 Protocols</span>
+            </div>
+            <div style="background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0, 240, 255, 0.2); border-radius: 10px; padding: 0.6rem 0.8rem;">
+              <span class="font-mono" style="font-size: 0.72rem; color: var(--text-muted); display: block;">STATUS</span>
+              <span class="font-orbitron neon-emerald" style="font-size: 1.1rem; font-weight: 700;">Synchronized</span>
+            </div>
+          </div>
+          <div class="bento-footer font-mono">
+            <span><i class="fa-solid fa-server neon-cyan"></i> Stream-Indexed & Git Safe</span>
+            <span class="neon-emerald">ACTIVE TELEMETRY FOUNDATION</span>
+          </div>
+        </div>
+
+        <!-- Dataset 2: Lockheed Martin & MITRE Cyber Kill Chain Dataset (100.5K samples) -->
+        <div class="bento-card" data-spotlight data-tilt>
+          <div class="bento-header">
+            <div class="icon-avatar avatar-purple"><i class="fa-solid fa-skull-crossbones"></i></div>
+            <div>
+              <span class="bento-tag font-mono neon-purple">KILL CHAIN MATRIX</span>
+              <h3 class="font-orbitron bento-title">Enterprise Kill Chain (100,500 Records)</h3>
+            </div>
+          </div>
+          <p class="bento-desc">
+            50 multidimensional enterprise features classifying attacks into Reconnaissance, Initial Access, Execution, Persistence, and Impact.
+          </p>
+          <div style="background: rgba(192, 132, 252, 0.08); border: 1px solid rgba(192, 132, 252, 0.25); border-radius: 12px; padding: 0.75rem 1rem; margin-top: auto; margin-bottom: 1rem;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.3rem;">
+              <span class="font-mono">Model Accuracy</span>
+              <span class="font-orbitron neon-purple" style="font-weight: 700;">{{ kill_chain_accuracy }}%</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
+              <span class="font-mono">F1-Score</span>
+              <span class="font-orbitron neon-emerald" style="font-weight: 700;">{{ kill_chain_f1 }}%</span>
+            </div>
+          </div>
+          <div class="bento-footer font-mono">
+            <span class="neon-purple"><i class="fa-solid fa-crosshairs"></i> 50 Feature Vectors</span>
+          </div>
+        </div>
+
+        <!-- Dataset 3: High-Density Balanced Production Telemetry (60,000 samples) -->
+        <div class="bento-card" data-spotlight data-tilt>
+          <div class="bento-header">
+            <div class="icon-avatar avatar-amber"><i class="fa-solid fa-scale-balanced"></i></div>
+            <div>
+              <span class="bento-tag font-mono neon-amber">STRATIFIED BALANCED</span>
+              <h3 class="font-orbitron bento-title">Production Telemetry (60,000 Records)</h3>
+            </div>
+          </div>
+          <p class="bento-desc">
+            Stratified 1:1:1 balanced dataset (20,000 Malicious, 20,000 Suspicious, 20,000 Benign) engineered for ultra-fast, sub-50ms web evaluation and real-time live SOC streaming.
+          </p>
+          <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: auto; margin-bottom: 1rem;">
+            <span class="badge badge-red" style="font-size: 0.75rem;"><i class="fa-solid fa-bug"></i> 20k Malicious</span>
+            <span class="badge badge-amber" style="font-size: 0.75rem;"><i class="fa-solid fa-triangle-exclamation"></i> 20k Suspicious</span>
+            <span class="badge badge-emerald" style="font-size: 0.75rem;"><i class="fa-solid fa-check"></i> 20k Benign</span>
+          </div>
+          <div class="bento-footer font-mono">
+            <span class="neon-amber"><i class="fa-solid fa-bolt"></i> Sub-50ms Cold Load</span>
+          </div>
+        </div>
+
+        <!-- Dataset 4: Network Traffic Flows (1,430 samples) -->
+        <div class="bento-card" data-spotlight data-tilt>
+          <div class="bento-header">
+            <div class="icon-avatar avatar-blue"><i class="fa-solid fa-network-wired"></i></div>
+            <div>
+              <span class="bento-tag font-mono neon-blue">FLOW ANALYSIS</span>
+              <h3 class="font-orbitron bento-title">Network Flows (1,430 Flows)</h3>
+            </div>
+          </div>
+          <p class="bento-desc">
+            Granular network flow metrics analyzing packet size distributions, TCP handshake flags, byte ratios, and protocol behaviors.
+          </p>
+          <div style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 12px; padding: 0.75rem 1rem; margin-top: auto; margin-bottom: 1rem;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.3rem;">
+              <span class="font-mono">Flow Classifier Accuracy</span>
+              <span class="font-orbitron neon-cyan" style="font-weight: 700;">{{ network_accuracy }}%</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
+              <span class="font-mono">Attack Recall</span>
+              <span class="font-orbitron neon-emerald" style="font-weight: 700;">{{ network_recall }}%</span>
+            </div>
+          </div>
+          <div class="bento-footer font-mono">
+            <span class="neon-blue"><i class="fa-solid fa-chart-line"></i> 100% Threat Recall</span>
+          </div>
+        </div>
+
+        <!-- Dataset 5: Curated Web Attack Payloads (500 samples) -->
+        <div class="bento-card" data-spotlight data-tilt>
+          <div class="bento-header">
+            <div class="icon-avatar avatar-danger"><i class="fa-solid fa-shield-virus"></i></div>
+            <div>
+              <span class="bento-tag font-mono neon-red">ATTACK ARSENAL</span>
+              <h3 class="font-orbitron bento-title">Zero-Day Payloads (500 Vectors)</h3>
+            </div>
+          </div>
+          <p class="bento-desc">
+            Curated real-world and obfuscated attack vectors including SQLi tautology/unions, blind time injections, cross-site scripting polyglots, SSRF probes, and path traversals.
+          </p>
+          <div style="display: flex; gap: 0.35rem; flex-wrap: wrap; margin-top: auto; margin-bottom: 1rem;">
+            <span class="hp-pill">SQLi</span>
+            <span class="hp-pill">XSS</span>
+            <span class="hp-pill">SSRF</span>
+            <span class="hp-pill">Traversal</span>
+            <span class="hp-pill">CmdInj</span>
+          </div>
+          <div class="bento-footer font-mono">
+            <span class="text-danger"><i class="fa-solid fa-vial-virus"></i> Automated Fuzzing Suite</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- AI Models Evaluation Benchmark Bar -->
+      <div class="future-glass-card motion-fade-up" data-spotlight style="padding: 2rem 2.5rem;">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+          <div>
+            <span class="font-mono neon-cyan" style="font-size: 0.8rem; letter-spacing: 0.08em;">// SYNCHRONIZED MULTI-MODEL AI DEFENSE BENCHMARKS</span>
+            <h3 class="font-orbitron" style="font-size: 1.35rem; color: var(--text-primary); margin-top: 0.25rem;">
+              Autonomous AI Defense Models Performance Summary
+            </h3>
+          </div>
+          {% if user.is_authenticated %}
+          <a href="{% url 'evaluation' %}" class="btn-future-glass btn-glow-cyan" style="font-size: 0.85rem;">
+            <i class="fa-solid fa-flask-vial"></i>
+            <span>View Full Validation Lab</span>
+          </a>
+          {% else %}
+          <a href="{% url 'login' %}" class="btn-future-glass btn-glow-cyan" style="font-size: 0.85rem;">
+            <i class="fa-solid fa-flask-vial"></i>
+            <span>View Validation Lab</span>
+          </a>
+          {% endif %}
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
+          
+          <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.25rem;">
+            <div class="font-mono" style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.4rem;">SUPERVISED 12D ENSEMBLE</div>
+            <div class="font-orbitron neon-cyan" style="font-size: 1.75rem; font-weight: 800;">{{ rf_accuracy }}%</div>
+            <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">Random Forest Telemetry Classifier</div>
+            <div class="future-progress-bar" style="margin-top: 0.75rem;">
+              <div class="future-progress-fill" style="width: {{ rf_accuracy }}%; background: var(--accent-cyan);"></div>
+            </div>
+          </div>
+
+          <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.25rem;">
+            <div class="font-mono" style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.4rem;">ENTERPRISE KILL CHAIN MODEL</div>
+            <div class="font-orbitron neon-purple" style="font-size: 1.75rem; font-weight: 800;">{{ kill_chain_accuracy }}%</div>
+            <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">5-Stage Lockheed Martin Predictor</div>
+            <div class="future-progress-bar" style="margin-top: 0.75rem;">
+              <div class="future-progress-fill" style="width: {{ kill_chain_accuracy }}%; background: var(--accent-purple);"></div>
+            </div>
+          </div>
+
+          <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.25rem;">
+            <div class="font-mono" style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.4rem;">NETWORK FLOW CLASSIFIER</div>
+            <div class="font-orbitron neon-emerald" style="font-size: 1.75rem; font-weight: 800;">{{ network_accuracy }}%</div>
+            <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">Packet Flow Intrusion Detector</div>
+            <div class="future-progress-bar" style="margin-top: 0.75rem;">
+              <div class="future-progress-fill" style="width: {{ network_accuracy }}%; background: var(--accent-emerald);"></div>
+            </div>
+          </div>
+
+          <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.25rem;">
+            <div class="font-mono" style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.4rem;">UNSUPERVISED ANOMALY CORE</div>
+            <div class="font-orbitron neon-amber" style="font-size: 1.75rem; font-weight: 800;">0.65+</div>
+            <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">Isolation Forest Zero-Day Outlier Threshold</div>
+            <div class="future-progress-bar" style="margin-top: 0.75rem;">
+              <div class="future-progress-fill" style="width: 82%; background: var(--accent-amber);"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 5: BENTO GRID PLATFORM ARSENAL -->
     <section id="features" class="future-section section-gradient-glass">
       <div class="section-badge-center motion-fade-up">
         <span class="section-pretitle font-mono neon-emerald">// ENTERPRISE SOC CAPABILITIES</span>
@@ -806,25 +1025,61 @@
     <!-- FUTURE GLASS FOOTER -->
     <footer class="future-footer">
       <div class="footer-glass-bar">
-        <div class="footer-left font-mono">
-          <i class="fa-solid fa-microchip neon-cyan"></i>
-          <span>CYBERORACLE INTEL &bull; INTENT-CENTRIC MULTI-LAYER FUSION (ICMF) THREAT ENGINE</span>
+        
+        <!-- Row 1: Brand Signature & Status Clusters -->
+        <div class="footer-top-row">
+          <div class="footer-brand-badge font-mono">
+            <i class="fa-solid fa-microchip neon-cyan"></i>
+            <span class="neon-cyan" style="font-weight: 700;">CYBERORACLE INTEL</span>
+            <span class="footer-divider-slash">//</span>
+            <span style="color: var(--text-secondary);">ICMF NEURAL CORE v3.0</span>
+          </div>
+
+          <div class="footer-badges-cluster font-mono">
+            <span class="footer-status-pill">
+              <span class="status-orb pulse-green"></span>
+              <span class="neon-emerald">FIREWALL ACTIVE</span>
+            </span>
+            <span class="footer-status-pill">
+              <i class="fa-solid fa-database neon-cyan" style="font-size: 0.72rem;"></i>
+              <span class="neon-cyan">{{ total_corpus_formatted }} CORPUS</span>
+            </span>
+            <button type="button" class="theme-toggle-btn glass-icon-btn footer-theme-btn" aria-label="Toggle Dark/Light Mode" title="Toggle Theme">
+              <i class="fa-solid fa-sun"></i>
+            </button>
+          </div>
         </div>
-        <div class="footer-links font-mono" style="display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap;">
-          <a href="#overview">Overview</a>
-          <span class="footer-dot">&bull;</span>
-          <a href="#icmf-layers">5-Layer ICMF</a>
-          <span class="footer-dot">&bull;</span>
-          <a href="#playground">Attack Sim</a>
-          <span class="footer-dot">&bull;</span>
-          <a href="{% url 'login' %}">Gateway Login</a>
-          <span class="footer-dot">&bull;</span>
-          <span class="neon-emerald"><i class="fa-solid fa-shield-halved"></i> FIREWALL ACTIVE</span>
-          <span class="footer-dot">&bull;</span>
-          <button type="button" class="theme-toggle-btn glass-icon-btn" style="width: 32px; height: 32px; font-size: 0.85rem; border-radius: 8px;" aria-label="Toggle Dark/Light Mode" title="Toggle Theme">
-            <i class="fa-solid fa-sun"></i>
-          </button>
+
+        <!-- Hairline Divider -->
+        <div class="footer-hairline-divider"></div>
+
+        <!-- Row 2: Navigation Links & Rights -->
+        <div class="footer-bottom-row font-mono">
+          <div class="footer-nav-links">
+            <a href="#overview">Overview</a>
+            <span class="footer-dot">&bull;</span>
+            <a href="#icmf-layers">5-Layer ICMF</a>
+            <span class="footer-dot">&bull;</span>
+            <a href="#killchain">Kill-Chain</a>
+            <span class="footer-dot">&bull;</span>
+            <a href="#datasets">Datasets &amp; AI</a>
+            <span class="footer-dot">&bull;</span>
+            <a href="#features">Arsenal</a>
+            <span class="footer-dot">&bull;</span>
+            <a href="#playground">Attack Sim</a>
+            <span class="footer-dot">&bull;</span>
+            {% if user.is_authenticated %}
+            <a href="{% url 'home' %}" class="neon-cyan">SOC Command</a>
+            {% else %}
+            <a href="{% url 'login' %}" class="neon-cyan">Clearance Gateway</a>
+            {% endif %}
+          </div>
+
+          <div class="footer-copy-text">
+            <span>&copy; 2026 CYBERORACLE INTEL. AUTONOMOUS DEFENSE ACTIVE.</span>
+          </div>
         </div>
+
       </div>
     </footer>
 

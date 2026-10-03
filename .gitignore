@@ -22,3 +22,6 @@ Thumbs.db
 .vscode/
 .idea/
 *.log
+
+# Large Datasets (> 100MB exceeds GitHub push limit)
+monitor/data/cybersecurity_threat_detection_logs.csv

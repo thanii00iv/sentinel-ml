@@ -1,5 +1,6 @@
 import re
 import math
+import urllib.parse
 from collections import Counter
 from datetime import timedelta
 from django.utils import timezone
@@ -25,17 +26,43 @@ SQLI_REGEX = re.compile("|".join(SQLI_PATTERNS), re.IGNORECASE)
 XSS_PATTERNS = [
     r"<script[^>]*>.*?</script>",
     r"<script[^>]*>",
+    r"</script>",
     r"javascript\s*:",
+    r"vbscript\s*:",
+    r"data\s*:\s*text/html",
     r"onerror\s*=",
     r"onload\s*=",
     r"onclick\s*=",
+    r"onfocus\s*=",
+    r"onblur\s*=",
+    r"onmouseover\s*=",
+    r"onmouseenter\s*=",
+    r"ontoggle\s*=",
+    r"onchange\s*=",
+    r"onsubmit\s*=",
+    r"onkeydown\s*=",
+    r"onkeypress\s*=",
+    r"onkeyup\s*=",
     r"<img[^>]+src[^\w]*=[^\w]*[\"']?javascript:",
+    r"<img[^>]+onerror[^>]*>",
     r"<iframe[^>]*>",
+    r"<svg[^>]*>",
+    r"<details[^>]*>",
+    r"<body[^>]*>",
+    r"<input[^>]+(autofocus|onfocus)[^>]*>",
     r"document\.cookie",
-    r"alert\s*\(",
-    r"eval\s*\(",
+    r"document\.location",
+    r"document\.write",
     r"window\.location",
+    r"alert\s*\(",
+    r"prompt\s*\(",
+    r"confirm\s*\(",
+    r"eval\s*\(",
+    r"setTimeout\s*\(",
+    r"setInterval\s*\(",
+    r"Function\s*\(",
     r"svg/onload",
+    r"String\.fromCharCode",
 ]
 XSS_REGEX = re.compile("|".join(XSS_PATTERNS), re.IGNORECASE)
 
@@ -59,39 +86,73 @@ PATH_TRAVERSAL_REGEX = re.compile("|".join(PATH_TRAVERSAL_PATTERNS), re.IGNORECA
 def detect_sqli(request):
     """Detect SQL injection attempts across URL path, GET params, and POST body."""
     full_path = request.get_full_path()
-    if SQLI_REGEX.search(full_path):
+    if SQLI_REGEX.search(full_path) or SQLI_REGEX.search(urllib.parse.unquote(full_path)):
         return True
 
-    for value in request.GET.values():
-        if SQLI_REGEX.search(str(value)):
+    for key, value in request.GET.items():
+        val_str = str(value)
+        key_str = str(key)
+        if (
+            SQLI_REGEX.search(val_str) or
+            SQLI_REGEX.search(urllib.parse.unquote(val_str)) or
+            SQLI_REGEX.search(key_str) or
+            SQLI_REGEX.search(urllib.parse.unquote(key_str))
+        ):
             return True
 
     if request.method == 'POST':
         for key, value in request.POST.items():
             if key in ('csrfmiddlewaretoken', 'password'):
                 continue
-            if SQLI_REGEX.search(str(value)):
+            val_str = str(value)
+            if SQLI_REGEX.search(val_str) or SQLI_REGEX.search(urllib.parse.unquote(val_str)):
                 return True
+
+        # Support JSON / raw request bodies
+        try:
+            if request.body:
+                body_text = request.body.decode('utf-8', errors='ignore')
+                if SQLI_REGEX.search(body_text) or SQLI_REGEX.search(urllib.parse.unquote(body_text)):
+                    return True
+        except Exception:
+            pass
 
     return False
 
 
 def detect_xss(request):
-    """Detect Cross-Site Scripting (XSS) attempts across URL path, GET params, and POST body."""
+    """Detect Cross-Site Scripting (XSS) attempts across URL path, GET params, POST body, and JSON payloads."""
     full_path = request.get_full_path()
-    if XSS_REGEX.search(full_path):
+    if XSS_REGEX.search(full_path) or XSS_REGEX.search(urllib.parse.unquote(full_path)):
         return True
 
-    for value in request.GET.values():
-        if XSS_REGEX.search(str(value)):
+    for key, value in request.GET.items():
+        val_str = str(value)
+        key_str = str(key)
+        if (
+            XSS_REGEX.search(val_str) or
+            XSS_REGEX.search(urllib.parse.unquote(val_str)) or
+            XSS_REGEX.search(key_str) or
+            XSS_REGEX.search(urllib.parse.unquote(key_str))
+        ):
             return True
 
     if request.method == 'POST':
         for key, value in request.POST.items():
             if key in ('csrfmiddlewaretoken', 'password'):
                 continue
-            if XSS_REGEX.search(str(value)):
+            val_str = str(value)
+            if XSS_REGEX.search(val_str) or XSS_REGEX.search(urllib.parse.unquote(val_str)):
                 return True
+
+        # Support JSON / raw request bodies
+        try:
+            if request.body:
+                body_text = request.body.decode('utf-8', errors='ignore')
+                if XSS_REGEX.search(body_text) or XSS_REGEX.search(urllib.parse.unquote(body_text)):
+                    return True
+        except Exception:
+            pass
 
     return False
 
@@ -99,19 +160,29 @@ def detect_xss(request):
 def detect_path_traversal(request):
     """Detect Path Traversal / Local File Inclusion (LFI) attempts."""
     full_path = request.get_full_path()
-    if PATH_TRAVERSAL_REGEX.search(full_path):
+    if PATH_TRAVERSAL_REGEX.search(full_path) or PATH_TRAVERSAL_REGEX.search(urllib.parse.unquote(full_path)):
         return True
 
-    for value in request.GET.values():
-        if PATH_TRAVERSAL_REGEX.search(str(value)):
+    for key, value in request.GET.items():
+        val_str = str(value)
+        if PATH_TRAVERSAL_REGEX.search(val_str) or PATH_TRAVERSAL_REGEX.search(urllib.parse.unquote(val_str)):
             return True
 
     if request.method == 'POST':
         for key, value in request.POST.items():
             if key in ('csrfmiddlewaretoken', 'password'):
                 continue
-            if PATH_TRAVERSAL_REGEX.search(str(value)):
+            val_str = str(value)
+            if PATH_TRAVERSAL_REGEX.search(val_str) or PATH_TRAVERSAL_REGEX.search(urllib.parse.unquote(val_str)):
                 return True
+
+        try:
+            if request.body:
+                body_text = request.body.decode('utf-8', errors='ignore')
+                if PATH_TRAVERSAL_REGEX.search(body_text) or PATH_TRAVERSAL_REGEX.search(urllib.parse.unquote(body_text)):
+                    return True
+        except Exception:
+            pass
 
     return False
 
