@@ -268,3 +268,84 @@ class CyberOracleIntelligenceComprehensiveTests(TestCase):
         self.assertContains(response, '100500')
         self.assertContains(response, 'Reconnaissance')
 
+    def test_batch_log_upload_clf_and_csv(self):
+        self.client.login(username=self.username, password=self.password)
+        
+        # Test GET upload view
+        get_res = self.client.get(reverse('batch_log_upload'))
+        self.assertEqual(get_res.status_code, 200)
+
+        # Test POST raw CLF content
+        from monitor.batch_ingest import get_sample_access_log, get_sample_csv
+        clf_sample = get_sample_access_log()
+        post_res = self.client.post(reverse('batch_log_upload'), {
+            'raw_logs': clf_sample,
+            'auto_quarantine': 'on'
+        })
+        self.assertEqual(post_res.status_code, 200)
+        self.assertContains(post_res, 'Batch Ingestion Analysis Complete')
+
+        # Test POST raw CSV content
+        csv_sample = get_sample_csv()
+        post_csv_res = self.client.post(reverse('batch_log_upload'), {
+            'raw_logs': csv_sample,
+            'auto_quarantine': 'on'
+        })
+        self.assertEqual(post_csv_res.status_code, 200)
+        self.assertContains(post_csv_res, 'Total Records Parsed')
+
+        # Test POST raw JSON content
+        from monitor.batch_ingest import get_sample_json
+        json_sample = get_sample_json()
+        post_json_res = self.client.post(reverse('batch_log_upload'), {
+            'raw_logs': json_sample,
+            'auto_quarantine': 'on'
+        })
+        self.assertEqual(post_json_res.status_code, 200)
+        self.assertContains(post_json_res, 'Batch Ingestion Analysis Complete')
+
+    def test_sample_log_downloads(self):
+        self.client.login(username=self.username, password=self.password)
+        
+        # Download CLF sample
+        res_clf = self.client.get(reverse('download_sample_log', kwargs={'sample_type': 'clf'}))
+        self.assertEqual(res_clf.status_code, 200)
+        self.assertEqual(res_clf['Content-Type'], 'text/plain')
+
+        # Download CSV sample
+        res_csv = self.client.get(reverse('download_sample_log', kwargs={'sample_type': 'csv'}))
+        self.assertEqual(res_csv.status_code, 200)
+        self.assertEqual(res_csv['Content-Type'], 'text/csv')
+
+        # Download JSON sample
+        res_json = self.client.get(reverse('download_sample_log', kwargs={'sample_type': 'json'}))
+        self.assertEqual(res_json.status_code, 200)
+        self.assertEqual(res_json['Content-Type'], 'application/json')
+
+    def test_hunter_whitelist_safety(self):
+        # Generate 30 requests from localhost
+        for _ in range(30):
+            RequestLog.objects.create(
+                ip_address='127.0.0.1',
+                method='GET',
+                path='/api/test/',
+                status_code=200
+            )
+        from monitor.hunter import run_autonomous_threat_hunt
+        res = run_autonomous_threat_hunt()
+        self.assertEqual(res['status'], 'SUCCESS')
+        # Ensure 127.0.0.1 is never quarantined or added to anomalous burst findings
+        self.assertNotIn('127.0.0.1', res['quarantined_ips'])
+        self.assertFalse(ThreatHuntFinding.objects.filter(target_entity='127.0.0.1').exists())
+
+    def test_sample_download_middleware_bypass(self):
+        initial_count = RequestLog.objects.filter(path__startswith='/hunting/sample-log/').count()
+        self.client.login(username=self.username, password=self.password)
+        res = self.client.get(reverse('download_sample_log', kwargs={'sample_type': 'clf'}))
+        self.assertEqual(res.status_code, 200)
+        # Verify that sample download route was bypassed by middleware and not logged as attack telemetry
+        new_count = RequestLog.objects.filter(path__startswith='/hunting/sample-log/').count()
+        self.assertEqual(initial_count, new_count)
+
+
+

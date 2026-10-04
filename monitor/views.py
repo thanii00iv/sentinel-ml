@@ -412,12 +412,12 @@ def evaluation(request):
     rule_precision = precision_score(y_true, y_rule, zero_division=0)
     rule_recall = recall_score(y_true, y_rule, zero_division=0)
     rule_f1 = f1_score(y_true, y_rule, zero_division=0)
-    rule_cm = confusion_matrix(y_true, y_rule).tolist()
+    rule_cm = confusion_matrix(y_true, y_rule, labels=[0, 1]).tolist()
 
     ml_precision = precision_score(y_true, y_ml, zero_division=0)
     ml_recall = recall_score(y_true, y_ml, zero_division=0)
     ml_f1 = f1_score(y_true, y_ml, zero_division=0)
-    ml_cm = confusion_matrix(y_true, y_ml).tolist()
+    ml_cm = confusion_matrix(y_true, y_ml, labels=[0, 1]).tolist()
 
     total = len(logs)
     malicious = sum(y_true)
@@ -670,6 +670,25 @@ def live_stream_api(request):
         for _ in range(45):  # Stream for up to 45 seconds per connection
             new_logs = list(RequestLog.objects.filter(id__gt=last_id).order_by('id')[:10])
             if new_logs:
+                # Compute global dashboard metrics once per batch to eliminate N+1 DB query storms
+                total_reqs = RequestLog.objects.count()
+                malicious_cnt = RequestLog.objects.filter(
+                    models.Q(is_sqli_suspect=True) |
+                    models.Q(is_brute_force_suspect=True) |
+                    models.Q(is_recon_suspect=True) |
+                    models.Q(is_xss_suspect=True) |
+                    models.Q(is_path_traversal_suspect=True) |
+                    models.Q(is_login_attempt=True, login_success=False)
+                ).count()
+                flagged_ips_cnt = IPRiskProfile.objects.filter(risk_score__gt=0).count()
+                blocked_ips_cnt = IPRiskProfile.objects.filter(is_blocked=True).count()
+                brute_cnt = RequestLog.objects.filter(models.Q(is_brute_force_suspect=True) | models.Q(is_login_attempt=True, login_success=False)).count()
+                sqli_cnt = RequestLog.objects.filter(is_sqli_suspect=True).count()
+                xss_cnt = RequestLog.objects.filter(is_xss_suspect=True).count()
+                recon_cnt = RequestLog.objects.filter(is_recon_suspect=True).count()
+                lfi_cnt = RequestLog.objects.filter(is_path_traversal_suspect=True).count()
+                rem_cnt = RequestLog.objects.filter(models.Q(is_sqli_suspect=True) | models.Q(is_recon_suspect=True) | models.Q(is_xss_suspect=True) | models.Q(is_path_traversal_suspect=True)).count()
+
                 for log in new_logs:
                     local_ts = timezone.localtime(log.timestamp)
                     geo = resolve_ip_geo(log.ip_address)
@@ -721,31 +740,17 @@ def live_stream_api(request):
                         'device_display': device['display'],
                         'browser': device['browser'],
                         'os': device['os'],
-                        'total_requests': RequestLog.objects.count(),
-                        'malicious_total': RequestLog.objects.filter(
-                            models.Q(is_sqli_suspect=True) |
-                            models.Q(is_brute_force_suspect=True) |
-                            models.Q(is_recon_suspect=True) |
-                            models.Q(is_xss_suspect=True) |
-                            models.Q(is_path_traversal_suspect=True) |
-                            models.Q(is_login_attempt=True, login_success=False)
-                        ).count(),
-                        'flagged_ips': IPRiskProfile.objects.filter(risk_score__gt=0).count(),
-                        'blocked_ips': IPRiskProfile.objects.filter(is_blocked=True).count(),
-                        'total_attacks_count': RequestLog.objects.filter(
-                            models.Q(is_sqli_suspect=True) |
-                            models.Q(is_brute_force_suspect=True) |
-                            models.Q(is_recon_suspect=True) |
-                            models.Q(is_xss_suspect=True) |
-                            models.Q(is_path_traversal_suspect=True) |
-                            models.Q(is_login_attempt=True, login_success=False)
-                        ).count(),
-                        'brute_count': RequestLog.objects.filter(models.Q(is_brute_force_suspect=True) | models.Q(is_login_attempt=True, login_success=False)).count(),
-                        'sqli_count': RequestLog.objects.filter(is_sqli_suspect=True).count(),
-                        'xss_count': RequestLog.objects.filter(is_xss_suspect=True).count(),
-                        'recon_count': RequestLog.objects.filter(is_recon_suspect=True).count(),
-                        'lfi_count': RequestLog.objects.filter(is_path_traversal_suspect=True).count(),
-                        'remaining_count': RequestLog.objects.filter(models.Q(is_sqli_suspect=True) | models.Q(is_recon_suspect=True) | models.Q(is_xss_suspect=True) | models.Q(is_path_traversal_suspect=True)).count(),
+                        'total_requests': total_reqs,
+                        'malicious_total': malicious_cnt,
+                        'flagged_ips': flagged_ips_cnt,
+                        'blocked_ips': blocked_ips_cnt,
+                        'total_attacks_count': malicious_cnt,
+                        'brute_count': brute_cnt,
+                        'sqli_count': sqli_cnt,
+                        'xss_count': xss_cnt,
+                        'recon_count': recon_cnt,
+                        'lfi_count': lfi_cnt,
+                        'remaining_count': rem_cnt,
                     }
                     yield f"data: {json.dumps(data)}\n\n"
                     last_id = max(last_id, log.id)
@@ -791,3 +796,71 @@ def honeypot_trap(request):
         status=403,
         content_type="text/html"
     )
+
+
+@login_required
+def batch_log_upload(request):
+    """
+    Dedicated View for uploading external web server logs (Apache/Nginx CLF)
+    or tabular CSV telemetry feeds for automated ICMF batch ingestion.
+    """
+    from .batch_ingest import parse_and_ingest_content
+
+    result = None
+    if request.method == 'POST':
+        raw_text = ""
+        uploaded_file = request.FILES.get('log_file')
+        pasted_text = request.POST.get('raw_logs', '').strip()
+
+        if uploaded_file:
+            raw_text = uploaded_file.read().decode('utf-8', errors='ignore')
+        elif pasted_text:
+            raw_text = pasted_text
+
+        auto_quarantine = request.POST.get('auto_quarantine') == 'on'
+
+        if raw_text:
+            result = parse_and_ingest_content(
+                raw_text,
+                auto_quarantine=auto_quarantine,
+                max_records=1000
+            )
+        else:
+            result = {
+                'status': 'ERROR',
+                'message': 'No log file or raw content provided. Please upload a file or paste log lines.'
+            }
+
+        # If JSON requested via Fetch
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.content_type == 'application/json':
+            return JsonResponse(result)
+
+    recent_uploads_count = RequestLog.objects.filter(user_agent__icontains="Ingestion").count()
+    context = {
+        'result': result,
+        'recent_ingested_count': recent_uploads_count,
+    }
+    return render(request, 'monitor/log_upload.html', context)
+
+
+@login_required
+def download_sample_log(request, sample_type):
+    """Serve pre-built sample log files for demonstration and testing."""
+    from .batch_ingest import get_sample_access_log, get_sample_csv, get_sample_json
+
+    if sample_type == 'clf':
+        content = get_sample_access_log()
+        filename = "sample_access.log"
+        content_type = "text/plain"
+    elif sample_type == 'json':
+        content = get_sample_json()
+        filename = "sample_telemetry.json"
+        content_type = "application/json"
+    else:
+        content = get_sample_csv()
+        filename = "sample_threat_telemetry.csv"
+        content_type = "text/csv"
+
+    response = HttpResponse(content, content_type=content_type)
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response

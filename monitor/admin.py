@@ -2,6 +2,7 @@ import csv
 from django.contrib import admin
 from django.http import HttpResponse
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from .models import RequestLog, IPRiskProfile, ThreatHuntFinding, PredictiveAlert
 
 
@@ -56,25 +57,25 @@ class RequestLogAdmin(admin.ModelAdmin):
 
     def brute_force_flag(self, obj):
         if obj.is_brute_force_suspect:
-            return format_html('<span style="background: rgba(251,146,60,0.15); color: #fb923c; padding: 2px 6px; border-radius: 4px; font-weight: bold;">⚠ BRUTE</span>')
+            return mark_safe('<span style="background: rgba(251,146,60,0.15); color: #fb923c; padding: 2px 6px; border-radius: 4px; font-weight: bold;">⚠ BRUTE</span>')
         return ""
     brute_force_flag.short_description = "Brute"
 
     def sqli_flag(self, obj):
         if obj.is_sqli_suspect:
-            return format_html('<span style="background: rgba(255,77,109,0.15); color: #ff4d6d; padding: 2px 6px; border-radius: 4px; font-weight: bold;">⚠ SQLi</span>')
+            return mark_safe('<span style="background: rgba(255,77,109,0.15); color: #ff4d6d; padding: 2px 6px; border-radius: 4px; font-weight: bold;">⚠ SQLi</span>')
         return ""
     sqli_flag.short_description = "SQLi"
 
     def xss_flag(self, obj):
         if obj.is_xss_suspect:
-            return format_html('<span style="background: rgba(56,189,248,0.15); color: #38bdf8; padding: 2px 6px; border-radius: 4px; font-weight: bold;">⚠ XSS</span>')
+            return mark_safe('<span style="background: rgba(56,189,248,0.15); color: #38bdf8; padding: 2px 6px; border-radius: 4px; font-weight: bold;">⚠ XSS</span>')
         return ""
     xss_flag.short_description = "XSS"
 
     def path_traversal_flag(self, obj):
         if obj.is_path_traversal_suspect:
-            return format_html('<span style="background: rgba(225,29,72,0.15); color: #e11d48; padding: 2px 6px; border-radius: 4px; font-weight: bold;">⚠ LFI</span>')
+            return mark_safe('<span style="background: rgba(225,29,72,0.15); color: #e11d48; padding: 2px 6px; border-radius: 4px; font-weight: bold;">⚠ LFI</span>')
         return ""
     path_traversal_flag.short_description = "LFI"
 
@@ -117,8 +118,8 @@ class IPRiskProfileAdmin(admin.ModelAdmin):
 
     def quarantine_status_badge(self, obj):
         if obj.is_blocked:
-            return format_html('<span style="background: rgba(255, 77, 109, 0.2); color: #ff4d6d; border: 1px solid #ff4d6d; padding: 2px 8px; border-radius: 4px; font-weight: bold;">⛔ QUARANTINED</span>')
-        return format_html('<span style="color: #10b981; font-weight: 600;">ACTIVE (ALLOWED)</span>')
+            return mark_safe('<span style="background: rgba(255, 77, 109, 0.2); color: #ff4d6d; border: 1px solid #ff4d6d; padding: 2px 8px; border-radius: 4px; font-weight: bold;">⛔ QUARANTINED</span>')
+        return mark_safe('<span style="color: #10b981; font-weight: 600;">ACTIVE (ALLOWED)</span>')
     quarantine_status_badge.short_description = "Firewall Status"
 
     def total_attacks_count(self, obj):

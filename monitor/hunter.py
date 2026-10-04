@@ -115,6 +115,9 @@ def run_autonomous_threat_hunt():
 
     for burst in burst_ips:
         ip = burst['ip_address']
+        if ip in WHITELISTED_IPS:
+            continue
+
         existing = ThreatHuntFinding.objects.filter(
             target_entity=ip,
             hunt_type='ANOMALOUS_BURST',

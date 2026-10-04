@@ -23,6 +23,10 @@
       <span class="pulse-dot" style="background: var(--accent-emerald);"></span>
       <span id="sweepStatusText" style="color: var(--accent-emerald); font-weight: 700;">AUTO-SWEEP: ACTIVE (30s)</span>
     </div>
+    <a href="{% url 'batch_log_upload' %}" class="btn-outline" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; border-color: var(--accent-cyan); color: var(--accent-cyan);">
+      <i class="fa-solid fa-cloud-arrow-up"></i>
+      <span>Ingest Log / CSV</span>
+    </a>
     <button type="button" id="triggerHuntBtn" class="btn-primary">
       <i class="fa-solid fa-radar fa-spin"></i>
       <span>Run Manual Sweep</span>

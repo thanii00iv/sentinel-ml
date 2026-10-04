@@ -85,7 +85,7 @@
             </a>
           </li>
           <li>
-            <a href="{% url 'threat_hunting' %}" class="{% if request.resolver_match.url_name == 'threat_hunting' %}active{% endif %}">
+            <a href="{% url 'threat_hunting' %}" class="{% if request.resolver_match.url_name == 'threat_hunting' or request.resolver_match.url_name == 'batch_log_upload' %}active{% endif %}">
               <i class="fa-solid fa-satellite-dish"></i>
               <span>Threat Hunting</span>
             </a>

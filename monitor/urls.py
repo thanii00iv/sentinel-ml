@@ -16,6 +16,8 @@ urlpatterns = [
     path('threats/', views.threat_list, name='threat_list'),
     path('threats/<str:ip>/', views.threat_journey, name='threat_journey'),
     path('hunting/', views.threat_hunting, name='threat_hunting'),
+    path('hunting/upload/', views.batch_log_upload, name='batch_log_upload'),
+    path('hunting/sample-log/<str:sample_type>/', views.download_sample_log, name='download_sample_log'),
     path('simulator/', views.attack_simulator, name='attack_simulator'),
     path('evaluation/', views.evaluation, name='evaluation'),
 

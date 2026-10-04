@@ -153,11 +153,12 @@ class RequestLoggingMiddleware:
         # Feature & Entropy calculations
         full_url = request.get_full_path()
 
-        # Ignore static files and internal streaming/polling APIs from polluting request logs
+        # Ignore static files, internal streaming/polling APIs, and sample log downloads
         if (
             request.path.startswith('/static/') or
             request.path.startswith('/api/live-stream/') or
             request.path.startswith('/api/threat-map/') or
+            request.path.startswith('/hunting/sample-log/') or
             request.path.startswith('/favicon')
         ):
             return response

@@ -1,0 +1,381 @@
+{% extends 'monitor/base.html' %}
+
+{% block title %}Batch Telemetry & Log File Ingestion — CyberOracle Intel{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 1.25rem;">
+  <div>
+    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem;">
+      <a href="{% url 'threat_hunting' %}" style="text-decoration: none;">
+        <span class="badge badge-purple"><i class="fa-solid fa-arrow-left"></i> THREAT HUNTING CENTER</span>
+      </a>
+      <span style="font-size: 0.8rem; color: var(--text-muted);" class="font-mono">EXTERNAL TELEMETRY INGESTION PIPELINE</span>
+    </div>
+    <h1 class="font-hud" style="font-size: 2rem; font-weight: 800; color: var(--text-primary); letter-spacing: 0.02em;">
+      Batch Log & Telemetry Ingestion
+    </h1>
+    <p style="color: var(--text-secondary); font-size: 0.95rem; margin-top: 0.25rem;">
+      Universal parser supporting <strong>Nginx/Apache (CLF)</strong>, <strong>JSON / JSON-Lines</strong> (AWS/Suricata/Zeek), <strong>CSV/TSV</strong>, <strong>Microsoft IIS (W3C)</strong>, and <strong>Syslog</strong> streams.
+    </p>
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+    <a href="{% url 'download_sample_log' 'clf' %}" class="btn-outline btn-sm" title="Download sample Nginx/Apache access log">
+      <i class="fa-solid fa-download"></i> access.log
+    </a>
+    <a href="{% url 'download_sample_log' 'csv' %}" class="btn-outline btn-sm" title="Download sample CSV telemetry dataset">
+      <i class="fa-solid fa-file-csv"></i> events.csv
+    </a>
+    <a href="{% url 'download_sample_log' 'json' %}" class="btn-outline btn-sm" title="Download sample JSON telemetry dataset">
+      <i class="fa-solid fa-code"></i> events.json
+    </a>
+  </div>
+</div>
+
+{% if result %}
+<!-- Ingestion Analytics Results Section -->
+<div style="margin-bottom: 2.5rem;">
+  {% if result.status == 'SUCCESS' %}
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+    <h2 class="font-hud" style="font-size: 1.35rem; color: var(--accent-cyan); display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+      <i class="fa-solid fa-circle-check" style="color: var(--accent-emerald);"></i> Batch Ingestion Analysis Complete
+    </h2>
+    <span class="badge badge-cyan font-mono"><i class="fa-solid fa-bolt"></i> PROCESSED IN {{ result.elapsed_ms }} ms</span>
+  </div>
+
+  <!-- Metric Overview Cards -->
+  <div class="grid-cards" style="margin-bottom: 1.5rem;">
+    <div class="stat-card hud-card" style="border-left: 4px solid var(--accent-cyan);">
+      <div class="label">
+        <span>Total Records Parsed</span>
+        <i class="fa-solid fa-database" style="color: var(--accent-cyan);"></i>
+      </div>
+      <div class="value code-font" style="color: var(--accent-cyan);">{{ result.total_parsed }}</div>
+      <div class="sub-meta">Ingested into RequestLog stream</div>
+    </div>
+
+    <div class="stat-card hud-card" style="border-left: 4px solid var(--accent-red);">
+      <div class="label">
+        <span>Threats Intercepted</span>
+        <i class="fa-solid fa-shield-virus" style="color: var(--accent-red);"></i>
+      </div>
+      <div class="value code-font" style="color: var(--accent-red);">{{ result.total_threats }}</div>
+      <div class="sub-meta">Identified by ICMF detection layers</div>
+    </div>
+
+    <div class="stat-card hud-card" style="border-left: 4px solid var(--accent-amber);">
+      <div class="label">
+        <span>Adversary IPs Profiled</span>
+        <i class="fa-solid fa-users-viewfinder" style="color: var(--accent-amber);"></i>
+      </div>
+      <div class="value code-font" style="color: var(--accent-amber);">{{ result.affected_ips_count }}</div>
+      <div class="sub-meta">Risk profiles evaluated & fused</div>
+    </div>
+
+    <div class="stat-card hud-card" style="border-left: 4px solid var(--accent-purple);">
+      <div class="label">
+        <span>Automated Quarantines</span>
+        <i class="fa-solid fa-ban" style="color: var(--accent-purple);"></i>
+      </div>
+      <div class="value code-font" style="color: var(--accent-purple);">{{ result.quarantined_count }}</div>
+      <div class="sub-meta">Firewall rules enforced (Risk &ge; 70)</div>
+    </div>
+  </div>
+
+  <!-- Attack Breakdown Pills -->
+  <div class="cyber-card hud-card" style="margin-bottom: 1.75rem; padding: 1.25rem;">
+    <h3 class="font-hud" style="font-size: 0.95rem; margin-bottom: 0.85rem; color: var(--text-primary); text-transform: uppercase;">
+      <i class="fa-solid fa-chart-pie"></i> Vector Distribution In Ingested Batch
+    </h3>
+    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+      <div style="background: rgba(255, 77, 109, 0.12); border: 1px solid rgba(255, 77, 109, 0.3); border-radius: 6px; padding: 0.5rem 1rem;">
+        <span style="font-size: 0.78rem; color: var(--text-muted); display: block;">SQL INJECTION</span>
+        <strong style="color: #ff4d6d; font-size: 1.15rem;" class="font-mono">{{ result.threat_breakdown.sqli }}</strong>
+      </div>
+      <div style="background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 6px; padding: 0.5rem 1rem;">
+        <span style="font-size: 0.78rem; color: var(--text-muted); display: block;">CROSS-SITE SCRIPTING (XSS)</span>
+        <strong style="color: #38bdf8; font-size: 1.15rem;" class="font-mono">{{ result.threat_breakdown.xss }}</strong>
+      </div>
+      <div style="background: rgba(225, 29, 72, 0.12); border: 1px solid rgba(225, 29, 72, 0.3); border-radius: 6px; padding: 0.5rem 1rem;">
+        <span style="font-size: 0.78rem; color: var(--text-muted); display: block;">PATH TRAVERSAL / LFI</span>
+        <strong style="color: #e11d48; font-size: 1.15rem;" class="font-mono">{{ result.threat_breakdown.path_traversal }}</strong>
+      </div>
+      <div style="background: rgba(192, 132, 252, 0.12); border: 1px solid rgba(192, 132, 252, 0.3); border-radius: 6px; padding: 0.5rem 1rem;">
+        <span style="font-size: 0.78rem; color: var(--text-muted); display: block;">RECONNAISSANCE & PROBING</span>
+        <strong style="color: #c084fc; font-size: 1.15rem;" class="font-mono">{{ result.threat_breakdown.recon }}</strong>
+      </div>
+      <div style="background: rgba(251, 146, 60, 0.12); border: 1px solid rgba(251, 146, 60, 0.3); border-radius: 6px; padding: 0.5rem 1rem;">
+        <span style="font-size: 0.78rem; color: var(--text-muted); display: block;">BRUTE FORCE / AUTH GUESSING</span>
+        <strong style="color: #fb923c; font-size: 1.15rem;" class="font-mono">{{ result.threat_breakdown.brute_force }}</strong>
+      </div>
+      <div style="background: rgba(234, 179, 8, 0.12); border: 1px solid rgba(234, 179, 8, 0.3); border-radius: 6px; padding: 0.5rem 1rem;">
+        <span style="font-size: 0.78rem; color: var(--text-muted); display: block;">CANARY HONEYPOT DECOYS</span>
+        <strong style="color: #eab308; font-size: 1.15rem;" class="font-mono">{{ result.threat_breakdown.honeypot }}</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Adversary Profiles Table -->
+  {% if result.top_profiles %}
+  <div class="cyber-card hud-card" style="margin-bottom: 1.75rem;">
+    <h3 class="font-hud" style="font-size: 1.05rem; margin-bottom: 1rem; color: var(--text-primary); display: flex; align-items: center; justify-content: space-between;">
+      <span><i class="fa-solid fa-skull-crossbones" style="color: var(--accent-red);"></i> Profiled Adversary Entities</span>
+      <span style="font-size: 0.78rem; color: var(--text-muted);" class="font-mono">{{ result.top_profiles|length }} ENTITIES</span>
+    </h3>
+    <div style="overflow-x: auto;">
+      <table class="cyber-table" style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="border-bottom: 1px solid var(--border-color); text-align: left;">
+            <th style="padding: 0.75rem;">IP Address</th>
+            <th style="padding: 0.75rem;">Fused Risk Score</th>
+            <th style="padding: 0.75rem;">Threat Tier</th>
+            <th style="padding: 0.75rem;">Total Attacks</th>
+            <th style="padding: 0.75rem;">Firewall Status</th>
+            <th style="padding: 0.75rem;">Forensic Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in result.top_profiles %}
+          <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+            <td style="padding: 0.75rem;" class="font-mono"><strong>{{ p.ip_address }}</strong></td>
+            <td style="padding: 0.75rem;">
+              <span class="font-mono" style="font-weight: 800; color: {% if p.risk_score >= 70 %}var(--accent-red){% elif p.risk_score >= 40 %}var(--accent-amber){% else %}var(--accent-cyan){% endif %};">
+                {{ p.risk_score }}/100
+              </span>
+            </td>
+            <td style="padding: 0.75rem;">
+              {% if p.risk_score >= 70 %}
+              <span class="badge badge-critical">CRITICAL</span>
+              {% elif p.risk_score >= 40 %}
+              <span class="badge badge-high">HIGH</span>
+              {% else %}
+              <span class="badge badge-cyan">MEDIUM / LOW</span>
+              {% endif %}
+            </td>
+            <td style="padding: 0.75rem;" class="font-mono">{{ p.total_attack_count }} vectors</td>
+            <td style="padding: 0.75rem;">
+              {% if p.is_blocked %}
+              <span class="badge badge-critical"><i class="fa-solid fa-ban"></i> QUARANTINED</span>
+              {% else %}
+              <span class="badge badge-success"><i class="fa-solid fa-check"></i> ACTIVE</span>
+              {% endif %}
+            </td>
+            <td style="padding: 0.75rem;">
+              <a href="{% url 'threat_journey' p.ip_address %}" target="_blank" class="btn-outline btn-sm" style="font-size: 0.75rem;">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i> Dossier
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Flagged Log Stream Sample -->
+  {% if result.flagged_logs %}
+  <div class="cyber-card hud-card" style="margin-bottom: 2rem;">
+    <h3 class="font-hud" style="font-size: 1.05rem; margin-bottom: 1rem; color: var(--text-primary); display: flex; align-items: center; justify-content: space-between;">
+      <span><i class="fa-solid fa-radar" style="color: var(--accent-cyan);"></i> Intercepted Security Telemetry Samples</span>
+      <span style="font-size: 0.78rem; color: var(--text-muted);" class="font-mono">SHOWING {{ result.flagged_logs|length }} SAMPLES</span>
+    </h3>
+    <div style="overflow-x: auto;">
+      <table class="cyber-table" style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+        <thead>
+          <tr style="border-bottom: 1px solid var(--border-color); text-align: left;">
+            <th style="padding: 0.6rem;">IP</th>
+            <th style="padding: 0.6rem;">Method</th>
+            <th style="padding: 0.6rem;">Target Path</th>
+            <th style="padding: 0.6rem;">Status</th>
+            <th style="padding: 0.6rem;">Inferred Intent</th>
+            <th style="padding: 0.6rem;">Entropy</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for l in result.flagged_logs %}
+          <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+            <td style="padding: 0.6rem;" class="font-mono">{{ l.ip_address }}</td>
+            <td style="padding: 0.6rem;"><span class="badge badge-purple">{{ l.method }}</span></td>
+            <td style="padding: 0.6rem; max-width: 380px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" class="font-mono" title="{{ l.path }}">{{ l.path }}</td>
+            <td style="padding: 0.6rem;" class="font-mono">{{ l.status_code }}</td>
+            <td style="padding: 0.6rem;"><span style="color: var(--accent-red); font-weight: 600;">{{ l.inferred_intent }}</span></td>
+            <td style="padding: 0.6rem;" class="font-mono">{{ l.entropy_score }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  {% else %}
+  <div style="background: rgba(255, 77, 109, 0.15); border: 1px solid var(--accent-red); padding: 1.25rem; border-radius: 8px; color: #ff4d6d; margin-bottom: 2rem;">
+    <h3 style="margin-top: 0; font-size: 1.1rem;"><i class="fa-solid fa-triangle-exclamation"></i> Ingestion Failed</h3>
+    <p style="margin-bottom: 0;">{{ result.message }}</p>
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+
+<!-- Ingestion Input Container -->
+<div class="cyber-card hud-card" style="border-top: 3px solid var(--accent-cyan);">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <h3 class="font-hud" style="font-size: 1.2rem; font-weight: 700; color: var(--text-primary); margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+      <i class="fa-solid fa-upload" style="color: var(--accent-cyan);"></i> Telemetry Feed Input
+    </h3>
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+      <button type="button" class="btn-outline btn-sm" onclick="loadSampleText('clf')">
+        <i class="fa-solid fa-terminal"></i> Paste Sample CLF
+      </button>
+      <button type="button" class="btn-outline btn-sm" onclick="loadSampleText('csv')">
+        <i class="fa-solid fa-table"></i> Paste Sample CSV
+      </button>
+      <button type="button" class="btn-outline btn-sm" onclick="loadSampleText('json')">
+        <i class="fa-solid fa-code"></i> Paste Sample JSON
+      </button>
+    </div>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" id="batchUploadForm">
+    {% csrf_token %}
+
+    <!-- File Dropzone -->
+    <div id="dropZone" style="border: 2px dashed rgba(0, 240, 255, 0.35); background: rgba(13, 21, 38, 0.6); border-radius: 12px; padding: 2.5rem 1.5rem; text-align: center; cursor: pointer; transition: all 0.25s ease; margin-bottom: 1.5rem;">
+      <i class="fa-solid fa-cloud-arrow-up" style="font-size: 3rem; color: var(--accent-cyan); margin-bottom: 0.75rem; display: block;"></i>
+      <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.25rem;">
+        Drag & Drop Log File Here or Click to Browse
+      </div>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+        Supports <strong>.log</strong>, <strong>.txt</strong> (Nginx/Apache Combined Log Format) and <strong>.csv</strong> files (up to 1,000 entries/batch)
+      </p>
+      <input type="file" name="log_file" id="fileInput" accept=".log,.txt,.csv" style="display: none;" onchange="handleFileSelected(this)">
+      <div id="selectedFileName" class="font-mono" style="display: none; color: var(--accent-emerald); font-weight: 700; margin-top: 0.5rem;">
+        <i class="fa-solid fa-file-lines"></i> <span id="fileNameText"></span>
+      </div>
+    </div>
+
+    <!-- Or Paste Directly Textarea -->
+    <div style="margin-bottom: 1.5rem;">
+      <label for="raw_logs" style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem; font-weight: 600;">
+        <span>OR Paste Raw Log Lines / CSV Telemetry Directly:</span>
+        <span class="font-mono" style="color: var(--text-muted);">Max 1,000 rows</span>
+      </label>
+      <textarea name="raw_logs" id="raw_logs" rows="7" class="code-font" style="width: 100%; background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); padding: 0.85rem; font-size: 0.85rem; resize: vertical; box-sizing: border-box;" placeholder="198.51.100.44 - - [04/Oct/2026:10:00:00 +0000] &quot;GET /search/?q=' UNION SELECT 1,2 -- HTTP/1.1&quot; 200 4520&#10;185.220.101.5 - - [04/Oct/2026:10:00:05 +0000] &quot;GET /download/?file=../../../../etc/passwd HTTP/1.1&quot; 200 1200"></textarea>
+    </div>
+
+    <!-- Options and Submit -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; border-top: 1px solid var(--border-color); padding-top: 1.25rem;">
+      <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; color: var(--text-secondary); font-size: 0.9rem;">
+        <input type="checkbox" name="auto_quarantine" id="auto_quarantine" checked style="accent-color: var(--accent-red); width: 17px; height: 17px;">
+        <span><strong>Autonomous Mitigation:</strong> Automatically quarantine entities scoring &ge; 70 Fused Risk</span>
+      </label>
+
+      <div style="display: flex; gap: 0.75rem;">
+        <button type="reset" class="btn-outline" onclick="resetForm()">
+          <i class="fa-solid fa-rotate-left"></i> Reset
+        </button>
+        <button type="submit" class="btn-primary" id="submitBtn">
+          <i class="fa-solid fa-play"></i>
+          <span>Execute Ingestion & Fusion</span>
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- Format Specifications Guide -->
+<div class="grid-cards" style="margin-top: 2rem;">
+  <div class="cyber-card hud-card">
+    <h4 class="font-hud" style="font-size: 0.95rem; color: var(--accent-cyan); margin-bottom: 0.5rem;">
+      <i class="fa-solid fa-server"></i> Standard Web Log Format (CLF)
+    </h4>
+    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+      Standard Nginx and Apache Combined Log Format:
+    </p>
+    <pre class="code-font" style="background: rgba(0,0,0,0.4); padding: 0.6rem; border-radius: 6px; font-size: 0.75rem; color: #94a3b8; overflow-x: auto;">
+IP - - [DATE] "METHOD /path/query HTTP/1.1" STATUS BYTES "REFERER" "USER_AGENT"
+    </pre>
+  </div>
+
+  <div class="cyber-card hud-card">
+    <h4 class="font-hud" style="font-size: 0.95rem; color: var(--accent-emerald); margin-bottom: 0.5rem;">
+      <i class="fa-solid fa-file-csv"></i> CSV Telemetry Schema
+    </h4>
+    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+      Tabular export with standard header row:
+    </p>
+    <pre class="code-font" style="background: rgba(0,0,0,0.4); padding: 0.6rem; border-radius: 6px; font-size: 0.75rem; color: #94a3b8; overflow-x: auto;">
+ip_address,method,path,status_code,user_agent,username
+    </pre>
+  </div>
+</div>
+
+<script>
+  const dropZone = document.getElementById('dropZone');
+  const fileInput = document.getElementById('fileInput');
+  const selectedFileName = document.getElementById('selectedFileName');
+  const fileNameText = document.getElementById('fileNameText');
+
+  dropZone.addEventListener('click', () => fileInput.click());
+
+  dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.style.borderColor = 'var(--accent-emerald)';
+    dropZone.style.background = 'rgba(16, 185, 129, 0.1)';
+  });
+
+  dropZone.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    dropZone.style.borderColor = 'rgba(0, 240, 255, 0.35)';
+    dropZone.style.background = 'rgba(13, 21, 38, 0.6)';
+  });
+
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.style.borderColor = 'rgba(0, 240, 255, 0.35)';
+    dropZone.style.background = 'rgba(13, 21, 38, 0.6)';
+    if (e.dataTransfer.files.length > 0) {
+      fileInput.files = e.dataTransfer.files;
+      handleFileSelected(fileInput);
+    }
+  });
+
+  function handleFileSelected(input) {
+    if (input.files && input.files[0]) {
+      selectedFileName.style.display = 'block';
+      fileNameText.textContent = input.files[0].name + ' (' + (input.files[0].size / 1024).toFixed(1) + ' KB)';
+    }
+  }
+
+  function resetForm() {
+    selectedFileName.style.display = 'none';
+    fileNameText.textContent = '';
+  }
+
+  async function loadSampleText(type) {
+    const rawBox = document.getElementById('raw_logs');
+    rawBox.value = 'Fetching demonstration ' + type.toUpperCase() + ' telemetry sample...';
+    try {
+      const response = await fetch('/hunting/sample-log/' + type + '/');
+      if (response.ok) {
+        const sampleContent = await response.text();
+        rawBox.value = sampleContent;
+        rawBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else {
+        rawBox.value = 'Failed to load sample dataset.';
+      }
+    } catch (err) {
+      console.error(err);
+      rawBox.value = 'Error fetching sample dataset.';
+    }
+  }
+
+  document.getElementById('batchUploadForm').addEventListener('submit', function() {
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Parsing & Fusing...</span>';
+  });
+</script>
+{% endblock %}

@@ -6,11 +6,16 @@ def ensure_default_superuser(sender, **kwargs):
     try:
         from django.contrib.auth.models import User
         user, created = User.objects.get_or_create(username='admin')
-        user.set_password('admin123')
-        user.is_staff = True
-        user.is_superuser = True
-        user.save()
-        print("[CyberOracle Intel] Superuser 'admin' with password 'admin123' verified.")
+        if created:
+            user.set_password('admin123')
+            user.is_staff = True
+            user.is_superuser = True
+            user.save()
+            print("[CyberOracle Intel] Default superuser 'admin' with password 'admin123' initialized.")
+        elif not user.is_superuser or not user.is_staff:
+            user.is_staff = True
+            user.is_superuser = True
+            user.save()
     except Exception:
         pass
 
