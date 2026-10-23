@@ -203,7 +203,7 @@
     </div>
   </div>
 
-  <div style="position: relative; width: 100%; height: 380px; background: rgba(6, 9, 19, 0.6); border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden;">
+  <div style="position: relative; width: 100%; height: 480px; background: rgba(6, 9, 19, 0.6); border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden;">
     <canvas id="securityGraphCanvas" style="width: 100%; height: 100%; display: block;"></canvas>
     
     <!-- Graph Node Inspector Hover Card -->
@@ -725,20 +725,34 @@
 
       const rect = canvas.getBoundingClientRect();
       const W = rect.width || 800;
-      const H = rect.height || 380;
+      const H = rect.height || 480;
 
-      // Position nodes with initial radial layout
+      // Louvain community centroid seeding to prevent center congestion
+      const uniqueComms = [...new Set(data.nodes.map(n => n.community ?? 0))];
+      const commCenters = {};
+      const numComms = Math.max(1, uniqueComms.length);
+      uniqueComms.forEach((commId, i) => {
+        const spreadRatio = numComms === 1 ? 0.5 : (0.24 + (0.52 * (i / (numComms - 1))));
+        commCenters[commId] = {
+          x: W * spreadRatio,
+          y: H * 0.5 + (i % 2 === 0 ? -25 : 25)
+        };
+      });
+
+      // Position nodes around their community centroids
       const count = data.nodes.length;
       graphNodes = data.nodes.map((n, idx) => {
+        const comm = n.community ?? 0;
+        const center = commCenters[comm] || { x: W / 2, y: H / 2 };
         const angle = (idx / Math.max(1, count)) * 2 * Math.PI;
-        const radius = Math.min(W, H) * 0.35 * (0.5 + 0.5 * Math.random());
+        const dist = 45 + ((idx * 17) % 75);
         return {
           ...n,
-          x: W / 2 + Math.cos(angle) * radius,
-          y: H / 2 + Math.sin(angle) * radius,
+          x: Math.max(40, Math.min(W - 40, center.x + Math.cos(angle) * dist)),
+          y: Math.max(40, Math.min(H - 40, center.y + Math.sin(angle) * dist)),
           vx: 0,
           vy: 0,
-          radius: n.size || 16
+          radius: n.size || 14
         };
       });
 
@@ -750,22 +764,30 @@
         targetNode: nodeMap.get(l.target)
       })).filter(l => l.sourceNode && l.targetNode);
 
-      // Force simulation loop
-      function stepSimulation() {
-        const repulsion = 1200;
-        const springLength = 85;
-        const springK = 0.05;
-        const damping = 0.88;
+      // Smooth Force Simulation with Alpha Cooling & Hard Collision Avoidance
+      let alpha = 1.0;
+      const alphaDecay = 0.012; // Settles smoothly in ~120 frames without endless movement
+      const alphaMin = 0.002;
 
-        // Node repulsion
+      function stepSimulation() {
+        if (alpha < alphaMin && !draggedNode) return; // Completely still once settled
+
+        const currentAlpha = Math.max(alpha, draggedNode ? 0.25 : 0);
+        const springLength = 115;
+        const springK = 0.038 * currentAlpha;
+        const repulsion = 1900 * currentAlpha;
+        const damping = 0.74; // Stronger damping to prevent fast jitter/whirling
+
+        // 1. Node Repulsion (clamped to prevent explosive speeds)
         for (let i = 0; i < graphNodes.length; i++) {
           for (let j = i + 1; j < graphNodes.length; j++) {
             const n1 = graphNodes[i];
             const n2 = graphNodes[j];
             const dx = n2.x - n1.x;
             const dy = n2.y - n1.y;
-            const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-            const force = (repulsion / (dist * dist));
+            const distSq = dx * dx + dy * dy;
+            const dist = Math.sqrt(distSq) || 0.1;
+            const force = Math.min(10, repulsion / Math.max(350, distSq));
             const fx = (dx / dist) * force;
             const fy = (dy / dist) * force;
             if (n1 !== draggedNode) { n1.vx -= fx; n1.vy -= fy; }
@@ -773,32 +795,67 @@
           }
         }
 
-        // Link spring attraction
+        // 2. Link Spring Attraction
         for (const link of graphLinks) {
           const s = link.sourceNode;
           const t = link.targetNode;
           const dx = t.x - s.x;
           const dy = t.y - s.y;
-          const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+          const dist = Math.sqrt(dx * dx + dy * dy) || 0.1;
           const displacement = dist - springLength;
-          const fx = (dx / dist) * displacement * springK;
-          const fy = (dy / dist) * displacement * springK;
+          const force = Math.max(-9, Math.min(9, displacement * springK));
+          const fx = (dx / dist) * force;
+          const fy = (dy / dist) * force;
           if (s !== draggedNode) { s.vx += fx; s.vy += fy; }
           if (t !== draggedNode) { t.vx -= fx; t.vy -= fy; }
         }
 
-        // Center gravity & bounding box
+        // 3. Strict Circle Collision Avoidance (Circles NEVER overlap or congest)
+        for (let i = 0; i < graphNodes.length; i++) {
+          for (let j = i + 1; j < graphNodes.length; j++) {
+            const n1 = graphNodes[i];
+            const n2 = graphNodes[j];
+            const dx = n2.x - n1.x;
+            const dy = n2.y - n1.y;
+            const dist = Math.sqrt(dx * dx + dy * dy) || 0.1;
+            const minDist = n1.radius + n2.radius + 18; // Generous breathing room
+            if (dist < minDist) {
+              const overlap = (minDist - dist) * 0.45;
+              const nx = dx / dist;
+              const ny = dy / dist;
+              if (n1 !== draggedNode) { n1.x -= nx * overlap; n1.y -= ny * overlap; }
+              if (n2 !== draggedNode) { n2.x += nx * overlap; n2.y += ny * overlap; }
+            }
+          }
+        }
+
+        // 4. Community Anchoring & Gentle Centering Gravity
         for (const n of graphNodes) {
           if (n === draggedNode) continue;
-          n.vx += (W / 2 - n.x) * 0.008;
-          n.vy += (H / 2 - n.y) * 0.008;
+          const commCenter = commCenters[n.community ?? 0] || { x: W / 2, y: H / 2 };
+          n.vx += (commCenter.x - n.x) * (0.005 * currentAlpha);
+          n.vy += (commCenter.y - n.y) * (0.005 * currentAlpha);
+
           n.vx *= damping;
           n.vy *= damping;
+
+          // Velocity clamping: strictly caps maximum movement speed
+          const speed = Math.hypot(n.vx, n.vy);
+          const maxSpeed = 3.2 * Math.max(0.2, currentAlpha);
+          if (speed > maxSpeed) {
+            n.vx = (n.vx / speed) * maxSpeed;
+            n.vy = (n.vy / speed) * maxSpeed;
+          }
+
           n.x += n.vx;
           n.y += n.vy;
-          n.x = Math.max(n.radius + 10, Math.min(W - n.radius - 10, n.x));
-          n.y = Math.max(n.radius + 10, Math.min(H - n.radius - 10, n.y));
+
+          // Padding from canvas boundaries
+          n.x = Math.max(n.radius + 20, Math.min(W - n.radius - 20, n.x));
+          n.y = Math.max(n.radius + 20, Math.min(H - n.radius - 20, n.y));
         }
+
+        alpha *= (1 - alphaDecay);
       }
 
       function drawGraph() {
@@ -827,17 +884,33 @@
           ctx.shadowBlur = (node === hoveredNode) ? 18 : 6;
           ctx.fill();
 
-          ctx.strokeStyle = (node === hoveredNode) ? '#ffffff' : 'rgba(255,255,255,0.4)';
+          ctx.strokeStyle = (node === hoveredNode) ? '#ffffff' : 'rgba(255,255,255,0.45)';
           ctx.lineWidth = (node === hoveredNode) ? 2.5 : 1.2;
           ctx.stroke();
           ctx.restore();
 
-          // Node Label
-          ctx.fillStyle = '#f8fafc';
-          ctx.font = '10px monospace';
+          // Node Label with translucent pill backdrop to avoid clashing
+          const rawLabel = node.label || node.id || '';
+          const shortLabel = rawLabel.length > 15 ? rawLabel.substring(0, 13) + '..' : rawLabel;
+          ctx.font = '10px "JetBrains Mono", monospace';
+          const textMetrics = ctx.measureText(shortLabel);
+          const textW = textMetrics.width;
+          const textX = node.x;
+          const textY = node.y + node.radius + 13;
+
+          // Dark translucent backdrop badge behind label
+          ctx.fillStyle = 'rgba(6, 11, 24, 0.85)';
+          ctx.beginPath();
+          if (ctx.roundRect) {
+            ctx.roundRect(textX - textW / 2 - 4, textY - 9, textW + 8, 12, 3);
+          } else {
+            ctx.rect(textX - textW / 2 - 4, textY - 9, textW + 8, 12);
+          }
+          ctx.fill();
+
+          ctx.fillStyle = (node === hoveredNode) ? '#38bdf8' : '#e2e8f0';
           ctx.textAlign = 'center';
-          const shortLabel = node.label.length > 18 ? node.label.substring(0, 16) + '..' : node.label;
-          ctx.fillText(shortLabel, node.x, node.y + node.radius + 12);
+          ctx.fillText(shortLabel, textX, textY);
         }
 
         animFrameId = requestAnimationFrame(drawGraph);
@@ -892,11 +965,17 @@
         draggedNode = graphNodes.find(n => {
           const dx = n.x - mx;
           const dy = n.y - my;
-          return Math.sqrt(dx * dx + dy * dy) <= n.radius + 4;
+          return Math.sqrt(dx * dx + dy * dy) <= n.radius + 6;
         });
+        if (draggedNode) {
+          alpha = Math.max(alpha, 0.3);
+        }
       });
 
       window.addEventListener('mouseup', () => {
+        if (draggedNode) {
+          alpha = Math.max(alpha, 0.1);
+        }
         draggedNode = null;
       });
 

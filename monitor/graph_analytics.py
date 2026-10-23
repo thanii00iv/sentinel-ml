@@ -240,27 +240,30 @@ class SecurityKnowledgeGraph:
         )[:max_nodes]
 
         top_nodes_set = set(top_nodes)
-        if target_ip and f"ip:{target_ip}" not in top_nodes_set:
-            top_nodes_set.add(f"ip:{target_ip}")
+        target_node = f"ip:{target_ip}" if target_ip else None
+        if target_node and target_node in subgraph.nodes and target_node not in top_nodes_set:
+            top_nodes_set.add(target_node)
 
         for node in top_nodes_set:
+            if node not in subgraph.nodes:
+                continue
             ndata = subgraph.nodes[node]
             ntype = ndata.get('node_type', 'UNKNOWN')
             comm_id = communities.get(node, 0)
             pagerank = round(float(pr_scores.get(node, 0.01)), 4)
 
-            # Node display styling
+            # Node display styling - scaled for clean, non-congested force layout
             if ntype == 'IP':
                 risk = ndata.get('risk_score', 0)
                 color = '#ff4d6d' if risk >= 70 else ('#fb923c' if risk >= 40 else '#38bdf8')
-                size = max(18, min(42, int(risk / 2.5) + 16))
+                size = max(14, min(24, int(risk / 4.5) + 14))
             elif ntype == 'PATH':
                 is_sens = ndata.get('is_sensitive', False)
                 color = '#c084fc' if is_sens else '#10b981'
-                size = 20 if is_sens else 14
+                size = 14 if is_sens else 11
             else:
                 color = '#e2e8f0'
-                size = 14
+                size = 11
 
             nodes_list.append({
                 'id': node,
