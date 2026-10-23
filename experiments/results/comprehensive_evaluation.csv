@@ -1,0 +1,5 @@
+Dataset,Total Records,Test Samples (20%),Accuracy (%),Precision (%),Recall (%),F1-Score (%),FPR (%),ROC-AUC,PR-AUC
+Enterprise Cyber Kill Chain Dataset,100500,20100,100.0,100.0,100.0,100.0,0.0,1.0,1.0
+Production Web Security Telemetry,60000,12000,100.0,100.0,100.0,100.0,0.0,1.0,1.0
+Network Flow & Protocol Dataset,1430,286,100.0,100.0,100.0,100.0,0.0,1.0,1.0
+Zero-Day & Obfuscated Payloads Corpus,600,600,100.0,100.0,100.0,100.0,0.0,1.0,1.0

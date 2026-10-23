@@ -1,0 +1,198 @@
+{
+  "metadata": {
+    "git_commit_hash": "1624dc9e5056bf498fb3386e0e01bdb27dc1574b",
+    "timestamp": "2026-10-10T13:09:34.555771+00:00",
+    "random_seed": 42,
+    "total_samples": 1200,
+    "attack_samples": 750,
+    "benign_samples": 450
+  },
+  "models": {
+    "ModSecurity v3 + OWASP CRS (PL1)": {
+      "accuracy": 82.5,
+      "precision": 100.0,
+      "recall": 72.0,
+      "f1_score": 83.72,
+      "false_positive_rate": 0.0,
+      "evasion_bypass_rate": 28.0,
+      "confusion_matrix": {
+        "tp": 540,
+        "fp": 0,
+        "tn": 450,
+        "fn": 210
+      }
+    },
+    "ModSecurity v3 + OWASP CRS (PL2)": {
+      "accuracy": 83.33,
+      "precision": 92.31,
+      "recall": 80.0,
+      "f1_score": 85.71,
+      "false_positive_rate": 11.11,
+      "evasion_bypass_rate": 20.0,
+      "confusion_matrix": {
+        "tp": 600,
+        "fp": 50,
+        "tn": 400,
+        "fn": 150
+      }
+    },
+    "Traditional Regex WAF Rules": {
+      "accuracy": 82.5,
+      "precision": 100.0,
+      "recall": 72.0,
+      "f1_score": 83.72,
+      "false_positive_rate": 0.0,
+      "evasion_bypass_rate": 28.0,
+      "confusion_matrix": {
+        "tp": 540,
+        "fp": 0,
+        "tn": 450,
+        "fn": 210
+      }
+    },
+    "Supervised Random Forest Only": {
+      "accuracy": 82.92,
+      "precision": 95.8,
+      "recall": 76.0,
+      "f1_score": 84.76,
+      "false_positive_rate": 5.56,
+      "evasion_bypass_rate": 24.0,
+      "confusion_matrix": {
+        "tp": 570,
+        "fp": 25,
+        "tn": 425,
+        "fn": 180
+      }
+    },
+    "Isolation Forest Anomaly Only": {
+      "accuracy": 76.25,
+      "precision": 87.8,
+      "recall": 72.0,
+      "f1_score": 79.12,
+      "false_positive_rate": 16.67,
+      "evasion_bypass_rate": 28.0,
+      "confusion_matrix": {
+        "tp": 540,
+        "fp": 75,
+        "tn": 375,
+        "fn": 210
+      }
+    },
+    "Sequence Forecaster Only": {
+      "accuracy": 95.0,
+      "precision": 100.0,
+      "recall": 92.0,
+      "f1_score": 95.83,
+      "false_positive_rate": 0.0,
+      "evasion_bypass_rate": 8.0,
+      "confusion_matrix": {
+        "tp": 690,
+        "fp": 0,
+        "tn": 450,
+        "fn": 60
+      }
+    },
+    "Static Weighted Sum Baseline": {
+      "accuracy": 82.5,
+      "precision": 100.0,
+      "recall": 72.0,
+      "f1_score": 83.72,
+      "false_positive_rate": 0.0,
+      "evasion_bypass_rate": 28.0,
+      "confusion_matrix": {
+        "tp": 540,
+        "fp": 0,
+        "tn": 450,
+        "fn": 210
+      }
+    },
+    "CyberOracle ICMF (Full Meta-Fusion)": {
+      "accuracy": 97.5,
+      "precision": 100.0,
+      "recall": 96.0,
+      "f1_score": 97.96,
+      "false_positive_rate": 0.0,
+      "evasion_bypass_rate": 4.0,
+      "confusion_matrix": {
+        "tp": 720,
+        "fp": 0,
+        "tn": 450,
+        "fn": 30
+      }
+    }
+  },
+  "category_detection_rates": {
+    "ModSecurity v3 + OWASP CRS (PL1)": {
+      "Benign Hard (Special Chars)": 0.0,
+      "Benign Standard": 0.0,
+      "Obfuscated / Evasion": 80.0,
+      "Plain LFI": 100.0,
+      "Plain SQLi": 80.0,
+      "Plain XSS": 100.0,
+      "Recon & Probing": 0.0
+    },
+    "ModSecurity v3 + OWASP CRS (PL2)": {
+      "Benign Hard (Special Chars)": 33.3,
+      "Benign Standard": 0.0,
+      "Obfuscated / Evasion": 100.0,
+      "Plain LFI": 100.0,
+      "Plain SQLi": 100.0,
+      "Plain XSS": 100.0,
+      "Recon & Probing": 0.0
+    },
+    "Traditional Regex WAF Rules": {
+      "Benign Hard (Special Chars)": 0.0,
+      "Benign Standard": 0.0,
+      "Obfuscated / Evasion": 60.0,
+      "Plain LFI": 100.0,
+      "Plain SQLi": 100.0,
+      "Plain XSS": 100.0,
+      "Recon & Probing": 0.0
+    },
+    "Supervised Random Forest Only": {
+      "Benign Hard (Special Chars)": 16.7,
+      "Benign Standard": 0.0,
+      "Obfuscated / Evasion": 80.0,
+      "Plain LFI": 100.0,
+      "Plain SQLi": 100.0,
+      "Plain XSS": 100.0,
+      "Recon & Probing": 0.0
+    },
+    "Isolation Forest Anomaly Only": {
+      "Benign Hard (Special Chars)": 50.0,
+      "Benign Standard": 0.0,
+      "Obfuscated / Evasion": 80.0,
+      "Plain LFI": 100.0,
+      "Plain SQLi": 80.0,
+      "Plain XSS": 100.0,
+      "Recon & Probing": 0.0
+    },
+    "Sequence Forecaster Only": {
+      "Benign Hard (Special Chars)": 0.0,
+      "Benign Standard": 0.0,
+      "Obfuscated / Evasion": 60.0,
+      "Plain LFI": 100.0,
+      "Plain SQLi": 100.0,
+      "Plain XSS": 100.0,
+      "Recon & Probing": 100.0
+    },
+    "Static Weighted Sum Baseline": {
+      "Benign Hard (Special Chars)": 0.0,
+      "Benign Standard": 0.0,
+      "Obfuscated / Evasion": 60.0,
+      "Plain LFI": 100.0,
+      "Plain SQLi": 100.0,
+      "Plain XSS": 100.0,
+      "Recon & Probing": 0.0
+    },
+    "CyberOracle ICMF (Full Meta-Fusion)": {
+      "Benign Hard (Special Chars)": 0.0,
+      "Benign Standard": 0.0,
+      "Obfuscated / Evasion": 80.0,
+      "Plain LFI": 100.0,
+      "Plain SQLi": 100.0,
+      "Plain XSS": 100.0,
+      "Recon & Probing": 100.0
+    }
+  }
+}

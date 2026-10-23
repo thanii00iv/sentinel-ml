@@ -1,0 +1,133 @@
+{
+  "metadata": {
+    "git_commit_hash": "1624dc9e5056bf498fb3386e0e01bdb27dc1574b",
+    "timestamp": "2026-10-10T14:26:28.626423+00:00",
+    "hardware_environment": {
+      "cpu_model": "Intel64 Family 6 Model 154 Stepping 4, GenuineIntel",
+      "physical_cores": 10,
+      "logical_cores": 12,
+      "ram_total_gb": 15.68,
+      "os_environment": "Windows 11 (Build 10.0.26200)",
+      "python_version": "3.12.10",
+      "django_version": "6.1"
+    },
+    "worker_memory_rss_mb": 1416.54,
+    "settings": {
+      "DEBUG": false,
+      "DATABASE": "Real SQLite DB"
+    }
+  },
+  "component_microbenchmarks": {
+    "Regex Signature Rules": {
+      "execution_mode": "INLINE (Synchronous)",
+      "p50_ms": 0.014,
+      "p95_ms": 0.014,
+      "p99_ms": 0.015,
+      "mean_ms": 0.014,
+      "max_throughput_rps": 70650
+    },
+    "Sliding Window Ingestion": {
+      "execution_mode": "INLINE (Synchronous)",
+      "p50_ms": 0.018,
+      "p95_ms": 0.036,
+      "p99_ms": 0.064,
+      "mean_ms": 0.02,
+      "max_throughput_rps": 50619
+    },
+    "Supervised RF Inference": {
+      "execution_mode": "INLINE (Synchronous)",
+      "p50_ms": 3.27,
+      "p95_ms": 4.571,
+      "p99_ms": 6.019,
+      "mean_ms": 3.512,
+      "max_throughput_rps": 284
+    },
+    "Meta-Fusion Stacking": {
+      "execution_mode": "INLINE (Synchronous)",
+      "p50_ms": 1.571,
+      "p95_ms": 2.663,
+      "p99_ms": 5.005,
+      "mean_ms": 1.791,
+      "max_throughput_rps": 558
+    },
+    "LinUCB Bandit Action Decision": {
+      "execution_mode": "INLINE (Synchronous)",
+      "p50_ms": 0.059,
+      "p95_ms": 0.067,
+      "p99_ms": 0.155,
+      "mean_ms": 0.065,
+      "max_throughput_rps": 15351
+    },
+    "TreeSHAP Attribution Decomposition": {
+      "execution_mode": "ASYNC (Out-of-Band / On-Demand)",
+      "p50_ms": 12.817,
+      "p95_ms": 15.02,
+      "p99_ms": 15.959,
+      "mean_ms": 12.903,
+      "max_throughput_rps": 77
+    },
+    "Graph Louvain Community Clustering": {
+      "execution_mode": "ASYNC (Out-of-Band Routine)",
+      "p50_ms": 1.642,
+      "p95_ms": 2.209,
+      "p99_ms": 2.652,
+      "mean_ms": 1.753,
+      "max_throughput_rps": 570
+    },
+    "LLM Threat Reasoning Worker": {
+      "execution_mode": "ASYNC (ThreadPoolExecutor)",
+      "p50_ms": 0.605,
+      "p95_ms": 0.942,
+      "p99_ms": 1.25,
+      "mean_ms": 0.61,
+      "max_throughput_rps": 1639
+    }
+  },
+  "concurrency_benchmarks": {
+    "Concurrency_10": {
+      "concurrency_clients": 10,
+      "total_requests": 100,
+      "baseline_p50_ms": 0.018,
+      "baseline_p95_ms": 0.027,
+      "baseline_p99_ms": 0.058,
+      "baseline_rps": 14129.4,
+      "middleware_p50_ms": 1035.774,
+      "middleware_p95_ms": 3507.435,
+      "middleware_p99_ms": 30870.12,
+      "middleware_rps": 5.7,
+      "overhead_p50_ms": 1035.756,
+      "overhead_p95_ms": 3507.408,
+      "overhead_p99_ms": 30870.062
+    },
+    "Concurrency_50": {
+      "concurrency_clients": 50,
+      "total_requests": 500,
+      "baseline_p50_ms": 0.017,
+      "baseline_p95_ms": 0.028,
+      "baseline_p99_ms": 0.049,
+      "baseline_rps": 14217.2,
+      "middleware_p50_ms": 5807.486,
+      "middleware_p95_ms": 11882.153,
+      "middleware_p99_ms": 15136.532,
+      "middleware_rps": 7.7,
+      "overhead_p50_ms": 5807.468,
+      "overhead_p95_ms": 11882.125,
+      "overhead_p99_ms": 15136.484
+    },
+    "Concurrency_200": {
+      "concurrency_clients": 200,
+      "total_requests": 2000,
+      "baseline_p50_ms": 0.021,
+      "baseline_p95_ms": 0.035,
+      "baseline_p99_ms": 0.053,
+      "baseline_rps": 11802.4,
+      "middleware_p50_ms": 7404.709,
+      "middleware_p95_ms": 12572.598,
+      "middleware_p99_ms": 14755.798,
+      "middleware_rps": 22.7,
+      "overhead_p50_ms": 7404.688,
+      "overhead_p95_ms": 12572.563,
+      "overhead_p99_ms": 14755.745
+    }
+  }
+}

@@ -1,0 +1,14 @@
+Configuration,Active Views,Model Type,Accuracy (%),Precision (%),Recall (%),F1-Score (%),Delta F1 (%),FPR (%),ROC-AUC,PR-AUC
+Full 5-View Meta-Fusion (Calibrated Logistic),"S_rule, S_ml, S_anomaly, S_sequence, S_llm",logistic_calibrated,100.0,100.0,100.0,100.0,0.0,0.0,1.0,1.0
+Full 5-View Gradient Boosting Meta-Fusion,"S_rule, S_ml, S_anomaly, S_sequence, S_llm",gradient_boosting,99.92,100.0,99.82,99.91,-0.09,0.0,0.9989,0.9992
+"Static Weighted Heuristic Baseline (Weights: 0.25, 0.25, 0.15, 0.20, 0.15)","S_rule, S_ml, S_anomaly, S_sequence, S_llm",static_weighted,89.25,100.0,76.29,86.55,-13.45,0.0,1.0,1.0
+Ablation: -S_rule (No Signature Engine),"S_ml, S_anomaly, S_sequence, S_llm",logistic_calibrated,100.0,100.0,100.0,100.0,0.0,0.0,1.0,1.0
+Ablation: -S_ml (No Supervised Random Forest),"S_rule, S_anomaly, S_sequence, S_llm",logistic_calibrated,100.0,100.0,100.0,100.0,0.0,0.0,1.0,1.0
+Ablation: -S_anomaly (No Isolation Forest),"S_rule, S_ml, S_sequence, S_llm",logistic_calibrated,100.0,100.0,100.0,100.0,0.0,0.0,1.0,1.0
+Ablation: -S_seq (No Kill-Chain Sequence Forecaster),"S_rule, S_ml, S_anomaly, S_llm",logistic_calibrated,99.58,100.0,99.08,99.54,-0.46,0.0,1.0,1.0
+Ablation: -S_llm (No LLM Forensic Reasoning),"S_rule, S_ml, S_anomaly, S_sequence",logistic_calibrated,99.67,100.0,99.26,99.63,-0.37,0.0,1.0,1.0
+Single View: S_rule Only (Signatures Only),S_rule,logistic_calibrated,67.08,72.11,44.67,55.16,-44.84,14.33,0.7438,0.769
+Single View: S_ml Only (Supervised RF Only),S_ml,logistic_calibrated,93.42,97.16,88.05,92.38,-7.62,2.13,0.9758,0.979
+Single View: S_anomaly Only (Isolation Forest Only),S_anomaly,logistic_calibrated,54.0,49.28,50.55,49.91,-50.09,43.14,0.6582,0.5725
+Single View: S_seq Only (Sequence Forecaster Only),S_sequence,logistic_calibrated,99.67,100.0,99.26,99.63,-0.37,0.0,1.0,1.0
+Single View: S_llm Only (LLM Reasoning Only),S_llm,logistic_calibrated,99.33,100.0,98.53,99.26,-0.74,0.0,1.0,1.0

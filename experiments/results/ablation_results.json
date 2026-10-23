@@ -1,0 +1,289 @@
+{
+  "Full 5-View Meta-Fusion (Calibrated Logistic)": {
+    "accuracy": 100.0,
+    "precision": 100.0,
+    "recall": 100.0,
+    "f1_score": 100.0,
+    "false_positive_rate": 0.0,
+    "roc_auc": 1.0,
+    "pr_auc": 1.0,
+    "confusion_matrix": {
+      "tp": 544,
+      "fp": 0,
+      "tn": 656,
+      "fn": 0
+    },
+    "delta_f1": 0.0,
+    "active_views": [
+      "S_rule",
+      "S_ml",
+      "S_anomaly",
+      "S_sequence",
+      "S_llm"
+    ],
+    "model_type": "logistic_calibrated"
+  },
+  "Full 5-View Gradient Boosting Meta-Fusion": {
+    "accuracy": 99.92,
+    "precision": 100.0,
+    "recall": 99.82,
+    "f1_score": 99.91,
+    "false_positive_rate": 0.0,
+    "roc_auc": 0.9989,
+    "pr_auc": 0.9992,
+    "confusion_matrix": {
+      "tp": 543,
+      "fp": 0,
+      "tn": 656,
+      "fn": 1
+    },
+    "delta_f1": -0.09,
+    "active_views": [
+      "S_rule",
+      "S_ml",
+      "S_anomaly",
+      "S_sequence",
+      "S_llm"
+    ],
+    "model_type": "gradient_boosting"
+  },
+  "Static Weighted Heuristic Baseline (Weights: 0.25, 0.25, 0.15, 0.20, 0.15)": {
+    "accuracy": 89.25,
+    "precision": 100.0,
+    "recall": 76.29,
+    "f1_score": 86.55,
+    "false_positive_rate": 0.0,
+    "roc_auc": 1.0,
+    "pr_auc": 1.0,
+    "confusion_matrix": {
+      "tp": 415,
+      "fp": 0,
+      "tn": 656,
+      "fn": 129
+    },
+    "delta_f1": -13.45,
+    "active_views": [
+      "S_rule",
+      "S_ml",
+      "S_anomaly",
+      "S_sequence",
+      "S_llm"
+    ],
+    "model_type": "static_weighted"
+  },
+  "Ablation: -S_rule (No Signature Engine)": {
+    "accuracy": 100.0,
+    "precision": 100.0,
+    "recall": 100.0,
+    "f1_score": 100.0,
+    "false_positive_rate": 0.0,
+    "roc_auc": 1.0,
+    "pr_auc": 1.0,
+    "confusion_matrix": {
+      "tp": 544,
+      "fp": 0,
+      "tn": 656,
+      "fn": 0
+    },
+    "delta_f1": 0.0,
+    "active_views": [
+      "S_ml",
+      "S_anomaly",
+      "S_sequence",
+      "S_llm"
+    ],
+    "model_type": "logistic_calibrated"
+  },
+  "Ablation: -S_ml (No Supervised Random Forest)": {
+    "accuracy": 100.0,
+    "precision": 100.0,
+    "recall": 100.0,
+    "f1_score": 100.0,
+    "false_positive_rate": 0.0,
+    "roc_auc": 1.0,
+    "pr_auc": 1.0,
+    "confusion_matrix": {
+      "tp": 544,
+      "fp": 0,
+      "tn": 656,
+      "fn": 0
+    },
+    "delta_f1": 0.0,
+    "active_views": [
+      "S_rule",
+      "S_anomaly",
+      "S_sequence",
+      "S_llm"
+    ],
+    "model_type": "logistic_calibrated"
+  },
+  "Ablation: -S_anomaly (No Isolation Forest)": {
+    "accuracy": 100.0,
+    "precision": 100.0,
+    "recall": 100.0,
+    "f1_score": 100.0,
+    "false_positive_rate": 0.0,
+    "roc_auc": 1.0,
+    "pr_auc": 1.0,
+    "confusion_matrix": {
+      "tp": 544,
+      "fp": 0,
+      "tn": 656,
+      "fn": 0
+    },
+    "delta_f1": 0.0,
+    "active_views": [
+      "S_rule",
+      "S_ml",
+      "S_sequence",
+      "S_llm"
+    ],
+    "model_type": "logistic_calibrated"
+  },
+  "Ablation: -S_seq (No Kill-Chain Sequence Forecaster)": {
+    "accuracy": 99.58,
+    "precision": 100.0,
+    "recall": 99.08,
+    "f1_score": 99.54,
+    "false_positive_rate": 0.0,
+    "roc_auc": 1.0,
+    "pr_auc": 1.0,
+    "confusion_matrix": {
+      "tp": 539,
+      "fp": 0,
+      "tn": 656,
+      "fn": 5
+    },
+    "delta_f1": -0.46,
+    "active_views": [
+      "S_rule",
+      "S_ml",
+      "S_anomaly",
+      "S_llm"
+    ],
+    "model_type": "logistic_calibrated"
+  },
+  "Ablation: -S_llm (No LLM Forensic Reasoning)": {
+    "accuracy": 99.67,
+    "precision": 100.0,
+    "recall": 99.26,
+    "f1_score": 99.63,
+    "false_positive_rate": 0.0,
+    "roc_auc": 1.0,
+    "pr_auc": 1.0,
+    "confusion_matrix": {
+      "tp": 540,
+      "fp": 0,
+      "tn": 656,
+      "fn": 4
+    },
+    "delta_f1": -0.37,
+    "active_views": [
+      "S_rule",
+      "S_ml",
+      "S_anomaly",
+      "S_sequence"
+    ],
+    "model_type": "logistic_calibrated"
+  },
+  "Single View: S_rule Only (Signatures Only)": {
+    "accuracy": 67.08,
+    "precision": 72.11,
+    "recall": 44.67,
+    "f1_score": 55.16,
+    "false_positive_rate": 14.33,
+    "roc_auc": 0.7438,
+    "pr_auc": 0.769,
+    "confusion_matrix": {
+      "tp": 243,
+      "fp": 94,
+      "tn": 562,
+      "fn": 301
+    },
+    "delta_f1": -44.84,
+    "active_views": [
+      "S_rule"
+    ],
+    "model_type": "logistic_calibrated"
+  },
+  "Single View: S_ml Only (Supervised RF Only)": {
+    "accuracy": 93.42,
+    "precision": 97.16,
+    "recall": 88.05,
+    "f1_score": 92.38,
+    "false_positive_rate": 2.13,
+    "roc_auc": 0.9758,
+    "pr_auc": 0.979,
+    "confusion_matrix": {
+      "tp": 479,
+      "fp": 14,
+      "tn": 642,
+      "fn": 65
+    },
+    "delta_f1": -7.62,
+    "active_views": [
+      "S_ml"
+    ],
+    "model_type": "logistic_calibrated"
+  },
+  "Single View: S_anomaly Only (Isolation Forest Only)": {
+    "accuracy": 54.0,
+    "precision": 49.28,
+    "recall": 50.55,
+    "f1_score": 49.91,
+    "false_positive_rate": 43.14,
+    "roc_auc": 0.6582,
+    "pr_auc": 0.5725,
+    "confusion_matrix": {
+      "tp": 275,
+      "fp": 283,
+      "tn": 373,
+      "fn": 269
+    },
+    "delta_f1": -50.09,
+    "active_views": [
+      "S_anomaly"
+    ],
+    "model_type": "logistic_calibrated"
+  },
+  "Single View: S_seq Only (Sequence Forecaster Only)": {
+    "accuracy": 99.67,
+    "precision": 100.0,
+    "recall": 99.26,
+    "f1_score": 99.63,
+    "false_positive_rate": 0.0,
+    "roc_auc": 1.0,
+    "pr_auc": 1.0,
+    "confusion_matrix": {
+      "tp": 540,
+      "fp": 0,
+      "tn": 656,
+      "fn": 4
+    },
+    "delta_f1": -0.37,
+    "active_views": [
+      "S_sequence"
+    ],
+    "model_type": "logistic_calibrated"
+  },
+  "Single View: S_llm Only (LLM Reasoning Only)": {
+    "accuracy": 99.33,
+    "precision": 100.0,
+    "recall": 98.53,
+    "f1_score": 99.26,
+    "false_positive_rate": 0.0,
+    "roc_auc": 1.0,
+    "pr_auc": 1.0,
+    "confusion_matrix": {
+      "tp": 536,
+      "fp": 0,
+      "tn": 656,
+      "fn": 8
+    },
+    "delta_f1": -0.74,
+    "active_views": [
+      "S_llm"
+    ],
+    "model_type": "logistic_calibrated"
+  }
+}

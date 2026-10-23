@@ -1,0 +1,9 @@
+Model,Accuracy,Precision,Recall,F1_Score,FPR,Bypass_Rate,TP,FP,TN,FN
+ModSecurity v3 + OWASP CRS (PL1),82.5,100.0,72.0,83.72,0.0,28.0,540,0,450,210
+ModSecurity v3 + OWASP CRS (PL2),83.33,92.31,80.0,85.71,11.11,20.0,600,50,400,150
+Traditional Regex WAF Rules,82.5,100.0,72.0,83.72,0.0,28.0,540,0,450,210
+Supervised Random Forest Only,82.92,95.8,76.0,84.76,5.56,24.0,570,25,425,180
+Isolation Forest Anomaly Only,76.25,87.8,72.0,79.12,16.67,28.0,540,75,375,210
+Sequence Forecaster Only,95.0,100.0,92.0,95.83,0.0,8.0,690,0,450,60
+Static Weighted Sum Baseline,82.5,100.0,72.0,83.72,0.0,28.0,540,0,450,210
+CyberOracle ICMF (Full Meta-Fusion),97.5,100.0,96.0,97.96,0.0,4.0,720,0,450,30

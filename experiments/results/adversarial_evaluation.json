@@ -1,0 +1,543 @@
+{
+  "metadata": {
+    "git_commit_hash": "1624dc9e5056bf498fb3386e0e01bdb27dc1574b",
+    "timestamp": "2026-10-10T13:17:30.867476+00:00",
+    "random_seed": 42
+  },
+  "overall_models": {
+    "ModSecurity v3 CRS (PL1)": {
+      "accuracy": 60.79,
+      "precision": 100.0,
+      "recall": 52.95,
+      "f1_score": 69.24,
+      "fpr": 0.0,
+      "bypass_rate": 47.05
+    },
+    "ModSecurity v3 CRS (PL2)": {
+      "accuracy": 71.21,
+      "precision": 90.68,
+      "recall": 72.95,
+      "f1_score": 80.85,
+      "fpr": 37.5,
+      "bypass_rate": 27.05
+    },
+    "Traditional Regex WAF": {
+      "accuracy": 56.62,
+      "precision": 100.0,
+      "recall": 47.95,
+      "f1_score": 64.82,
+      "fpr": 0.0,
+      "bypass_rate": 52.05
+    },
+    "Supervised Random Forest (Zero Tuning)": {
+      "accuracy": 64.12,
+      "precision": 87.0,
+      "recall": 66.95,
+      "f1_score": 75.67,
+      "fpr": 50.0,
+      "bypass_rate": 33.05
+    },
+    "CyberOracle ICMF (Held-Out)": {
+      "accuracy": 89.12,
+      "precision": 100.0,
+      "recall": 86.95,
+      "f1_score": 93.02,
+      "fpr": 0.0,
+      "bypass_rate": 13.05
+    },
+    "CyberOracle ICMF (Adapted)": {
+      "accuracy": 98.29,
+      "precision": 100.0,
+      "recall": 97.95,
+      "f1_score": 98.96,
+      "fpr": 0.0,
+      "bypass_rate": 2.05
+    }
+  },
+  "technique_breakdown": {
+    "1. Double URL Encoding": {
+      "ModSecurity v3 CRS (PL1)": {
+        "rate": 100.0,
+        "ci_95": [
+          100.0,
+          100.0
+        ]
+      },
+      "ModSecurity v3 CRS (PL2)": {
+        "rate": 100.0,
+        "ci_95": [
+          100.0,
+          100.0
+        ]
+      },
+      "Traditional Regex WAF": {
+        "rate": 50.0,
+        "ci_95": [
+          43.0,
+          56.5
+        ]
+      },
+      "Supervised Random Forest (Zero Tuning)": {
+        "rate": 100.0,
+        "ci_95": [
+          100.0,
+          100.0
+        ]
+      },
+      "CyberOracle ICMF (Held-Out)": {
+        "rate": 100.0,
+        "ci_95": [
+          100.0,
+          100.0
+        ]
+      },
+      "CyberOracle ICMF (Adapted)": {
+        "rate": 100.0,
+        "ci_95": [
+          100.0,
+          100.0
+        ]
+      }
+    },
+    "10. Distributed Multi-IP Rotation": {
+      "ModSecurity v3 CRS (PL1)": {
+        "rate": 0.0,
+        "ci_95": [
+          0.0,
+          0.0
+        ]
+      },
+      "ModSecurity v3 CRS (PL2)": {
+        "rate": 0.0,
+        "ci_95": [
+          0.0,
+          0.0
+        ]
+      },
+      "Traditional Regex WAF": {
+        "rate": 0.0,
+        "ci_95": [
+          0.0,
+          0.0
+        ]
+      },
+      "Supervised Random Forest (Zero Tuning)": {
+        "rate": 0.0,
+        "ci_95": [
+          0.0,
+          0.0
+        ]
+      },
+      "CyberOracle ICMF (Held-Out)": {
+        "rate": 100.0,
+        "ci_95": [
+          100.0,
+          100.0
+        ]
+      },
+      "CyberOracle ICMF (Adapted)": {
+        "rate": 100.0,
+        "ci_95": [
+          100.0,
+          100.0
+        ]
+      }
+    },
+    "11. Benign-Hard Controls": {
+      "ModSecurity v3 CRS (PL1)": {
+        "rate": 0.0,
+        "ci_95": [
+          0.0,
+          0.0
+        ]
+      },
+      "ModSecurity v3 CRS (PL2)": {
+        "rate": 37.5,
+        "ci_95": [
+          33.0,
+          42.2
+        ]
+      },
+      "Traditional Regex WAF": {
+        "rate": 0.0,
+        "ci_95": [
+          0.0,
+          0.0
+        ]
+      },
+      "Supervised Random Forest (Zero Tuning)": {
+        "rate": 50.0,
+        "ci_95": [
+          44.7,
+          55.2
+        ]
+      },
+      "CyberOracle ICMF (Held-Out)": {
+        "rate": 0.0,
+        "ci_95": [
+          0.0,
+          0.0
+        ]
+      },
+      "CyberOracle ICMF (Adapted)": {
+        "rate": 0.0,
+        "ci_95": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "2. Case Mixing": {
+      "ModSecurity v3 CRS (PL1)": {
+        "rate": 100.0,
+        "ci_95": [
+          100.0,
+          100.0
+        ]
+      },
+      "ModSecurity v3 CRS (PL2)": {
+        "rate": 100.0,
+        "ci_95": [
+          100.0,
+          100.0
+        ]
+      },
+      "Traditional Regex WAF": {
+        "rate": 100.0,
+        "ci_95": [
+          100.0,
+          100.0
+        ]
+      },
+      "Supervised Random Forest (Zero Tuning)": {
+        "rate": 100.0,
+        "ci_95": [
+          100.0,
+          100.0
+        ]
+      },
+      "CyberOracle ICMF (Held-Out)": {
+        "rate": 100.0,
+        "ci_95": [
+          100.0,
+          100.0
+        ]
+      },
+      "CyberOracle ICMF (Adapted)": {
+        "rate": 100.0,
+        "ci_95": [
+          100.0,
+          100.0
+        ]
+      }
+    },
+    "3. Comment Injection": {
+      "ModSecurity v3 CRS (PL1)": {
+        "rate": 50.0,
+        "ci_95": [
+          43.5,
+          57.0
+        ]
+      },
+      "ModSecurity v3 CRS (PL2)": {
+        "rate": 100.0,
+        "ci_95": [
+          100.0,
+          100.0
+        ]
+      },
+      "Traditional Regex WAF": {
+        "rate": 50.0,
+        "ci_95": [
+          43.5,
+          57.0
+        ]
+      },
+      "Supervised Random Forest (Zero Tuning)": {
+        "rate": 100.0,
+        "ci_95": [
+          100.0,
+          100.0
+        ]
+      },
+      "CyberOracle ICMF (Held-Out)": {
+        "rate": 100.0,
+        "ci_95": [
+          100.0,
+          100.0
+        ]
+      },
+      "CyberOracle ICMF (Adapted)": {
+        "rate": 100.0,
+        "ci_95": [
+          100.0,
+          100.0
+        ]
+      }
+    },
+    "4. Unicode / Homoglyphs": {
+      "ModSecurity v3 CRS (PL1)": {
+        "rate": 100.0,
+        "ci_95": [
+          100.0,
+          100.0
+        ]
+      },
+      "ModSecurity v3 CRS (PL2)": {
+        "rate": 100.0,
+        "ci_95": [
+          100.0,
+          100.0
+        ]
+      },
+      "Traditional Regex WAF": {
+        "rate": 100.0,
+        "ci_95": [
+          100.0,
+          100.0
+        ]
+      },
+      "Supervised Random Forest (Zero Tuning)": {
+        "rate": 100.0,
+        "ci_95": [
+          100.0,
+          100.0
+        ]
+      },
+      "CyberOracle ICMF (Held-Out)": {
+        "rate": 100.0,
+        "ci_95": [
+          100.0,
+          100.0
+        ]
+      },
+      "CyberOracle ICMF (Adapted)": {
+        "rate": 100.0,
+        "ci_95": [
+          100.0,
+          100.0
+        ]
+      }
+    },
+    "5. Whitespace / Delimiters": {
+      "ModSecurity v3 CRS (PL1)": {
+        "rate": 79.5,
+        "ci_95": [
+          74.0,
+          85.0
+        ]
+      },
+      "ModSecurity v3 CRS (PL2)": {
+        "rate": 79.5,
+        "ci_95": [
+          74.0,
+          85.0
+        ]
+      },
+      "Traditional Regex WAF": {
+        "rate": 79.5,
+        "ci_95": [
+          74.0,
+          85.0
+        ]
+      },
+      "Supervised Random Forest (Zero Tuning)": {
+        "rate": 79.5,
+        "ci_95": [
+          74.0,
+          85.0
+        ]
+      },
+      "CyberOracle ICMF (Held-Out)": {
+        "rate": 79.5,
+        "ci_95": [
+          74.0,
+          85.0
+        ]
+      },
+      "CyberOracle ICMF (Adapted)": {
+        "rate": 79.5,
+        "ci_95": [
+          74.0,
+          85.0
+        ]
+      }
+    },
+    "6. Chunked Body Splitting": {
+      "ModSecurity v3 CRS (PL1)": {
+        "rate": 0.0,
+        "ci_95": [
+          0.0,
+          0.0
+        ]
+      },
+      "ModSecurity v3 CRS (PL2)": {
+        "rate": 100.0,
+        "ci_95": [
+          100.0,
+          100.0
+        ]
+      },
+      "Traditional Regex WAF": {
+        "rate": 0.0,
+        "ci_95": [
+          0.0,
+          0.0
+        ]
+      },
+      "Supervised Random Forest (Zero Tuning)": {
+        "rate": 0.0,
+        "ci_95": [
+          0.0,
+          0.0
+        ]
+      },
+      "CyberOracle ICMF (Held-Out)": {
+        "rate": 0.0,
+        "ci_95": [
+          0.0,
+          0.0
+        ]
+      },
+      "CyberOracle ICMF (Adapted)": {
+        "rate": 100.0,
+        "ci_95": [
+          100.0,
+          100.0
+        ]
+      }
+    },
+    "7. Hex / Base64 Encoding": {
+      "ModSecurity v3 CRS (PL1)": {
+        "rate": 0.0,
+        "ci_95": [
+          0.0,
+          0.0
+        ]
+      },
+      "ModSecurity v3 CRS (PL2)": {
+        "rate": 50.0,
+        "ci_95": [
+          43.5,
+          57.0
+        ]
+      },
+      "Traditional Regex WAF": {
+        "rate": 0.0,
+        "ci_95": [
+          0.0,
+          0.0
+        ]
+      },
+      "Supervised Random Forest (Zero Tuning)": {
+        "rate": 90.0,
+        "ci_95": [
+          85.5,
+          94.0
+        ]
+      },
+      "CyberOracle ICMF (Held-Out)": {
+        "rate": 90.0,
+        "ci_95": [
+          85.5,
+          94.0
+        ]
+      },
+      "CyberOracle ICMF (Adapted)": {
+        "rate": 100.0,
+        "ci_95": [
+          100.0,
+          100.0
+        ]
+      }
+    },
+    "8. HTTP Parameter Pollution": {
+      "ModSecurity v3 CRS (PL1)": {
+        "rate": 100.0,
+        "ci_95": [
+          100.0,
+          100.0
+        ]
+      },
+      "ModSecurity v3 CRS (PL2)": {
+        "rate": 100.0,
+        "ci_95": [
+          100.0,
+          100.0
+        ]
+      },
+      "Traditional Regex WAF": {
+        "rate": 100.0,
+        "ci_95": [
+          100.0,
+          100.0
+        ]
+      },
+      "Supervised Random Forest (Zero Tuning)": {
+        "rate": 100.0,
+        "ci_95": [
+          100.0,
+          100.0
+        ]
+      },
+      "CyberOracle ICMF (Held-Out)": {
+        "rate": 100.0,
+        "ci_95": [
+          100.0,
+          100.0
+        ]
+      },
+      "CyberOracle ICMF (Adapted)": {
+        "rate": 100.0,
+        "ci_95": [
+          100.0,
+          100.0
+        ]
+      }
+    },
+    "9. Low-and-Slow Pacing": {
+      "ModSecurity v3 CRS (PL1)": {
+        "rate": 0.0,
+        "ci_95": [
+          0.0,
+          0.0
+        ]
+      },
+      "ModSecurity v3 CRS (PL2)": {
+        "rate": 0.0,
+        "ci_95": [
+          0.0,
+          0.0
+        ]
+      },
+      "Traditional Regex WAF": {
+        "rate": 0.0,
+        "ci_95": [
+          0.0,
+          0.0
+        ]
+      },
+      "Supervised Random Forest (Zero Tuning)": {
+        "rate": 0.0,
+        "ci_95": [
+          0.0,
+          0.0
+        ]
+      },
+      "CyberOracle ICMF (Held-Out)": {
+        "rate": 100.0,
+        "ci_95": [
+          100.0,
+          100.0
+        ]
+      },
+      "CyberOracle ICMF (Adapted)": {
+        "rate": 100.0,
+        "ci_95": [
+          100.0,
+          100.0
+        ]
+      }
+    }
+  }
+}

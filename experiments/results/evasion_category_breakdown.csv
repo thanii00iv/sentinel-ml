@@ -1,0 +1,46 @@
+Engine,Perturbation Category,Total Samples,Detected,Detection Rate (%),Ground Truth
+Regex Rules (WAF Baseline),1. Plain Attack,5,4,80.0,Malicious
+Regex Rules (WAF Baseline),2. Double URL-Encoding,4,2,50.0,Malicious
+Regex Rules (WAF Baseline),3. SQL/HTML Comments,4,4,100.0,Malicious
+Regex Rules (WAF Baseline),4. Case Mixing,4,4,100.0,Malicious
+Regex Rules (WAF Baseline),5. Hex/Char Encoding,3,2,66.7,Malicious
+Regex Rules (WAF Baseline),6. Base64 Obfuscation,3,0,0.0,Malicious
+Regex Rules (WAF Baseline),7. Path Normalization,3,2,66.7,Malicious
+Regex Rules (WAF Baseline),8. Low-and-Slow Pacing,3,1,33.3,Malicious
+Regex Rules (WAF Baseline),9. Benign Controls,8,0,0.0,Benign
+Supervised Random Forest Only,1. Plain Attack,5,4,80.0,Malicious
+Supervised Random Forest Only,2. Double URL-Encoding,4,3,75.0,Malicious
+Supervised Random Forest Only,3. SQL/HTML Comments,4,4,100.0,Malicious
+Supervised Random Forest Only,4. Case Mixing,4,4,100.0,Malicious
+Supervised Random Forest Only,5. Hex/Char Encoding,3,2,66.7,Malicious
+Supervised Random Forest Only,6. Base64 Obfuscation,3,3,100.0,Malicious
+Supervised Random Forest Only,7. Path Normalization,3,2,66.7,Malicious
+Supervised Random Forest Only,8. Low-and-Slow Pacing,3,3,100.0,Malicious
+Supervised Random Forest Only,9. Benign Controls,8,4,50.0,Benign
+Isolation Forest Anomaly Only,1. Plain Attack,5,4,80.0,Malicious
+Isolation Forest Anomaly Only,2. Double URL-Encoding,4,4,100.0,Malicious
+Isolation Forest Anomaly Only,3. SQL/HTML Comments,4,4,100.0,Malicious
+Isolation Forest Anomaly Only,4. Case Mixing,4,4,100.0,Malicious
+Isolation Forest Anomaly Only,5. Hex/Char Encoding,3,3,100.0,Malicious
+Isolation Forest Anomaly Only,6. Base64 Obfuscation,3,3,100.0,Malicious
+Isolation Forest Anomaly Only,7. Path Normalization,3,3,100.0,Malicious
+Isolation Forest Anomaly Only,8. Low-and-Slow Pacing,3,3,100.0,Malicious
+Isolation Forest Anomaly Only,9. Benign Controls,8,5,62.5,Benign
+ModSecurity CRS (Heuristic Baseline),1. Plain Attack,5,3,60.0,Malicious
+ModSecurity CRS (Heuristic Baseline),2. Double URL-Encoding,4,2,50.0,Malicious
+ModSecurity CRS (Heuristic Baseline),3. SQL/HTML Comments,4,1,25.0,Malicious
+ModSecurity CRS (Heuristic Baseline),4. Case Mixing,4,3,75.0,Malicious
+ModSecurity CRS (Heuristic Baseline),5. Hex/Char Encoding,3,1,33.3,Malicious
+ModSecurity CRS (Heuristic Baseline),6. Base64 Obfuscation,3,0,0.0,Malicious
+ModSecurity CRS (Heuristic Baseline),7. Path Normalization,3,2,66.7,Malicious
+ModSecurity CRS (Heuristic Baseline),8. Low-and-Slow Pacing,3,1,33.3,Malicious
+ModSecurity CRS (Heuristic Baseline),9. Benign Controls,8,0,0.0,Benign
+CyberOracle Intel (Full ICMF Meta-Fusion),1. Plain Attack,5,5,100.0,Malicious
+CyberOracle Intel (Full ICMF Meta-Fusion),2. Double URL-Encoding,4,4,100.0,Malicious
+CyberOracle Intel (Full ICMF Meta-Fusion),3. SQL/HTML Comments,4,4,100.0,Malicious
+CyberOracle Intel (Full ICMF Meta-Fusion),4. Case Mixing,4,4,100.0,Malicious
+CyberOracle Intel (Full ICMF Meta-Fusion),5. Hex/Char Encoding,3,3,100.0,Malicious
+CyberOracle Intel (Full ICMF Meta-Fusion),6. Base64 Obfuscation,3,3,100.0,Malicious
+CyberOracle Intel (Full ICMF Meta-Fusion),7. Path Normalization,3,3,100.0,Malicious
+CyberOracle Intel (Full ICMF Meta-Fusion),8. Low-and-Slow Pacing,3,3,100.0,Malicious
+CyberOracle Intel (Full ICMF Meta-Fusion),9. Benign Controls,8,2,25.0,Benign

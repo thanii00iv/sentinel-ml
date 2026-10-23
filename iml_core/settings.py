@@ -10,25 +10,38 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 import warnings
-warnings.filterwarnings("ignore")
-
 from pathlib import Path
+
+warnings.filterwarnings("ignore")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
+# Lightweight .env loader without external dependencies
+env_path = BASE_DIR / '.env'
+if env_path.exists():
+    with open(env_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith('#') and '=' in line:
+                key, val = line.split('=', 1)
+                os.environ.setdefault(key.strip(), val.strip())
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-74d_a0fc2r28o(0&68uch8thb-j6&i-x4%-8!51&m8(vzx&-t1'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-74d_a0fc2r28o(0&68uch8thb-j6&i-x4%-8!51&m8(vzx&-t1')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [h.strip() for h in os.environ.get('ALLOWED_HOSTS', '*').split(',') if h.strip()]
+
+# Security & Proxy Trust Settings
+TRUSTED_PROXIES = set([ip.strip() for ip in os.environ.get('TRUSTED_PROXIES', '127.0.0.1,::1,localhost').split(',') if ip.strip()])
+WHITELISTED_IPS = set([ip.strip() for ip in os.environ.get('WHITELISTED_IPS', '127.0.0.1,::1,localhost').split(',') if ip.strip()])
+ADMIN_ALLOWLIST = set([ip.strip() for ip in os.environ.get('ADMIN_IP_ALLOWLIST', '127.0.0.1,::1,localhost').split(',') if ip.strip()])
+ADMIN_IP_ALLOWLIST = ADMIN_ALLOWLIST
 
 
 # Application definition

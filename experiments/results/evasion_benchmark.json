@@ -1,0 +1,352 @@
+{
+  "Regex Rules (WAF Baseline)": {
+    "accuracy": 72.97,
+    "precision": 100.0,
+    "recall": 65.52,
+    "f1_score": 79.17,
+    "false_positive_rate": 0.0,
+    "evasion_success_rate": 34.48,
+    "confusion_matrix": {
+      "tp": 19,
+      "fp": 0,
+      "tn": 8,
+      "fn": 10
+    },
+    "categories": {
+      "1. Plain Attack": {
+        "total": 5,
+        "detected": 4,
+        "detection_rate_pct": 80.0,
+        "is_malicious": true
+      },
+      "2. Double URL-Encoding": {
+        "total": 4,
+        "detected": 2,
+        "detection_rate_pct": 50.0,
+        "is_malicious": true
+      },
+      "3. SQL/HTML Comments": {
+        "total": 4,
+        "detected": 4,
+        "detection_rate_pct": 100.0,
+        "is_malicious": true
+      },
+      "4. Case Mixing": {
+        "total": 4,
+        "detected": 4,
+        "detection_rate_pct": 100.0,
+        "is_malicious": true
+      },
+      "5. Hex/Char Encoding": {
+        "total": 3,
+        "detected": 2,
+        "detection_rate_pct": 66.7,
+        "is_malicious": true
+      },
+      "6. Base64 Obfuscation": {
+        "total": 3,
+        "detected": 0,
+        "detection_rate_pct": 0.0,
+        "is_malicious": true
+      },
+      "7. Path Normalization": {
+        "total": 3,
+        "detected": 2,
+        "detection_rate_pct": 66.7,
+        "is_malicious": true
+      },
+      "8. Low-and-Slow Pacing": {
+        "total": 3,
+        "detected": 1,
+        "detection_rate_pct": 33.3,
+        "is_malicious": true
+      },
+      "9. Benign Controls": {
+        "total": 8,
+        "detected": 0,
+        "detection_rate_pct": 0.0,
+        "is_malicious": false
+      }
+    }
+  },
+  "Supervised Random Forest Only": {
+    "accuracy": 78.38,
+    "precision": 86.21,
+    "recall": 86.21,
+    "f1_score": 86.21,
+    "false_positive_rate": 50.0,
+    "evasion_success_rate": 13.79,
+    "confusion_matrix": {
+      "tp": 25,
+      "fp": 4,
+      "tn": 4,
+      "fn": 4
+    },
+    "categories": {
+      "1. Plain Attack": {
+        "total": 5,
+        "detected": 4,
+        "detection_rate_pct": 80.0,
+        "is_malicious": true
+      },
+      "2. Double URL-Encoding": {
+        "total": 4,
+        "detected": 3,
+        "detection_rate_pct": 75.0,
+        "is_malicious": true
+      },
+      "3. SQL/HTML Comments": {
+        "total": 4,
+        "detected": 4,
+        "detection_rate_pct": 100.0,
+        "is_malicious": true
+      },
+      "4. Case Mixing": {
+        "total": 4,
+        "detected": 4,
+        "detection_rate_pct": 100.0,
+        "is_malicious": true
+      },
+      "5. Hex/Char Encoding": {
+        "total": 3,
+        "detected": 2,
+        "detection_rate_pct": 66.7,
+        "is_malicious": true
+      },
+      "6. Base64 Obfuscation": {
+        "total": 3,
+        "detected": 3,
+        "detection_rate_pct": 100.0,
+        "is_malicious": true
+      },
+      "7. Path Normalization": {
+        "total": 3,
+        "detected": 2,
+        "detection_rate_pct": 66.7,
+        "is_malicious": true
+      },
+      "8. Low-and-Slow Pacing": {
+        "total": 3,
+        "detected": 3,
+        "detection_rate_pct": 100.0,
+        "is_malicious": true
+      },
+      "9. Benign Controls": {
+        "total": 8,
+        "detected": 4,
+        "detection_rate_pct": 50.0,
+        "is_malicious": false
+      }
+    }
+  },
+  "Isolation Forest Anomaly Only": {
+    "accuracy": 83.78,
+    "precision": 84.85,
+    "recall": 96.55,
+    "f1_score": 90.32,
+    "false_positive_rate": 62.5,
+    "evasion_success_rate": 3.45,
+    "confusion_matrix": {
+      "tp": 28,
+      "fp": 5,
+      "tn": 3,
+      "fn": 1
+    },
+    "categories": {
+      "1. Plain Attack": {
+        "total": 5,
+        "detected": 4,
+        "detection_rate_pct": 80.0,
+        "is_malicious": true
+      },
+      "2. Double URL-Encoding": {
+        "total": 4,
+        "detected": 4,
+        "detection_rate_pct": 100.0,
+        "is_malicious": true
+      },
+      "3. SQL/HTML Comments": {
+        "total": 4,
+        "detected": 4,
+        "detection_rate_pct": 100.0,
+        "is_malicious": true
+      },
+      "4. Case Mixing": {
+        "total": 4,
+        "detected": 4,
+        "detection_rate_pct": 100.0,
+        "is_malicious": true
+      },
+      "5. Hex/Char Encoding": {
+        "total": 3,
+        "detected": 3,
+        "detection_rate_pct": 100.0,
+        "is_malicious": true
+      },
+      "6. Base64 Obfuscation": {
+        "total": 3,
+        "detected": 3,
+        "detection_rate_pct": 100.0,
+        "is_malicious": true
+      },
+      "7. Path Normalization": {
+        "total": 3,
+        "detected": 3,
+        "detection_rate_pct": 100.0,
+        "is_malicious": true
+      },
+      "8. Low-and-Slow Pacing": {
+        "total": 3,
+        "detected": 3,
+        "detection_rate_pct": 100.0,
+        "is_malicious": true
+      },
+      "9. Benign Controls": {
+        "total": 8,
+        "detected": 5,
+        "detection_rate_pct": 62.5,
+        "is_malicious": false
+      }
+    }
+  },
+  "ModSecurity CRS (Heuristic Baseline)": {
+    "accuracy": 56.76,
+    "precision": 100.0,
+    "recall": 44.83,
+    "f1_score": 61.91,
+    "false_positive_rate": 0.0,
+    "evasion_success_rate": 55.17,
+    "confusion_matrix": {
+      "tp": 13,
+      "fp": 0,
+      "tn": 8,
+      "fn": 16
+    },
+    "categories": {
+      "1. Plain Attack": {
+        "total": 5,
+        "detected": 3,
+        "detection_rate_pct": 60.0,
+        "is_malicious": true
+      },
+      "2. Double URL-Encoding": {
+        "total": 4,
+        "detected": 2,
+        "detection_rate_pct": 50.0,
+        "is_malicious": true
+      },
+      "3. SQL/HTML Comments": {
+        "total": 4,
+        "detected": 1,
+        "detection_rate_pct": 25.0,
+        "is_malicious": true
+      },
+      "4. Case Mixing": {
+        "total": 4,
+        "detected": 3,
+        "detection_rate_pct": 75.0,
+        "is_malicious": true
+      },
+      "5. Hex/Char Encoding": {
+        "total": 3,
+        "detected": 1,
+        "detection_rate_pct": 33.3,
+        "is_malicious": true
+      },
+      "6. Base64 Obfuscation": {
+        "total": 3,
+        "detected": 0,
+        "detection_rate_pct": 0.0,
+        "is_malicious": true
+      },
+      "7. Path Normalization": {
+        "total": 3,
+        "detected": 2,
+        "detection_rate_pct": 66.7,
+        "is_malicious": true
+      },
+      "8. Low-and-Slow Pacing": {
+        "total": 3,
+        "detected": 1,
+        "detection_rate_pct": 33.3,
+        "is_malicious": true
+      },
+      "9. Benign Controls": {
+        "total": 8,
+        "detected": 0,
+        "detection_rate_pct": 0.0,
+        "is_malicious": false
+      }
+    }
+  },
+  "CyberOracle Intel (Full ICMF Meta-Fusion)": {
+    "accuracy": 94.59,
+    "precision": 93.55,
+    "recall": 100.0,
+    "f1_score": 96.67,
+    "false_positive_rate": 25.0,
+    "evasion_success_rate": 0.0,
+    "confusion_matrix": {
+      "tp": 29,
+      "fp": 2,
+      "tn": 6,
+      "fn": 0
+    },
+    "categories": {
+      "1. Plain Attack": {
+        "total": 5,
+        "detected": 5,
+        "detection_rate_pct": 100.0,
+        "is_malicious": true
+      },
+      "2. Double URL-Encoding": {
+        "total": 4,
+        "detected": 4,
+        "detection_rate_pct": 100.0,
+        "is_malicious": true
+      },
+      "3. SQL/HTML Comments": {
+        "total": 4,
+        "detected": 4,
+        "detection_rate_pct": 100.0,
+        "is_malicious": true
+      },
+      "4. Case Mixing": {
+        "total": 4,
+        "detected": 4,
+        "detection_rate_pct": 100.0,
+        "is_malicious": true
+      },
+      "5. Hex/Char Encoding": {
+        "total": 3,
+        "detected": 3,
+        "detection_rate_pct": 100.0,
+        "is_malicious": true
+      },
+      "6. Base64 Obfuscation": {
+        "total": 3,
+        "detected": 3,
+        "detection_rate_pct": 100.0,
+        "is_malicious": true
+      },
+      "7. Path Normalization": {
+        "total": 3,
+        "detected": 3,
+        "detection_rate_pct": 100.0,
+        "is_malicious": true
+      },
+      "8. Low-and-Slow Pacing": {
+        "total": 3,
+        "detected": 3,
+        "detection_rate_pct": 100.0,
+        "is_malicious": true
+      },
+      "9. Benign Controls": {
+        "total": 8,
+        "detected": 2,
+        "detection_rate_pct": 25.0,
+        "is_malicious": false
+      }
+    }
+  }
+}

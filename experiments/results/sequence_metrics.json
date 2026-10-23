@@ -1,0 +1,56 @@
+{
+  "Static Heuristic Table (Baseline)": {
+    "model_key": "static",
+    "top1_accuracy_percent": 53.4,
+    "top3_accuracy_percent": 85.37,
+    "avg_lead_time_steps": 1.61,
+    "avg_latency_ms": 0.001,
+    "p95_latency_ms": 0.0011,
+    "eval_samples": 588
+  },
+  "Empirical Markov (1st-Order)": {
+    "model_key": "markov_1",
+    "top1_accuracy_percent": 29.42,
+    "top3_accuracy_percent": 59.69,
+    "avg_lead_time_steps": 1.98,
+    "avg_latency_ms": 0.0003,
+    "p95_latency_ms": 0.0004,
+    "eval_samples": 588
+  },
+  "Empirical Markov (2nd-Order)": {
+    "model_key": "markov_2",
+    "top1_accuracy_percent": 30.1,
+    "top3_accuracy_percent": 66.67,
+    "avg_lead_time_steps": 1.84,
+    "avg_latency_ms": 0.0005,
+    "p95_latency_ms": 0.0006,
+    "eval_samples": 588
+  },
+  "Hidden Markov Model (HMM)": {
+    "model_key": "hmm",
+    "top1_accuracy_percent": 14.8,
+    "top3_accuracy_percent": 56.8,
+    "avg_lead_time_steps": 1.98,
+    "avg_latency_ms": 0.1605,
+    "p95_latency_ms": 0.192,
+    "eval_samples": 588
+  },
+  "PyTorch CPU LSTM": {
+    "model_key": "lstm",
+    "top1_accuracy_percent": 28.57,
+    "top3_accuracy_percent": 54.93,
+    "avg_lead_time_steps": 1.92,
+    "avg_latency_ms": 0.3789,
+    "p95_latency_ms": 0.5476,
+    "eval_samples": 588
+  },
+  "Ensemble Forecaster (Markov+HMM+LSTM)": {
+    "model_key": "ensemble",
+    "top1_accuracy_percent": 32.31,
+    "top3_accuracy_percent": 60.54,
+    "avg_lead_time_steps": 1.98,
+    "avg_latency_ms": 0.8378,
+    "p95_latency_ms": 1.0843,
+    "eval_samples": 588
+  }
+}

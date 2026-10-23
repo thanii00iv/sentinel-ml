@@ -1,0 +1,50 @@
+{
+  "Static Binary Threshold (Block >= 70 else Allow)": {
+    "cumulative_reward": 1496.0,
+    "mean_reward_per_decision": 0.748,
+    "total_friction_cost": 0.0,
+    "total_harm_incurred": 22320.0,
+    "attack_containment_rate": 65.12,
+    "false_positive_blocks": 0,
+    "action_distribution": {
+      "ALLOW": 1479,
+      "MONITOR": 0,
+      "RATE_LIMIT": 0,
+      "CHALLENGE_CAPTCHA": 0,
+      "TARPIT": 0,
+      "BLOCK_QUARANTINE": 521
+    }
+  },
+  "Static Tiered Policy (Block >= 75, RateLimit >= 50, Monitor >= 30)": {
+    "cumulative_reward": 1801.72,
+    "mean_reward_per_decision": 0.9009,
+    "total_friction_cost": 18.0,
+    "total_harm_incurred": 80.0,
+    "attack_containment_rate": 99.88,
+    "false_positive_blocks": 0,
+    "action_distribution": {
+      "ALLOW": 1182,
+      "MONITOR": 19,
+      "RATE_LIMIT": 287,
+      "CHALLENGE_CAPTCHA": 0,
+      "TARPIT": 0,
+      "BLOCK_QUARANTINE": 512
+    }
+  },
+  "Adaptive Contextual Bandit (LinUCB Engine)": {
+    "cumulative_reward": 1592.38,
+    "mean_reward_per_decision": 0.7962,
+    "total_friction_cost": 1989.0,
+    "total_harm_incurred": 1980.0,
+    "attack_containment_rate": 97.5,
+    "false_positive_blocks": 27,
+    "action_distribution": {
+      "ALLOW": 1,
+      "MONITOR": 1183,
+      "RATE_LIMIT": 7,
+      "CHALLENGE_CAPTCHA": 3,
+      "TARPIT": 805,
+      "BLOCK_QUARANTINE": 1
+    }
+  }
+}

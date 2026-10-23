@@ -1,0 +1,6 @@
+Detection Engine,Accuracy (%),Precision (%),Recall (Detection Rate %),F1-Score (%),FPR (%),Evasion Bypass Rate (%)
+Regex Rules (WAF Baseline),72.97,100.0,65.52,79.17,0.0,34.48
+Supervised Random Forest Only,78.38,86.21,86.21,86.21,50.0,13.79
+Isolation Forest Anomaly Only,83.78,84.85,96.55,90.32,62.5,3.45
+ModSecurity CRS (Heuristic Baseline),56.76,100.0,44.83,61.91,0.0,55.17
+CyberOracle Intel (Full ICMF Meta-Fusion),94.59,93.55,100.0,96.67,25.0,0.0

@@ -1,24 +1,89 @@
 import re
 import math
+import time
+import threading
 import urllib.parse
-from collections import Counter
+from collections import Counter, deque, defaultdict
 from datetime import timedelta
 from django.utils import timezone
 
-# 1. SQL Injection Signatures
+# -------------------------------------------------------------
+# 1. Thread-Safe Sliding Window Telemetry Cache
+# Eliminates per-request ORM COUNT(*) scans in the hot request path
+# -------------------------------------------------------------
+class TelemetrySlidingWindowCache:
+    def __init__(self, max_history_seconds=300):
+        self._lock = threading.Lock()
+        self.max_history_seconds = max_history_seconds
+        # ip -> deque of (timestamp, path, status_code)
+        self.ip_events = defaultdict(deque)
+
+    def record_event(self, ip: str, path: str, status_code: int = 200, timestamp: float = None):
+        now = timestamp if timestamp is not None else time.time()
+        with self._lock:
+            q = self.ip_events[ip]
+            q.append((now, path, status_code))
+            cutoff = now - self.max_history_seconds
+            while q and q[0][0] < cutoff:
+                q.popleft()
+
+    def get_request_rate(self, ip: str, window_seconds: float = 60.0) -> float:
+        now = time.time()
+        cutoff = now - window_seconds
+        with self._lock:
+            q = self.ip_events.get(ip)
+            if not q:
+                return 0.0
+            count = sum(1 for ts, _, _ in q if ts >= cutoff)
+            return float(count)
+
+    def is_recon_detected(self, ip: str, window_seconds: float = 120.0, unique_path_thresh: int = 8, not_found_thresh: int = 4) -> bool:
+        now = time.time()
+        cutoff = now - window_seconds
+        with self._lock:
+            q = self.ip_events.get(ip)
+            if not q:
+                return False
+            recent = [(p, s) for ts, p, s in q if ts >= cutoff]
+            if not recent:
+                return False
+            unique_paths = len(set(p for p, _ in recent))
+            not_found_count = sum(1 for _, s in recent if s == 404)
+            return unique_paths >= unique_path_thresh or not_found_count >= not_found_thresh
+
+    def clear(self):
+        with self._lock:
+            self.ip_events.clear()
+
+GLOBAL_TELEMETRY_CACHE = TelemetrySlidingWindowCache()
+
+
+# -------------------------------------------------------------
+# 2. Context-Aware SQL Injection Signatures
+# Avoids matching bare single quotes (e.g. "O'Brien") or dashes
+# -------------------------------------------------------------
 SQLI_PATTERNS = [
-    r"(\%27)|(\')|(\-\-)|(\%23)|(#)",
-    r"((\%3D)|(=))[^\n]*((\%27)|(\')|(\-\-)|(\%3B)|(;))",
-    r"\w*((\%27)|(\'))((\%6F)|o|(\%4F))((\%72)|r|(\%52))",
-    r"((\%27)|(\'))union",
-    r"union.*select",
-    r"select.*from",
-    r"insert\s+into",
-    r"drop\s+table",
-    r"or\s+1\s*=\s*1",
-    r"or\s+['\"]\w+['\"]\s*=\s*['\"]\w+['\"]",
-    r"admin'\s*--",
-    r"';",
+    # 1. Classic SQL Keyword Injections following a quote or boundary
+    r"['\"]\s*(?:or|and|union|select|insert|update|delete|drop|alter|exec|having)\b",
+    # 2. UNION SELECT combinations (optionally with ALL)
+    r"\bunion\s+(?:all\s+)?select\b",
+    # 3. Direct SQL statement structures
+    r"\bselect\s+[\w\*\s,`]+?\s+from\b",
+    r"\binsert\s+into\s+[\w`]+",
+    r"\bdrop\s+table\s+[\w`]+",
+    r"\bupdate\s+[\w`]+\s+set\b",
+    r"\bdelete\s+from\s+[\w`]+",
+    # 4. Boolean tautology injections (e.g., OR 1=1, OR 'a'='a', 1' OR '1'='1)
+    r"\b(?:or|and)\s+(?:\d+\s*=\s*\d+|['\"][a-zA-Z0-9_-]+['\"]\s*=\s*['\"][a-zA-Z0-9_-]+['\"])",
+    r"['\"]\s*(?:or|and)\s+1\s*=\s*1",
+    # 5. Comment termination following a quote, keyword, or semicolon
+    r"(?:['\"]\s*--|\badmin['\"]\s*--|/\*.*?\*/|;\s*--)",
+    # 6. Stacked execution queries
+    r";\s*(?:drop|select|insert|update|delete|create|alter|exec|truncate|shutdown)\b",
+    # 7. Authentication bypass patterns
+    r"\badmin['\"]\s*(?:#|--|/\*|or\b)",
+    # 8. SQL Sleep / Benchmark / Hex functions
+    r"\b(?:sleep|benchmark|waitfor\s+delay|char|load_file|into\s+outfile)\s*\(",
 ]
 SQLI_REGEX = re.compile("|".join(SQLI_PATTERNS), re.IGNORECASE)
 
@@ -85,32 +150,37 @@ PATH_TRAVERSAL_REGEX = re.compile("|".join(PATH_TRAVERSAL_PATTERNS), re.IGNORECA
 
 def detect_sqli(request):
     """Detect SQL injection attempts across URL path, GET params, and POST body."""
-    full_path = request.get_full_path()
+    if isinstance(request, str):
+        return bool(SQLI_REGEX.search(request) or SQLI_REGEX.search(urllib.parse.unquote(request)))
+
+    full_path = request.get_full_path() if hasattr(request, 'get_full_path') else str(request)
     if SQLI_REGEX.search(full_path) or SQLI_REGEX.search(urllib.parse.unquote(full_path)):
         return True
 
-    for key, value in request.GET.items():
-        val_str = str(value)
-        key_str = str(key)
-        if (
-            SQLI_REGEX.search(val_str) or
-            SQLI_REGEX.search(urllib.parse.unquote(val_str)) or
-            SQLI_REGEX.search(key_str) or
-            SQLI_REGEX.search(urllib.parse.unquote(key_str))
-        ):
-            return True
-
-    if request.method == 'POST':
-        for key, value in request.POST.items():
-            if key in ('csrfmiddlewaretoken', 'password'):
-                continue
+    if hasattr(request, 'GET'):
+        for key, value in request.GET.items():
             val_str = str(value)
-            if SQLI_REGEX.search(val_str) or SQLI_REGEX.search(urllib.parse.unquote(val_str)):
+            key_str = str(key)
+            if (
+                SQLI_REGEX.search(val_str) or
+                SQLI_REGEX.search(urllib.parse.unquote(val_str)) or
+                SQLI_REGEX.search(key_str) or
+                SQLI_REGEX.search(urllib.parse.unquote(key_str))
+            ):
                 return True
+
+    if getattr(request, 'method', 'GET') == 'POST':
+        if hasattr(request, 'POST'):
+            for key, value in request.POST.items():
+                if key in ('csrfmiddlewaretoken', 'password'):
+                    continue
+                val_str = str(value)
+                if SQLI_REGEX.search(val_str) or SQLI_REGEX.search(urllib.parse.unquote(val_str)):
+                    return True
 
         # Support JSON / raw request bodies
         try:
-            if request.body:
+            if getattr(request, 'body', None):
                 body_text = request.body.decode('utf-8', errors='ignore')
                 if SQLI_REGEX.search(body_text) or SQLI_REGEX.search(urllib.parse.unquote(body_text)):
                     return True
@@ -122,32 +192,37 @@ def detect_sqli(request):
 
 def detect_xss(request):
     """Detect Cross-Site Scripting (XSS) attempts across URL path, GET params, POST body, and JSON payloads."""
-    full_path = request.get_full_path()
+    if isinstance(request, str):
+        return bool(XSS_REGEX.search(request) or XSS_REGEX.search(urllib.parse.unquote(request)))
+
+    full_path = request.get_full_path() if hasattr(request, 'get_full_path') else str(request)
     if XSS_REGEX.search(full_path) or XSS_REGEX.search(urllib.parse.unquote(full_path)):
         return True
 
-    for key, value in request.GET.items():
-        val_str = str(value)
-        key_str = str(key)
-        if (
-            XSS_REGEX.search(val_str) or
-            XSS_REGEX.search(urllib.parse.unquote(val_str)) or
-            XSS_REGEX.search(key_str) or
-            XSS_REGEX.search(urllib.parse.unquote(key_str))
-        ):
-            return True
-
-    if request.method == 'POST':
-        for key, value in request.POST.items():
-            if key in ('csrfmiddlewaretoken', 'password'):
-                continue
+    if hasattr(request, 'GET'):
+        for key, value in request.GET.items():
             val_str = str(value)
-            if XSS_REGEX.search(val_str) or XSS_REGEX.search(urllib.parse.unquote(val_str)):
+            key_str = str(key)
+            if (
+                XSS_REGEX.search(val_str) or
+                XSS_REGEX.search(urllib.parse.unquote(val_str)) or
+                XSS_REGEX.search(key_str) or
+                XSS_REGEX.search(urllib.parse.unquote(key_str))
+            ):
                 return True
+
+    if getattr(request, 'method', 'GET') == 'POST':
+        if hasattr(request, 'POST'):
+            for key, value in request.POST.items():
+                if key in ('csrfmiddlewaretoken', 'password'):
+                    continue
+                val_str = str(value)
+                if XSS_REGEX.search(val_str) or XSS_REGEX.search(urllib.parse.unquote(val_str)):
+                    return True
 
         # Support JSON / raw request bodies
         try:
-            if request.body:
+            if getattr(request, 'body', None):
                 body_text = request.body.decode('utf-8', errors='ignore')
                 if XSS_REGEX.search(body_text) or XSS_REGEX.search(urllib.parse.unquote(body_text)):
                     return True
@@ -159,22 +234,27 @@ def detect_xss(request):
 
 def detect_path_traversal(request):
     """Detect Path Traversal / Local File Inclusion (LFI) attempts."""
-    full_path = request.get_full_path()
+    if isinstance(request, str):
+        return bool(PATH_TRAVERSAL_REGEX.search(request) or PATH_TRAVERSAL_REGEX.search(urllib.parse.unquote(request)))
+
+    full_path = request.get_full_path() if hasattr(request, 'get_full_path') else str(request)
     if PATH_TRAVERSAL_REGEX.search(full_path) or PATH_TRAVERSAL_REGEX.search(urllib.parse.unquote(full_path)):
         return True
 
-    for key, value in request.GET.items():
-        val_str = str(value)
-        if PATH_TRAVERSAL_REGEX.search(val_str) or PATH_TRAVERSAL_REGEX.search(urllib.parse.unquote(val_str)):
-            return True
-
-    if request.method == 'POST':
-        for key, value in request.POST.items():
-            if key in ('csrfmiddlewaretoken', 'password'):
-                continue
+    if hasattr(request, 'GET'):
+        for key, value in request.GET.items():
             val_str = str(value)
             if PATH_TRAVERSAL_REGEX.search(val_str) or PATH_TRAVERSAL_REGEX.search(urllib.parse.unquote(val_str)):
                 return True
+
+    if getattr(request, 'method', 'GET') == 'POST':
+        if hasattr(request, 'POST'):
+            for key, value in request.POST.items():
+                if key in ('csrfmiddlewaretoken', 'password'):
+                    continue
+                val_str = str(value)
+                if PATH_TRAVERSAL_REGEX.search(val_str) or PATH_TRAVERSAL_REGEX.search(urllib.parse.unquote(val_str)):
+                    return True
 
         try:
             if request.body:
@@ -193,9 +273,21 @@ RECON_404_THRESHOLD = 4
 
 
 def detect_recon(request_log_model, ip, window_minutes=RECON_TIME_WINDOW_MINUTES):
-    """Detect scanning / reconnaissance based on unique paths probed and 404 counts."""
-    window_start = timezone.now() - timedelta(minutes=window_minutes)
+    """
+    Detect scanning / reconnaissance based on unique paths probed and 404 counts.
+    Checks thread-safe in-memory sliding window cache first (<0.05ms) before falling back to ORM.
+    """
+    # 1. Fast path: sliding window cache check
+    if GLOBAL_TELEMETRY_CACHE.is_recon_detected(
+        ip,
+        window_seconds=window_minutes * 60.0,
+        unique_path_thresh=RECON_UNIQUE_PATH_THRESHOLD,
+        not_found_thresh=RECON_404_THRESHOLD
+    ):
+        return True
 
+    # 2. Fallback to database queries for cold cache or direct model queries
+    window_start = timezone.now() - timedelta(minutes=window_minutes)
     recent_logs = request_log_model.objects.filter(
         ip_address=ip,
         timestamp__gte=window_start
@@ -223,13 +315,39 @@ def calculate_entropy(text):
 
 
 def calculate_request_rate(request_log_model, ip, window_minutes=1):
-    """Calculate requests per minute for an entity."""
+    """
+    Calculate requests per minute for an entity.
+    Uses in-memory sliding window cache when populated; falls back to ORM count.
+    """
+    cached_rate = GLOBAL_TELEMETRY_CACHE.get_request_rate(ip, window_seconds=window_minutes * 60.0)
+    if cached_rate > 0:
+        return float(cached_rate)
+
     window_start = timezone.now() - timedelta(minutes=window_minutes)
     count = request_log_model.objects.filter(
         ip_address=ip,
         timestamp__gte=window_start
     ).count()
     return float(count)
+
+
+# -------------------------------------------------------------
+# 5. Known Search Crawler Verification (Canary Protection)
+# -------------------------------------------------------------
+KNOWN_CRAWLER_SUBSTRINGS = [
+    'googlebot', 'bingbot', 'yandexbot', 'duckduckbot', 'baiduspider',
+    'slurp', 'sogou', 'exabot', 'facebot', 'ia_archiver'
+]
+
+def is_known_search_crawler(user_agent: str) -> bool:
+    """
+    Check if a User-Agent matches known legitimate search indexer crawlers.
+    Prevents false-positive automatic quarantine of search engines.
+    """
+    if not user_agent:
+        return False
+    ua_lower = user_agent.lower()
+    return any(crawler in ua_lower for crawler in KNOWN_CRAWLER_SUBSTRINGS)
 
 
 # -------------------------------------------------------------

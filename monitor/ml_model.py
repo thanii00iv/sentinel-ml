@@ -19,6 +19,22 @@ _CACHED_RF_MODEL = None
 _CACHED_ANOMALY_MODEL = None
 
 
+FEATURE_NAMES = [
+    'is_sqli_suspect',
+    'is_brute_force_suspect',
+    'is_recon_suspect',
+    'is_xss_suspect',
+    'is_path_traversal_suspect',
+    'is_login_attempt',
+    'login_success',
+    'response_time_ms',
+    'status_code',
+    'path_length',
+    'is_post_method',
+    'entropy_score',
+]
+
+
 def get_features(log):
     """
     Extract 12-dimensional engineered feature vector from a RequestLog instance:
@@ -394,6 +410,7 @@ def train_kill_chain_model(sample_size=25000):
         success_rate = round(float(df_full['Attack_Success'].mean() * 100), 1) if 'Attack_Success' in df_full.columns else 0.0
 
         bundle = {
+            'model': clf,
             'classes': classes,
             'feature_cols': available_features,
             'total_samples': total_samples,
@@ -432,3 +449,90 @@ def get_kill_chain_evaluation_metrics():
             pass
 
     return train_kill_chain_model()
+
+
+def predict_kill_chain_stage(profile):
+    """
+    Predict the Cyber Kill Chain stage using the trained Kill Chain Classifier.
+    Extracts behavioral telemetry from the profile, runs multi-class prediction,
+    and returns (stage: str, probabilities: dict, confidence: str, risk_score: float).
+    """
+    bundle = get_kill_chain_evaluation_metrics()
+    if not bundle or 'model' not in bundle:
+        return 'Reconnaissance', {'Reconnaissance': 1.0}, 'LOW', 10.0
+
+    try:
+        clf = bundle['model']
+        feature_cols = bundle['feature_cols']
+
+        recon = getattr(profile, 'recon_count', 0)
+        brute = getattr(profile, 'brute_force_count', 0)
+        sqli = getattr(profile, 'sqli_count', 0)
+        xss = getattr(profile, 'xss_count', 0)
+        path_trav = getattr(profile, 'path_traversal_count', 0)
+        total = profile.total_attack_count()
+
+        feat_map = {
+            'Employee_Count': 500,
+            'Firewall': 1,
+            'MFA': 0 if brute > 2 else 1,
+            'EDR': 1,
+            'IDS': 1,
+            'Security_Training': 1,
+            'Patch_Age_Days': 30 + (sqli * 5),
+            'Open_Vulnerabilities': min(20, sqli + xss + path_trav),
+            'CVSS_Score': min(10.0, 4.0 + sqli * 1.2 + path_trav * 1.5),
+            'Internet_Exposed': 1 if (recon > 0 or sqli > 0) else 0,
+            'Security_Audit_Score': max(10, 85 - total * 5),
+            'Phishing_Click': 1 if brute > 3 else 0,
+            'Credential_Stolen': 1 if brute > 5 else 0,
+            'Privilege_Escalation': 1 if (sqli > 2 and brute > 2) else 0,
+            'Lateral_Movement': 1 if (path_trav > 2 and total >= 6) else 0,
+            'Persistence': 1 if total >= 8 else 0,
+            'Data_Encrypted': 0,
+            'Data_Exfiltration_GB': min(50.0, (path_trav + sqli) * 2.5),
+            'Detection_Time_Min': 12,
+            'Response_Time_Min': 8,
+            'Downtime_Hours': 0.0,
+            'Zero_Day': 1 if (xss > 2 and sqli > 2) else 0,
+            'Vendor_Count': 15,
+            'ThirdParty_Risk': 3,
+            'Insider_Risk': 2,
+            'Security_Maturity': 3,
+            'SOC_Team_Size': 6,
+            'Industry_Enc': 0,
+            'Country_Enc': 0,
+            'Company_Size_Enc': 1,
+            'Attack_Vector_Enc': 1 if sqli > 0 else (2 if brute > 0 else 0),
+            'Threat_Actor_Enc': 1 if total > 5 else 0,
+            'Password_Policy_Enc': 1,
+            'Attack_Complexity_Enc': 1 if sqli > 0 else 0,
+            'Compliance_Enc': 1,
+        }
+
+        row = [feat_map.get(col, 0) for col in feature_cols]
+        X_vec = np.array([row])
+
+        predicted_stage = str(clf.predict(X_vec)[0])
+        probs = clf.predict_proba(X_vec)[0]
+        classes = list(clf.classes_)
+        prob_dict = {classes[i]: round(float(probs[i]), 3) for i in range(len(classes))}
+
+        top_prob = float(max(probs))
+        confidence = 'CRITICAL' if top_prob > 0.85 else ('HIGH' if top_prob > 0.65 else 'MEDIUM')
+
+        stage_risk_weights = {
+            'Reconnaissance': 25.0,
+            'Initial Access': 50.0,
+            'Initial_Access': 50.0,
+            'Execution': 70.0,
+            'Persistence': 85.0,
+            'Impact': 95.0,
+        }
+        base_stage_risk = stage_risk_weights.get(predicted_stage, 40.0)
+        risk_score = round(base_stage_risk * top_prob, 1)
+
+        return predicted_stage, prob_dict, confidence, risk_score
+    except Exception as e:
+        print(f"[CyberOracle Intel] Kill chain model prediction fallback: {e}")
+        return 'Reconnaissance', {'Reconnaissance': 1.0}, 'LOW', 15.0

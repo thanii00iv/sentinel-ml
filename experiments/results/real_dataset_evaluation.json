@@ -1,0 +1,290 @@
+{
+  "metadata": {
+    "git_commit_hash": "1624dc9e5056bf498fb3386e0e01bdb27dc1574b",
+    "timestamp": "2026-10-10T13:06:27.939369+00:00",
+    "random_seed": 42,
+    "protocol": "GroupKFold by IP (5 Folds), Out-of-Fold Stacking"
+  },
+  "datasets": {
+    "CSIC_2010_HTTP": {
+      "dataset_name": "CSIC 2010 HTTP Dataset",
+      "total_samples": 10000,
+      "attack_samples": 5000,
+      "benign_samples": 5000,
+      "attack_prevalence_pct": 50.0,
+      "unique_ip_groups": 200,
+      "models": {
+        "Rule Engine (Regex)": {
+          "accuracy": 92.69,
+          "precision": 100.0,
+          "recall": 85.38,
+          "f1_score": 92.11,
+          "false_positive_rate": 0.0,
+          "roc_auc": 0.9269,
+          "pr_auc": 0.9269,
+          "confusion_matrix": {
+            "tp": 4269,
+            "fp": 0,
+            "tn": 5000,
+            "fn": 731
+          }
+        },
+        "Supervised Random Forest": {
+          "accuracy": 100.0,
+          "precision": 100.0,
+          "recall": 100.0,
+          "f1_score": 100.0,
+          "false_positive_rate": 0.0,
+          "roc_auc": 1.0,
+          "pr_auc": 1.0,
+          "confusion_matrix": {
+            "tp": 5000,
+            "fp": 0,
+            "tn": 5000,
+            "fn": 0
+          }
+        },
+        "Isolation Forest Anomaly": {
+          "accuracy": 76.75,
+          "precision": 83.77,
+          "recall": 66.36,
+          "f1_score": 74.05,
+          "false_positive_rate": 12.86,
+          "roc_auc": 0.9056,
+          "pr_auc": 0.8562,
+          "confusion_matrix": {
+            "tp": 3318,
+            "fp": 643,
+            "tn": 4357,
+            "fn": 1682
+          }
+        },
+        "CyberOracle Meta-Fusion (Calibrated)": {
+          "accuracy": 100.0,
+          "precision": 100.0,
+          "recall": 100.0,
+          "f1_score": 100.0,
+          "false_positive_rate": 0.0,
+          "roc_auc": 1.0,
+          "pr_auc": 1.0,
+          "confusion_matrix": {
+            "tp": 5000,
+            "fp": 0,
+            "tn": 5000,
+            "fn": 0
+          }
+        }
+      }
+    },
+    "CIC_IDS_2017": {
+      "dataset_name": "CIC-IDS2017 Web Attacks",
+      "total_samples": 10000,
+      "attack_samples": 6664,
+      "benign_samples": 3336,
+      "attack_prevalence_pct": 66.64,
+      "unique_ip_groups": 354,
+      "models": {
+        "Rule Engine (Regex)": {
+          "accuracy": 71.93,
+          "precision": 94.08,
+          "recall": 61.76,
+          "f1_score": 74.57,
+          "false_positive_rate": 7.76,
+          "roc_auc": 0.77,
+          "pr_auc": 0.8359,
+          "confusion_matrix": {
+            "tp": 4116,
+            "fp": 259,
+            "tn": 3077,
+            "fn": 2548
+          }
+        },
+        "Supervised Random Forest": {
+          "accuracy": 98.03,
+          "precision": 98.02,
+          "recall": 99.04,
+          "f1_score": 98.53,
+          "false_positive_rate": 3.99,
+          "roc_auc": 0.9984,
+          "pr_auc": 0.9992,
+          "confusion_matrix": {
+            "tp": 6600,
+            "fp": 133,
+            "tn": 3203,
+            "fn": 64
+          }
+        },
+        "Isolation Forest Anomaly": {
+          "accuracy": 47.58,
+          "precision": 89.41,
+          "recall": 24.2,
+          "f1_score": 38.1,
+          "false_positive_rate": 5.73,
+          "roc_auc": 0.57,
+          "pr_auc": 0.7763,
+          "confusion_matrix": {
+            "tp": 1613,
+            "fp": 191,
+            "tn": 3145,
+            "fn": 5051
+          }
+        },
+        "CyberOracle Meta-Fusion (Calibrated)": {
+          "accuracy": 98.03,
+          "precision": 98.27,
+          "recall": 98.78,
+          "f1_score": 98.53,
+          "false_positive_rate": 3.48,
+          "roc_auc": 0.9984,
+          "pr_auc": 0.9992,
+          "confusion_matrix": {
+            "tp": 6583,
+            "fp": 116,
+            "tn": 3220,
+            "fn": 81
+          }
+        }
+      }
+    },
+    "Corpus_6M_Balanced": {
+      "dataset_name": "6M Telemetry Corpus (Balanced)",
+      "total_samples": 20000,
+      "attack_samples": 10000,
+      "benign_samples": 10000,
+      "attack_prevalence_pct": 50.0,
+      "unique_ip_groups": 354,
+      "models": {
+        "Rule Engine (Regex)": {
+          "accuracy": 76.59,
+          "precision": 89.35,
+          "recall": 60.38,
+          "f1_score": 72.06,
+          "false_positive_rate": 7.2,
+          "roc_auc": 0.7659,
+          "pr_auc": 0.7376,
+          "confusion_matrix": {
+            "tp": 6038,
+            "fp": 720,
+            "tn": 9280,
+            "fn": 3962
+          }
+        },
+        "Supervised Random Forest": {
+          "accuracy": 97.78,
+          "precision": 98.28,
+          "recall": 97.26,
+          "f1_score": 97.77,
+          "false_positive_rate": 1.7,
+          "roc_auc": 0.9985,
+          "pr_auc": 0.9985,
+          "confusion_matrix": {
+            "tp": 9726,
+            "fp": 170,
+            "tn": 9830,
+            "fn": 274
+          }
+        },
+        "Isolation Forest Anomaly": {
+          "accuracy": 62.23,
+          "precision": 91.49,
+          "recall": 26.97,
+          "f1_score": 41.66,
+          "false_positive_rate": 2.51,
+          "roc_auc": 0.6997,
+          "pr_auc": 0.7523,
+          "confusion_matrix": {
+            "tp": 2697,
+            "fp": 251,
+            "tn": 9749,
+            "fn": 7303
+          }
+        },
+        "CyberOracle Meta-Fusion (Calibrated)": {
+          "accuracy": 97.72,
+          "precision": 97.73,
+          "recall": 97.72,
+          "f1_score": 97.72,
+          "false_positive_rate": 2.27,
+          "roc_auc": 0.9985,
+          "pr_auc": 0.9985,
+          "confusion_matrix": {
+            "tp": 9772,
+            "fp": 227,
+            "tn": 9773,
+            "fn": 228
+          }
+        }
+      }
+    },
+    "Corpus_6M_Prevalence_2pct": {
+      "dataset_name": "6M Telemetry Corpus (2% Operational Prevalence)",
+      "total_samples": 20000,
+      "attack_samples": 400,
+      "benign_samples": 19600,
+      "attack_prevalence_pct": 2.0,
+      "unique_ip_groups": 354,
+      "models": {
+        "Rule Engine (Regex)": {
+          "accuracy": 92.07,
+          "precision": 14.88,
+          "recall": 62.75,
+          "f1_score": 24.05,
+          "false_positive_rate": 7.33,
+          "roc_auc": 0.7771,
+          "pr_auc": 0.1008,
+          "confusion_matrix": {
+            "tp": 251,
+            "fp": 1436,
+            "tn": 18164,
+            "fn": 149
+          }
+        },
+        "Supervised Random Forest": {
+          "accuracy": 99.81,
+          "precision": 100.0,
+          "recall": 90.5,
+          "f1_score": 95.01,
+          "false_positive_rate": 0.0,
+          "roc_auc": 0.9972,
+          "pr_auc": 0.9672,
+          "confusion_matrix": {
+            "tp": 362,
+            "fp": 0,
+            "tn": 19600,
+            "fn": 38
+          }
+        },
+        "Isolation Forest Anomaly": {
+          "accuracy": 89.54,
+          "precision": 11.93,
+          "recall": 66.25,
+          "f1_score": 20.21,
+          "false_positive_rate": 9.98,
+          "roc_auc": 0.892,
+          "pr_auc": 0.3926,
+          "confusion_matrix": {
+            "tp": 265,
+            "fp": 1957,
+            "tn": 17643,
+            "fn": 135
+          }
+        },
+        "CyberOracle Meta-Fusion (Calibrated)": {
+          "accuracy": 99.81,
+          "precision": 100.0,
+          "recall": 90.5,
+          "f1_score": 95.01,
+          "false_positive_rate": 0.0,
+          "roc_auc": 0.9797,
+          "pr_auc": 0.9276,
+          "confusion_matrix": {
+            "tp": 362,
+            "fp": 0,
+            "tn": 19600,
+            "fn": 38
+          }
+        }
+      }
+    }
+  }
+}

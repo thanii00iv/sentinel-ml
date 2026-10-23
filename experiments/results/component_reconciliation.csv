@@ -1,0 +1,9 @@
+Component,Execution_Path,p50_Latency_ms,p95_Latency_ms,p99_Latency_ms,Mean_Latency_ms,Max_Throughput_RPS
+Regex Signature Rules,INLINE (Synchronous),0.014,0.014,0.015,0.014,70650
+Sliding Window Ingestion,INLINE (Synchronous),0.018,0.036,0.064,0.02,50619
+Supervised RF Inference,INLINE (Synchronous),3.27,4.571,6.019,3.512,284
+Meta-Fusion Stacking,INLINE (Synchronous),1.571,2.663,5.005,1.791,558
+LinUCB Bandit Action Decision,INLINE (Synchronous),0.059,0.067,0.155,0.065,15351
+TreeSHAP Attribution Decomposition,ASYNC (Out-of-Band / On-Demand),12.817,15.02,15.959,12.903,77
+Graph Louvain Community Clustering,ASYNC (Out-of-Band Routine),1.642,2.209,2.652,1.753,570
+LLM Threat Reasoning Worker,ASYNC (ThreadPoolExecutor),0.605,0.942,1.25,0.61,1639

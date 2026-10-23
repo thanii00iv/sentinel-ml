@@ -1,0 +1,101 @@
+{
+  "1. Deterministic Rule Matching (SQLi/XSS/LFI Regex)": {
+    "component_name": "1. Deterministic Rule Matching (SQLi/XSS/LFI Regex)",
+    "n_runs": 5,
+    "total_calls": 5000,
+    "mean_latency_ms": 0.046,
+    "std_dev_ms": 0.0006,
+    "p50_latency_ms": 0.0427,
+    "p95_latency_ms": 0.0525,
+    "p99_latency_ms": 0.1213,
+    "throughput_rps": 21717.9
+  },
+  "2. Sliding-Window In-Memory Telemetry Cache": {
+    "component_name": "2. Sliding-Window In-Memory Telemetry Cache",
+    "n_runs": 5,
+    "total_calls": 5000,
+    "mean_latency_ms": 0.0914,
+    "std_dev_ms": 0.0516,
+    "p50_latency_ms": 0.0869,
+    "p95_latency_ms": 0.1729,
+    "p99_latency_ms": 0.2396,
+    "throughput_rps": 10936.4
+  },
+  "3. Supervised Random Forest Inference": {
+    "component_name": "3. Supervised Random Forest Inference",
+    "n_runs": 5,
+    "total_calls": 5000,
+    "mean_latency_ms": 7.4821,
+    "std_dev_ms": 0.2667,
+    "p50_latency_ms": 7.421,
+    "p95_latency_ms": 8.5271,
+    "p99_latency_ms": 9.3157,
+    "throughput_rps": 133.7
+  },
+  "4. Isolation Forest Anomaly Detection": {
+    "component_name": "4. Isolation Forest Anomaly Detection",
+    "n_runs": 5,
+    "total_calls": 5000,
+    "mean_latency_ms": 13.224,
+    "std_dev_ms": 0.756,
+    "p50_latency_ms": 12.9491,
+    "p95_latency_ms": 15.4857,
+    "p99_latency_ms": 17.0723,
+    "throughput_rps": 75.6
+  },
+  "5. Kill-Chain Next-Stage Sequence Forecaster": {
+    "component_name": "5. Kill-Chain Next-Stage Sequence Forecaster",
+    "n_runs": 5,
+    "total_calls": 5000,
+    "mean_latency_ms": 6.8955,
+    "std_dev_ms": 4.449,
+    "p50_latency_ms": 4.8704,
+    "p95_latency_ms": 6.3972,
+    "p99_latency_ms": 54.2908,
+    "throughput_rps": 145.0
+  },
+  "6. Local TF-IDF MITRE ATT&CK RAG Retriever": {
+    "component_name": "6. Local TF-IDF MITRE ATT&CK RAG Retriever",
+    "n_runs": 5,
+    "total_calls": 5000,
+    "mean_latency_ms": 0.6783,
+    "std_dev_ms": 0.0722,
+    "p50_latency_ms": 0.6206,
+    "p95_latency_ms": 1.0752,
+    "p99_latency_ms": 1.4923,
+    "throughput_rps": 1474.2
+  },
+  "7. Calibrated Meta-Fusion Stacking (5 Views)": {
+    "component_name": "7. Calibrated Meta-Fusion Stacking (5 Views)",
+    "n_runs": 5,
+    "total_calls": 5000,
+    "mean_latency_ms": 2.2905,
+    "std_dev_ms": 0.2884,
+    "p50_latency_ms": 2.0744,
+    "p95_latency_ms": 3.7025,
+    "p99_latency_ms": 4.5638,
+    "throughput_rps": 436.6
+  },
+  "8. Adaptive Incident Response (LinUCB Action)": {
+    "component_name": "8. Adaptive Incident Response (LinUCB Action)",
+    "n_runs": 5,
+    "total_calls": 5000,
+    "mean_latency_ms": 0.1044,
+    "std_dev_ms": 0.0035,
+    "p50_latency_ms": 0.0881,
+    "p95_latency_ms": 0.1595,
+    "p99_latency_ms": 0.3573,
+    "throughput_rps": 9576.6
+  },
+  "9. Full End-to-End Inline Middleware Pipeline": {
+    "component_name": "9. Full End-to-End Inline Middleware Pipeline",
+    "n_runs": 5,
+    "total_calls": 5000,
+    "mean_latency_ms": 34.2198,
+    "std_dev_ms": 0.8862,
+    "p50_latency_ms": 33.8889,
+    "p95_latency_ms": 41.2296,
+    "p99_latency_ms": 47.3038,
+    "throughput_rps": 29.2
+  }
+}

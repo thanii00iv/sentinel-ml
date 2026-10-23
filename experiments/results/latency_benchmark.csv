@@ -1,0 +1,10 @@
+Pipeline Component,Mean Latency (ms),Std Dev (ms),p50 Latency (ms),p95 Latency (ms),p99 Latency (ms),Throughput (RPS)
+1. Deterministic Rule Matching (SQLi/XSS/LFI Regex),0.046,0.0006,0.0427,0.0525,0.1213,21717.9
+2. Sliding-Window In-Memory Telemetry Cache,0.0914,0.0516,0.0869,0.1729,0.2396,10936.4
+3. Supervised Random Forest Inference,7.4821,0.2667,7.421,8.5271,9.3157,133.7
+4. Isolation Forest Anomaly Detection,13.224,0.756,12.9491,15.4857,17.0723,75.6
+5. Kill-Chain Next-Stage Sequence Forecaster,6.8955,4.449,4.8704,6.3972,54.2908,145.0
+6. Local TF-IDF MITRE ATT&CK RAG Retriever,0.6783,0.0722,0.6206,1.0752,1.4923,1474.2
+7. Calibrated Meta-Fusion Stacking (5 Views),2.2905,0.2884,2.0744,3.7025,4.5638,436.6
+8. Adaptive Incident Response (LinUCB Action),0.1044,0.0035,0.0881,0.1595,0.3573,9576.6
+9. Full End-to-End Inline Middleware Pipeline,34.2198,0.8862,33.8889,41.2296,47.3038,29.2

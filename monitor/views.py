@@ -511,6 +511,84 @@ def toggle_ip_block(request, ip):
 
 
 @csrf_exempt
+def submit_feedback_api(request):
+    """
+    API endpoint for SOC analysts to submit feedback on detections (True Positive / False Positive),
+    updating the AnalystFeedback model and reinforcing the LinUCB adaptive response policy.
+    """
+    if request.method == 'POST':
+        from .models import AnalystFeedback
+        from .adaptive_response import get_response_engine
+
+        try:
+            data = json.loads(request.body.decode('utf-8')) if request.body else {}
+        except Exception:
+            data = request.POST
+
+        ip = str(data.get('ip', '')).strip()
+        label = str(data.get('label', 'TRUE_POSITIVE')).strip().upper()
+        notes = str(data.get('notes', '')).strip()
+        analyst = request.user.username if request.user.is_authenticated else 'analyst'
+
+        if not ip:
+            return JsonResponse({'error': 'IP address required'}, status=400)
+
+        profile = IPRiskProfile.objects.filter(ip_address=ip).first()
+
+        fb = AnalystFeedback.objects.create(
+            entity_id=ip,
+            feedback_label=label,
+            analyst_username=analyst,
+            notes=notes
+        )
+
+        # Update bandit and profile based on analyst verdict
+        if profile:
+            engine = get_response_engine()
+            ctx = engine.extract_context(profile)
+            action = 'BLOCK_QUARANTINE' if profile.is_blocked else 'MONITOR'
+
+            if label == 'FALSE_POSITIVE':
+                profile.is_blocked = False
+                profile.risk_score = max(0, profile.risk_score - 40)
+                profile.save()
+                engine.update(ctx, action, reward=+1.0)
+            else:
+                profile.is_blocked = True
+                profile.risk_score = min(100, profile.risk_score + 20)
+                profile.save()
+                engine.update(ctx, 'BLOCK_QUARANTINE', reward=+1.0)
+
+        return JsonResponse({
+            'status': 'SUCCESS',
+            'feedback_id': fb.id,
+            'ip': ip,
+            'label': label,
+            'updated_risk_score': profile.risk_score if profile else 0,
+            'is_blocked': profile.is_blocked if profile else False
+        })
+    return JsonResponse({'error': 'POST method required'}, status=405)
+
+
+def explain_entity_api(request, ip):
+    """API endpoint providing TreeSHAP feature attributions and Meta-Fusion view breakdown."""
+    from .explainability import explain_meta_fusion_decision, explain_request_prediction
+
+    profile = get_object_or_404(IPRiskProfile, ip_address=ip)
+    fusion_exp = explain_meta_fusion_decision(profile)
+
+    latest_log = RequestLog.objects.filter(ip_address=ip).order_by('-timestamp').first()
+    tree_exp = explain_request_prediction(latest_log) if latest_log else None
+
+    return JsonResponse({
+        'ip': ip,
+        'fused_score': profile.fused_score or profile.risk_score,
+        'meta_fusion_explanation': fusion_exp,
+        'tree_feature_attributions': tree_exp
+    })
+
+
+@csrf_exempt
 def retrain_model_api(request):
     """API endpoint to retrain Random Forest, Isolation Forest, Network Flow, and Kill Chain ML models."""
     if request.method == 'POST':
@@ -657,6 +735,23 @@ def threat_map_api(request):
             seen_ips.add(r.ip_address)
 
     return JsonResponse({'markers': markers, 'total_flagged': len(markers)})
+
+
+def entity_graph_api(request, ip=None):
+    """API endpoint providing temporal heterogeneous security graph data for D3.js/Cytoscape force graphs."""
+    from .graph_analytics import SecurityKnowledgeGraph
+    kg = SecurityKnowledgeGraph(time_window_hours=24)
+    graph_data = kg.export_d3_graph(target_ip=ip)
+    campaigns = kg.detect_coordinated_campaigns()
+    centralities = kg.compute_centralities()
+
+    top_deg = sorted(centralities.get('degree', {}).items(), key=lambda x: x[1], reverse=True)[:5]
+    top_pr = sorted(centralities.get('pagerank', {}).items(), key=lambda x: x[1], reverse=True)[:5]
+
+    graph_data['campaigns'] = campaigns[:5]
+    graph_data['top_degree_centrality'] = [{'node': k, 'score': round(v, 4)} for k, v in top_deg]
+    graph_data['top_pagerank'] = [{'node': k, 'score': round(v, 4)} for k, v in top_pr]
+    return JsonResponse(graph_data)
 
 
 def live_stream_api(request):

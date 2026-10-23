@@ -1,0 +1,66 @@
+[
+  {
+    "technique_id": "T1190",
+    "name": "Exploit Public-Facing Application",
+    "tactic": "Initial Access",
+    "severity": "CRITICAL",
+    "description": "Adversaries may attempt to exploit a weakness in an Internet-facing computer or program using software, system, or service bugs including SQL injection, server-side template injection, and command injection.",
+    "keywords": ["sqli", "injection", "union", "select", "drop table", "or 1=1", "rce", "exploit", "sqlmap"]
+  },
+  {
+    "technique_id": "T1059.007",
+    "name": "Command and Scripting Interpreter: JavaScript (XSS)",
+    "tactic": "Execution",
+    "severity": "HIGH",
+    "description": "Adversaries may execute malicious JavaScript in web browser sessions using Cross-Site Scripting (XSS) to capture user cookies, tokens, or redirect browsing sessions.",
+    "keywords": ["xss", "script", "alert", "onerror", "document.cookie", "javascript", "iframe", "svg"]
+  },
+  {
+    "technique_id": "T1005",
+    "name": "Data from Local System: Path Traversal / LFI",
+    "tactic": "Collection",
+    "severity": "CRITICAL",
+    "description": "Adversaries may search local system files and directory trees using directory traversal (../, ..\\) to locate sensitive configuration files, password hashes (/etc/passwd, win.ini), and source code.",
+    "keywords": ["path traversal", "lfi", "../", "..\\", "etc/passwd", "win.ini", "boot.ini", "directory escape"]
+  },
+  {
+    "technique_id": "T1110.001",
+    "name": "Brute Force: Password Guessing",
+    "tactic": "Credential Access",
+    "severity": "HIGH",
+    "description": "Adversaries may systematically guess passwords against authentication gateways or brute-force user accounts to gain unauthorized credential access.",
+    "keywords": ["brute force", "hydra", "failed login", "password guessing", "login attempt", "auth failure"]
+  },
+  {
+    "technique_id": "T1595.002",
+    "name": "Active Scanning: Vulnerability & Wordlist Probing",
+    "tactic": "Reconnaissance",
+    "severity": "MEDIUM",
+    "description": "Adversaries may actively scan web applications with wordlists (dirbuster, ffuf, gobuster) to discover exposed administration portals, configuration decoys, and debug routes.",
+    "keywords": ["reconnaissance", "scanning", "dirbuster", "404", "fuzzing", "nikto", "probing", "admin.php"]
+  },
+  {
+    "technique_id": "T1027",
+    "name": "Obfuscated Files or Information",
+    "tactic": "Defense Evasion",
+    "severity": "HIGH",
+    "description": "Adversaries may attempt to make payloads difficult to discover or analyze using Base64, hex encoding, URL double-encoding, comment interleaving, and case manipulation.",
+    "keywords": ["obfuscation", "base64", "hex", "encoding", "entropy", "double-encoding", "evasion"]
+  },
+  {
+    "technique_id": "T1083",
+    "name": "File and Directory Discovery: Canary Trap Hits",
+    "tactic": "Discovery",
+    "severity": "CRITICAL",
+    "description": "Adversaries probe hidden paths (.env, backup.sql, .git/config, wp-login.php) seeking credentials or backup data, triggering decoy honeypot tripwires.",
+    "keywords": ["honeypot", "canary", ".env", "backup.sql", ".git/config", "wp-login.php", "decoy"]
+  },
+  {
+    "technique_id": "T1048",
+    "name": "Exfiltration Over Alternative Protocol / C2",
+    "tactic": "Exfiltration",
+    "severity": "CRITICAL",
+    "description": "Adversaries may steal data by exfiltrating files or database dumps to an external command-and-control server or web endpoint.",
+    "keywords": ["exfiltration", "dump", "c2", "leak", "vault", "export", "data theft"]
+  }
+]

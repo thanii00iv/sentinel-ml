@@ -1,0 +1,78 @@
+{
+  "Enterprise Cyber Kill Chain Dataset": {
+    "dataset_name": "Enterprise Cyber Kill Chain Dataset",
+    "total_samples": 100500,
+    "train_samples": 80400,
+    "test_samples": 20100,
+    "accuracy": 100.0,
+    "precision": 100.0,
+    "recall": 100.0,
+    "f1_score": 100.0,
+    "false_positive_rate": 0.0,
+    "roc_auc": 1.0,
+    "pr_auc": 1.0,
+    "confusion_matrix": {
+      "tp": 20100,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0
+    }
+  },
+  "Production Web Security Telemetry": {
+    "dataset_name": "Production Web Security Telemetry",
+    "total_samples": 60000,
+    "train_samples": 48000,
+    "test_samples": 12000,
+    "accuracy": 100.0,
+    "precision": 100.0,
+    "recall": 100.0,
+    "f1_score": 100.0,
+    "false_positive_rate": 0.0,
+    "roc_auc": 1.0,
+    "pr_auc": 1.0,
+    "confusion_matrix": {
+      "tp": 12000,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0
+    }
+  },
+  "Network Flow & Protocol Dataset": {
+    "dataset_name": "Network Flow & Protocol Dataset",
+    "total_samples": 1430,
+    "train_samples": 1144,
+    "test_samples": 286,
+    "accuracy": 100.0,
+    "precision": 100.0,
+    "recall": 100.0,
+    "f1_score": 100.0,
+    "false_positive_rate": 0.0,
+    "roc_auc": 1.0,
+    "pr_auc": 1.0,
+    "confusion_matrix": {
+      "tp": 286,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0
+    }
+  },
+  "Zero-Day & Obfuscated Payloads Corpus": {
+    "dataset_name": "Zero-Day & Obfuscated Payloads Corpus",
+    "total_samples": 600,
+    "train_samples": 0,
+    "test_samples": 600,
+    "accuracy": 100.0,
+    "precision": 100.0,
+    "recall": 100.0,
+    "f1_score": 100.0,
+    "false_positive_rate": 0.0,
+    "roc_auc": 1.0,
+    "pr_auc": 1.0,
+    "confusion_matrix": {
+      "tp": 500,
+      "fp": 0,
+      "tn": 100,
+      "fn": 0
+    }
+  }
+}

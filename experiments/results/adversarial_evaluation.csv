@@ -1,0 +1,7 @@
+Model,Accuracy,Precision,Recall (Detection Rate),F1_Score,Benign_Hard_FPR,Evasion_Bypass_Rate
+ModSecurity v3 CRS (PL1),60.79,100.0,52.95,69.24,0.0,47.05
+ModSecurity v3 CRS (PL2),71.21,90.68,72.95,80.85,37.5,27.05
+Traditional Regex WAF,56.62,100.0,47.95,64.82,0.0,52.05
+Supervised Random Forest (Zero Tuning),64.12,87.0,66.95,75.67,50.0,33.05
+CyberOracle ICMF (Held-Out),89.12,100.0,86.95,93.02,0.0,13.05
+CyberOracle ICMF (Adapted),98.29,100.0,97.95,98.96,0.0,2.05

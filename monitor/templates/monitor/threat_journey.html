@@ -188,6 +188,48 @@
   </div>
 </div>
 
+<!-- Heterogeneous Security Knowledge Graph & Campaign Topology (Section 4) -->
+<div class="cyber-card hud-card" style="margin-bottom: 2rem; border-top: 3px solid var(--accent-emerald);">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
+    <div>
+      <h3 class="font-hud" style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fa-solid fa-circle-nodes" style="color: var(--accent-emerald);"></i> Heterogeneous Attack Graph & Louvain Campaign Communities
+      </h3>
+      <span class="font-mono" style="font-size: 0.78rem; color: var(--text-muted);">TEMPORAL MULTI-ENTITY GRAPH &bull; PAGERANK CENTRALITY &bull; MULTI-IP CO-ATTACK TOPOLOGY</span>
+    </div>
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <span id="graphNodeCount" class="badge badge-cyan font-mono" style="font-size: 0.72rem;">NODES: --</span>
+      <span id="graphCommCount" class="badge badge-purple font-mono" style="font-size: 0.72rem;">COMMUNITIES: --</span>
+    </div>
+  </div>
+
+  <div style="position: relative; width: 100%; height: 380px; background: rgba(6, 9, 19, 0.6); border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden;">
+    <canvas id="securityGraphCanvas" style="width: 100%; height: 100%; display: block;"></canvas>
+    
+    <!-- Graph Node Inspector Hover Card -->
+    <div id="graphTooltip" style="position: absolute; display: none; background: rgba(15, 23, 42, 0.95); border: 1px solid var(--accent-cyan); border-radius: 6px; padding: 0.6rem 0.8rem; font-size: 0.78rem; pointer-events: none; z-index: 10; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+      <div id="tooltipTitle" style="font-weight: 800; color: var(--text-primary); margin-bottom: 0.2rem;"></div>
+      <div id="tooltipMeta" style="color: var(--text-secondary); font-family: monospace;"></div>
+    </div>
+
+    <!-- Graph Controls Overlay -->
+    <div style="position: absolute; bottom: 12px; right: 12px; display: flex; gap: 0.4rem; z-index: 5;">
+      <button type="button" id="resetGraphBtn" class="btn-outline btn-sm" style="padding: 0.3rem 0.6rem; font-size: 0.72rem; background: rgba(15, 23, 42, 0.85);">
+        <i class="fa-solid fa-arrows-rotate"></i> Reset Layout
+      </button>
+    </div>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem; flex-wrap: wrap; gap: 0.5rem; font-size: 0.75rem; color: var(--text-muted);">
+    <div style="display: flex; gap: 1rem; align-items: center;">
+      <span><span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#ff4d6d; margin-right:4px;"></span> Attacker IP</span>
+      <span><span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#c084fc; margin-right:4px;"></span> Sensitive Path</span>
+      <span><span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#10b981; margin-right:4px;"></span> Standard Path</span>
+    </div>
+    <span>Node radius proportional to PageRank centrality & risk level</span>
+  </div>
+</div>
+
 <!-- MITRE ATT&CK Enterprise Matrix Tactical Mapping -->
 <div class="cyber-card hud-card" style="margin-bottom: 2rem; border-top: 3px solid var(--accent-purple);">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
@@ -638,13 +680,233 @@
 
   // Ensure DOM is fully ready before rendering
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', renderCharts);
+    document.addEventListener('DOMContentLoaded', () => {
+      renderCharts();
+      initSecurityGraph();
+    });
   } else {
     renderCharts();
+    initSecurityGraph();
   }
 
   window.addEventListener('sentinel:themeChange', () => {
     renderCharts();
   });
+
+  // -------------------------------------------------------------
+  // Dynamic Heterogeneous Force Graph Physics & Canvas Renderer
+  // -------------------------------------------------------------
+  let graphNodes = [];
+  let graphLinks = [];
+  let animFrameId = null;
+  let hoveredNode = null;
+  let draggedNode = null;
+
+  async function initSecurityGraph() {
+    const canvas = document.getElementById('securityGraphCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * window.devicePixelRatio;
+      canvas.height = rect.height * window.devicePixelRatio;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    try {
+      const res = await fetch('/api/graph/{{ profile.ip_address }}/');
+      const data = await res.json();
+
+      document.getElementById('graphNodeCount').textContent = `NODES: ${data.total_nodes || 0}`;
+      document.getElementById('graphCommCount').textContent = `COMMUNITIES: ${data.communities_count || 1}`;
+
+      const rect = canvas.getBoundingClientRect();
+      const W = rect.width || 800;
+      const H = rect.height || 380;
+
+      // Position nodes with initial radial layout
+      const count = data.nodes.length;
+      graphNodes = data.nodes.map((n, idx) => {
+        const angle = (idx / Math.max(1, count)) * 2 * Math.PI;
+        const radius = Math.min(W, H) * 0.35 * (0.5 + 0.5 * Math.random());
+        return {
+          ...n,
+          x: W / 2 + Math.cos(angle) * radius,
+          y: H / 2 + Math.sin(angle) * radius,
+          vx: 0,
+          vy: 0,
+          radius: n.size || 16
+        };
+      });
+
+      // Map links by node object reference
+      const nodeMap = new Map(graphNodes.map(n => [n.id, n]));
+      graphLinks = data.links.map(l => ({
+        ...l,
+        sourceNode: nodeMap.get(l.source),
+        targetNode: nodeMap.get(l.target)
+      })).filter(l => l.sourceNode && l.targetNode);
+
+      // Force simulation loop
+      function stepSimulation() {
+        const repulsion = 1200;
+        const springLength = 85;
+        const springK = 0.05;
+        const damping = 0.88;
+
+        // Node repulsion
+        for (let i = 0; i < graphNodes.length; i++) {
+          for (let j = i + 1; j < graphNodes.length; j++) {
+            const n1 = graphNodes[i];
+            const n2 = graphNodes[j];
+            const dx = n2.x - n1.x;
+            const dy = n2.y - n1.y;
+            const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+            const force = (repulsion / (dist * dist));
+            const fx = (dx / dist) * force;
+            const fy = (dy / dist) * force;
+            if (n1 !== draggedNode) { n1.vx -= fx; n1.vy -= fy; }
+            if (n2 !== draggedNode) { n2.vx += fx; n2.vy += fy; }
+          }
+        }
+
+        // Link spring attraction
+        for (const link of graphLinks) {
+          const s = link.sourceNode;
+          const t = link.targetNode;
+          const dx = t.x - s.x;
+          const dy = t.y - s.y;
+          const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+          const displacement = dist - springLength;
+          const fx = (dx / dist) * displacement * springK;
+          const fy = (dy / dist) * displacement * springK;
+          if (s !== draggedNode) { s.vx += fx; s.vy += fy; }
+          if (t !== draggedNode) { t.vx -= fx; t.vy -= fy; }
+        }
+
+        // Center gravity & bounding box
+        for (const n of graphNodes) {
+          if (n === draggedNode) continue;
+          n.vx += (W / 2 - n.x) * 0.008;
+          n.vy += (H / 2 - n.y) * 0.008;
+          n.vx *= damping;
+          n.vy *= damping;
+          n.x += n.vx;
+          n.y += n.vy;
+          n.x = Math.max(n.radius + 10, Math.min(W - n.radius - 10, n.x));
+          n.y = Math.max(n.radius + 10, Math.min(H - n.radius - 10, n.y));
+        }
+      }
+
+      function drawGraph() {
+        const rect = canvas.getBoundingClientRect();
+        ctx.clearRect(0, 0, rect.width, rect.height);
+
+        stepSimulation();
+
+        // Draw Links
+        for (const link of graphLinks) {
+          ctx.beginPath();
+          ctx.moveTo(link.sourceNode.x, link.sourceNode.y);
+          ctx.lineTo(link.targetNode.x, link.targetNode.y);
+          ctx.strokeStyle = link.color || 'rgba(56, 189, 248, 0.4)';
+          ctx.lineWidth = link.width || 1.5;
+          ctx.stroke();
+        }
+
+        // Draw Nodes
+        for (const node of graphNodes) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(node.x, node.y, node.radius, 0, 2 * Math.PI);
+          ctx.fillStyle = node.color || '#38bdf8';
+          ctx.shadowColor = node.color || '#38bdf8';
+          ctx.shadowBlur = (node === hoveredNode) ? 18 : 6;
+          ctx.fill();
+
+          ctx.strokeStyle = (node === hoveredNode) ? '#ffffff' : 'rgba(255,255,255,0.4)';
+          ctx.lineWidth = (node === hoveredNode) ? 2.5 : 1.2;
+          ctx.stroke();
+          ctx.restore();
+
+          // Node Label
+          ctx.fillStyle = '#f8fafc';
+          ctx.font = '10px monospace';
+          ctx.textAlign = 'center';
+          const shortLabel = node.label.length > 18 ? node.label.substring(0, 16) + '..' : node.label;
+          ctx.fillText(shortLabel, node.x, node.y + node.radius + 12);
+        }
+
+        animFrameId = requestAnimationFrame(drawGraph);
+      }
+
+      if (animFrameId) cancelAnimationFrame(animFrameId);
+      drawGraph();
+
+      // Tooltip and Drag Interactions
+      const tooltip = document.getElementById('graphTooltip');
+      const titleEl = document.getElementById('tooltipTitle');
+      const metaEl = document.getElementById('tooltipMeta');
+
+      canvas.addEventListener('mousemove', (e) => {
+        const b = canvas.getBoundingClientRect();
+        const mx = e.clientX - b.left;
+        const my = e.clientY - b.top;
+
+        if (draggedNode) {
+          draggedNode.x = mx;
+          draggedNode.y = my;
+          return;
+        }
+
+        hoveredNode = graphNodes.find(n => {
+          const dx = n.x - mx;
+          const dy = n.y - my;
+          return Math.sqrt(dx * dx + dy * dy) <= n.radius + 4;
+        });
+
+        if (hoveredNode) {
+          canvas.style.cursor = 'pointer';
+          tooltip.style.display = 'block';
+          tooltip.style.left = `${mx + 15}px`;
+          tooltip.style.top = `${my - 10}px`;
+          titleEl.textContent = `${hoveredNode.type}: ${hoveredNode.label}`;
+          metaEl.innerHTML = `
+            <div>Community: ${hoveredNode.community}</div>
+            <div>PageRank: ${hoveredNode.pagerank}</div>
+            ${hoveredNode.risk_score ? `<div>Risk Score: ${hoveredNode.risk_score}</div>` : ''}
+          `;
+        } else {
+          canvas.style.cursor = 'default';
+          tooltip.style.display = 'none';
+        }
+      });
+
+      canvas.addEventListener('mousedown', (e) => {
+        const b = canvas.getBoundingClientRect();
+        const mx = e.clientX - b.left;
+        const my = e.clientY - b.top;
+        draggedNode = graphNodes.find(n => {
+          const dx = n.x - mx;
+          const dy = n.y - my;
+          return Math.sqrt(dx * dx + dy * dy) <= n.radius + 4;
+        });
+      });
+
+      window.addEventListener('mouseup', () => {
+        draggedNode = null;
+      });
+
+      document.getElementById('resetGraphBtn')?.addEventListener('click', () => {
+        initSecurityGraph();
+      });
+
+    } catch (err) {
+      console.warn('[CyberOracle Graph] Graph API error:', err);
+    }
+  }
 </script>
 {% endblock %}

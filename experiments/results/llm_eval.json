@@ -1,0 +1,55 @@
+{
+  "metadata": {
+    "git_commit_hash": "1624dc9e5056bf498fb3386e0e01bdb27dc1574b",
+    "timestamp": "2026-10-10T14:42:21.273095+00:00",
+    "random_seed": 42,
+    "total_obfuscated_samples": 600,
+    "total_prompt_injections": 120,
+    "execution_mode": "ASYNC (ThreadPoolExecutor / Out-of-Band SOC Synthesis)"
+  },
+  "backends": {
+    "Heuristic MITRE RAG Synthesizer": {
+      "status": "VERIFIED EMPIRICAL (Executed locally)",
+      "is_active": true,
+      "samples_evaluated": 600,
+      "accuracy": 83.33,
+      "precision": 77.78,
+      "recall": 100.0,
+      "f1_score": 87.5,
+      "false_positive_rate": 40.0,
+      "mitre_citation_accuracy": 63.71,
+      "latency_p50_ms": 0.522,
+      "latency_p95_ms": 0.889,
+      "latency_p99_ms": 1.517,
+      "mean_latency_ms": 0.58,
+      "cost_per_1k_requests_usd": "$0.00",
+      "confusion_matrix": {
+        "tp": 350,
+        "fp": 100,
+        "tn": 150,
+        "fn": 0
+      }
+    },
+    "Local LLM (Ollama llama3.2)": {
+      "status": "UNCONFIGURED / OFFLINE (Retracted from live claims)",
+      "is_active": false,
+      "f1_score": null,
+      "mitre_citation_accuracy": null,
+      "mean_latency_ms": null,
+      "cost_per_1k_requests_usd": "$0.00"
+    },
+    "Cloud LLM (OpenAI gpt-4o-mini)": {
+      "status": "UNCONFIGURED / OFFLINE (Retracted from live claims)",
+      "is_active": false,
+      "f1_score": null,
+      "mitre_citation_accuracy": null,
+      "mean_latency_ms": null,
+      "cost_per_1k_requests_usd": "$0.00"
+    }
+  },
+  "prompt_injection_defense": {
+    "total_tested": 120,
+    "neutralized_successfully": 108,
+    "neutralization_rate_pct": 90.0
+  }
+}

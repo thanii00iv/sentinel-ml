@@ -92,6 +92,73 @@ class IPRiskProfile(models.Model):
         ordering = ['-risk_score']
 
 
+class EntityProfile(models.Model):
+    ENTITY_TYPE_CHOICES = [
+        ('IP', 'IP Address'),
+        ('USER', 'User Account'),
+        ('SESSION', 'Session Identifier'),
+        ('API_KEY', 'API Key / Token'),
+    ]
+
+    entity_type = models.CharField(max_length=20, choices=ENTITY_TYPE_CHOICES, default='IP', db_index=True)
+    entity_id = models.CharField(max_length=255, db_index=True)
+    risk_score = models.IntegerField(default=0)
+
+    # Vector counts
+    brute_force_count = models.IntegerField(default=0)
+    sqli_count = models.IntegerField(default=0)
+    recon_count = models.IntegerField(default=0)
+    xss_count = models.IntegerField(default=0)
+    path_traversal_count = models.IntegerField(default=0)
+
+    # ICMF Multi-View Analytical Scores (0-100)
+    rule_score = models.FloatField(default=0.0)
+    ml_score = models.FloatField(default=0.0)
+    anomaly_score = models.FloatField(default=0.0)
+    sequence_score = models.FloatField(default=0.0)
+    llm_score = models.FloatField(default=0.0)
+    fused_score = models.FloatField(default=0.0)
+
+    # Predictive Analytics
+    predicted_next_stage = models.CharField(max_length=200, blank=True, default="Unknown — Monitoring")
+    predicted_target_asset = models.CharField(max_length=200, blank=True, default="/login/")
+    prediction_confidence = models.CharField(max_length=50, blank=True, default="LOW")
+
+    # Automated Threat Hunting & Quarantine
+    is_blocked = models.BooleanField(default=False)
+    llm_explanation = models.TextField(blank=True, default="")
+
+    last_seen = models.DateTimeField(auto_now=True)
+    first_seen = models.DateTimeField(auto_now_add=True)
+
+    def threat_level(self):
+        score = self.fused_score if self.fused_score > 0 else self.risk_score
+        if score >= 70:
+            return "CRITICAL"
+        elif score >= 40:
+            return "HIGH"
+        elif score >= 15:
+            return "MEDIUM"
+        else:
+            return "LOW"
+
+    def total_attack_count(self):
+        return (
+            self.brute_force_count +
+            self.sqli_count +
+            self.recon_count +
+            self.xss_count +
+            self.path_traversal_count
+        )
+
+    def __str__(self):
+        return f"[{self.entity_type}] {self.entity_id} - Risk: {self.risk_score} ({self.threat_level()})"
+
+    class Meta:
+        ordering = ['-risk_score']
+        unique_together = ('entity_type', 'entity_id')
+
+
 class ThreatHuntFinding(models.Model):
     HUNT_TYPE_CHOICES = [
         ('LOW_AND_SLOW', 'Low-and-Slow Stealth Attack'),
@@ -142,6 +209,26 @@ class PredictiveAlert(models.Model):
 
     def __str__(self):
         return f"Predictive Alert for {self.target_ip}: {self.predicted_stage} -> {self.predicted_asset} ({self.confidence})"
+
+    class Meta:
+        ordering = ['-timestamp']
+
+
+class AnalystFeedback(models.Model):
+    FEEDBACK_CHOICES = [
+        ('TRUE_POSITIVE', 'True Positive (Confirmed Attack)'),
+        ('FALSE_POSITIVE', 'False Positive (Benign Traffic)'),
+    ]
+
+    request_log = models.ForeignKey(RequestLog, on_delete=models.CASCADE, null=True, blank=True, related_name='feedbacks')
+    entity_id = models.CharField(max_length=255, db_index=True)
+    feedback_label = models.CharField(max_length=30, choices=FEEDBACK_CHOICES)
+    analyst_username = models.CharField(max_length=150, default='analyst')
+    notes = models.TextField(blank=True, default="")
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.feedback_label} by {self.analyst_username} on {self.entity_id} ({self.timestamp})"
 
     class Meta:
         ordering = ['-timestamp']

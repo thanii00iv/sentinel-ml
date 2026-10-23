@@ -1,0 +1,4 @@
+Response Policy,Net Utility (Cumulative Reward),Mean Payoff / Decision,Attack Containment Rate (%),Total Harm Incurred,User Friction Cost,False Positive Disruptions
+Static Binary Threshold (Block >= 70 else Allow),1496.0,0.748,65.12,22320.0,0.0,0
+"Static Tiered Policy (Block >= 75, RateLimit >= 50, Monitor >= 30)",1801.72,0.9009,99.88,80.0,18.0,0
+Adaptive Contextual Bandit (LinUCB Engine),1592.38,0.7962,97.5,1980.0,1989.0,27

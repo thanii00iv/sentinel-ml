@@ -1,0 +1,4 @@
+Backend,Status,F1_Score,Precision,Recall,FPR,MITRE_Correctness,Mean_Latency_ms,Cost_per_1k
+Heuristic MITRE RAG Synthesizer,ACTIVE & VERIFIED,87.50%,77.78%,100.00%,40.00%,63.71%,0.580 ms,$0.00
+Local LLM (Ollama llama3.2),UNCONFIGURED / OFFLINE (Retracted from live claims),N/A,N/A,N/A,N/A,N/A,N/A,N/A
+Cloud LLM (OpenAI gpt-4o-mini),UNCONFIGURED / OFFLINE (Retracted from live claims),N/A,N/A,N/A,N/A,N/A,N/A,N/A

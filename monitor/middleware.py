@@ -1,8 +1,10 @@
 import time
 from datetime import timedelta
 from django.utils import timezone
+from django.utils.html import escape
 from django.http import HttpResponseForbidden
-from .models import RequestLog, IPRiskProfile
+from django.conf import settings
+from .models import RequestLog, IPRiskProfile, EntityProfile
 from .detection import (
     detect_sqli,
     detect_xss,
@@ -10,14 +12,12 @@ from .detection import (
     detect_recon,
     calculate_entropy,
     calculate_request_rate,
+    GLOBAL_TELEMETRY_CACHE,
 )
 from .fusion_engine import evaluate_and_fuse_profile, infer_event_intent
 
 FAILED_LOGIN_THRESHOLD = 5
 TIME_WINDOW_MINUTES = 10
-
-
-WHITELISTED_IPS = {'127.0.0.1', '::1', 'localhost'}
 
 
 class RequestLoggingMiddleware:
@@ -26,15 +26,20 @@ class RequestLoggingMiddleware:
 
     def __call__(self, request):
         client_ip = self.get_client_ip(request)
+        whitelisted_ips = getattr(settings, 'WHITELISTED_IPS', {'127.0.0.1', '::1', 'localhost'})
+        admin_allowlist = getattr(settings, 'ADMIN_ALLOWLIST', getattr(settings, 'ADMIN_IP_ALLOWLIST', set()))
 
         # -------------------------------------------------------------
         # 1. Automated Firewall Quarantine Enforcement
-        # Exempt whitelisted IPs, static files, and admin override
+        # Exempt whitelisted IPs, static assets, toggle API, and explicit admin allowlist
         # -------------------------------------------------------------
+        is_admin_path = request.path.startswith('/admin/')
+        is_admin_allowed = is_admin_path and (client_ip in admin_allowlist or client_ip in whitelisted_ips)
+
         if (
-            client_ip not in WHITELISTED_IPS and
+            client_ip not in whitelisted_ips and
+            not is_admin_allowed and
             not request.path.startswith('/static/') and
-            not request.path.startswith('/admin/') and
             not request.path.startswith('/api/toggle-block/')
         ):
             try:
@@ -74,6 +79,9 @@ class RequestLoggingMiddleware:
                         request_rate=1.0,
                     )
 
+                    escaped_ip = escape(client_ip)
+                    escaped_risk = escape(str(blocked_profile.risk_score))
+
                     return HttpResponseForbidden(
                         f"""
                         <!DOCTYPE html>
@@ -93,8 +101,8 @@ class RequestLoggingMiddleware:
                         <div class="card">
                                 <div class="badge">ACCESS DENIED // IP QUARANTINED</div>
                                 <h1>CyberOracle Intel Security Interception</h1>
-                                <p>Your IP address (<strong>{client_ip}</strong>) has been quarantined due to critical risk scoring and autonomous threat hunting mitigation.</p>
-                                <p style="font-size: 0.8rem; color: #64748b;">Risk Score: {blocked_profile.risk_score}/100 &bull; Policy: Automated Threat Mitigation</p>
+                                <p>Your IP address (<strong>{escaped_ip}</strong>) has been quarantined due to critical risk scoring and autonomous threat hunting mitigation.</p>
+                                <p style="font-size: 0.8rem; color: #64748b;">Risk Score: {escaped_risk}/100 &bull; Policy: Automated Threat Mitigation</p>
                             </div>
                         </body>
                         </html>
@@ -144,11 +152,13 @@ class RequestLoggingMiddleware:
                     timestamp__gte=window_start
                 ).count()
 
-                # Every failed login attempt on the authentication portal is intercepted as a brute-force / credential guessing vector
                 is_brute_force_suspect = True
 
         # Reconnaissance detection
         is_recon_suspect = detect_recon(RequestLog, client_ip)
+
+        # Update in-memory sliding window cache for ultra-low overhead telemetry
+        GLOBAL_TELEMETRY_CACHE.record_event(client_ip, request.path, response.status_code)
 
         # Feature & Entropy calculations
         full_url = request.get_full_path()
@@ -171,7 +181,8 @@ class RequestLoggingMiddleware:
             query_str = "&".join(f"{k}={v}" for k, v in request.GET.items()) if request.GET else ""
 
             # Resolved target username
-            resolved_username = request.user.username if request.user.is_authenticated else attempted_username
+            user_obj = getattr(request, 'user', None)
+            resolved_username = user_obj.username if (user_obj and getattr(user_obj, 'is_authenticated', False)) else attempted_username
 
             # Temporary log object to infer intent
             temp_log = RequestLog(
@@ -231,27 +242,56 @@ class RequestLoggingMiddleware:
 
     def update_risk_profile(self, ip, brute_force, sqli, recon, xss, path_traversal, latest_log=None):
         profile, _ = IPRiskProfile.objects.get_or_create(ip_address=ip)
+        entity_profile, _ = EntityProfile.objects.get_or_create(entity_type='IP', entity_id=ip)
 
         if brute_force:
             profile.brute_force_count += 1
+            entity_profile.brute_force_count += 1
         if sqli:
             profile.sqli_count += 1
+            entity_profile.sqli_count += 1
         if recon:
             profile.recon_count += 1
+            entity_profile.recon_count += 1
         if xss:
             profile.xss_count += 1
+            entity_profile.xss_count += 1
         if path_traversal:
             profile.path_traversal_count += 1
+            entity_profile.path_traversal_count += 1
 
         profile.save()
+        entity_profile.save()
 
         # Run Intent-Centric Multi-Layer Fusion (ICMF)
         evaluate_and_fuse_profile(profile, latest_log=latest_log)
 
+        # Sync entity profile fields
+        entity_profile.rule_score = profile.rule_score
+        entity_profile.ml_score = profile.ml_score
+        entity_profile.anomaly_score = profile.anomaly_score
+        entity_profile.sequence_score = profile.sequence_score
+        entity_profile.llm_score = profile.llm_score
+        entity_profile.fused_score = profile.fused_score
+        entity_profile.risk_score = profile.risk_score
+        entity_profile.is_blocked = profile.is_blocked
+        entity_profile.predicted_next_stage = profile.predicted_next_stage
+        entity_profile.predicted_target_asset = profile.predicted_target_asset
+        entity_profile.prediction_confidence = profile.prediction_confidence
+        entity_profile.llm_explanation = profile.llm_explanation
+        entity_profile.save()
+
     def get_client_ip(self, request):
+        """
+        Extract client IP address.
+        Only trusts X-Forwarded-For if REMOTE_ADDR matches configured TRUSTED_PROXIES.
+        """
+        trusted_proxies = getattr(settings, 'TRUSTED_PROXIES', {'127.0.0.1', '::1', 'localhost'})
+        remote_addr = request.META.get('REMOTE_ADDR', '127.0.0.1')
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-        if x_forwarded_for:
+
+        if x_forwarded_for and remote_addr in trusted_proxies:
             ip = x_forwarded_for.split(',')[0].strip()
         else:
-            ip = request.META.get('REMOTE_ADDR', '127.0.0.1')
+            ip = remote_addr
         return ip

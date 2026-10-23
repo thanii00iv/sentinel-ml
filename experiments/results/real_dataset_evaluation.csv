@@ -1,0 +1,17 @@
+Dataset,Total_Samples,Attack_Samples,Benign_Samples,Prevalence_Pct,Model,Accuracy,Precision,Recall,F1_Score,FPR,ROC_AUC,PR_AUC,TP,FP,TN,FN
+CSIC 2010 HTTP Dataset,10000,5000,5000,50.0,Rule Engine (Regex),92.69,100.0,85.38,92.11,0.0,0.9269,0.9269,4269,0,5000,731
+CSIC 2010 HTTP Dataset,10000,5000,5000,50.0,Supervised Random Forest,100.0,100.0,100.0,100.0,0.0,1.0,1.0,5000,0,5000,0
+CSIC 2010 HTTP Dataset,10000,5000,5000,50.0,Isolation Forest Anomaly,76.75,83.77,66.36,74.05,12.86,0.9056,0.8562,3318,643,4357,1682
+CSIC 2010 HTTP Dataset,10000,5000,5000,50.0,CyberOracle Meta-Fusion (Calibrated),100.0,100.0,100.0,100.0,0.0,1.0,1.0,5000,0,5000,0
+CIC-IDS2017 Web Attacks,10000,6664,3336,66.64,Rule Engine (Regex),71.93,94.08,61.76,74.57,7.76,0.77,0.8359,4116,259,3077,2548
+CIC-IDS2017 Web Attacks,10000,6664,3336,66.64,Supervised Random Forest,98.03,98.02,99.04,98.53,3.99,0.9984,0.9992,6600,133,3203,64
+CIC-IDS2017 Web Attacks,10000,6664,3336,66.64,Isolation Forest Anomaly,47.58,89.41,24.2,38.1,5.73,0.57,0.7763,1613,191,3145,5051
+CIC-IDS2017 Web Attacks,10000,6664,3336,66.64,CyberOracle Meta-Fusion (Calibrated),98.03,98.27,98.78,98.53,3.48,0.9984,0.9992,6583,116,3220,81
+6M Telemetry Corpus (Balanced),20000,10000,10000,50.0,Rule Engine (Regex),76.59,89.35,60.38,72.06,7.2,0.7659,0.7376,6038,720,9280,3962
+6M Telemetry Corpus (Balanced),20000,10000,10000,50.0,Supervised Random Forest,97.78,98.28,97.26,97.77,1.7,0.9985,0.9985,9726,170,9830,274
+6M Telemetry Corpus (Balanced),20000,10000,10000,50.0,Isolation Forest Anomaly,62.23,91.49,26.97,41.66,2.51,0.6997,0.7523,2697,251,9749,7303
+6M Telemetry Corpus (Balanced),20000,10000,10000,50.0,CyberOracle Meta-Fusion (Calibrated),97.72,97.73,97.72,97.72,2.27,0.9985,0.9985,9772,227,9773,228
+6M Telemetry Corpus (2% Operational Prevalence),20000,400,19600,2.0,Rule Engine (Regex),92.07,14.88,62.75,24.05,7.33,0.7771,0.1008,251,1436,18164,149
+6M Telemetry Corpus (2% Operational Prevalence),20000,400,19600,2.0,Supervised Random Forest,99.81,100.0,90.5,95.01,0.0,0.9972,0.9672,362,0,19600,38
+6M Telemetry Corpus (2% Operational Prevalence),20000,400,19600,2.0,Isolation Forest Anomaly,89.54,11.93,66.25,20.21,9.98,0.892,0.3926,265,1957,17643,135
+6M Telemetry Corpus (2% Operational Prevalence),20000,400,19600,2.0,CyberOracle Meta-Fusion (Calibrated),99.81,100.0,90.5,95.01,0.0,0.9797,0.9276,362,0,19600,38

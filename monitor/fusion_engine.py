@@ -1,9 +1,9 @@
 """
 Intent-Centric Multi-Layer Fusion (ICMF) Engine for CyberOracle Intelligence
-Unifies Rule View, Supervised ML View, Anomaly View, Sequence View, and LLM View.
+Unifies Rule View, Supervised ML View, Anomaly View, Sequence / Kill-Chain View, and LLM View.
 """
 
-from .ml_model import predict, predict_anomaly
+from .ml_model import predict, predict_anomaly, predict_kill_chain_stage
 from .prediction import predict_next_stage_and_asset
 from .llm_reasoning import generate_threat_explanation
 
@@ -102,30 +102,37 @@ def evaluate_and_fuse_profile(profile, latest_log=None):
         _, _, norm_anomaly = predict_anomaly(latest_log)
         anomaly_score = float(norm_anomaly)
 
-    # 4. Sequence / Graph View (Markov Next-Stage Engine)
+    # 4. Sequence & Kill-Chain View (Markov Sequence Model + Kill Chain Classifier)
     next_stage, target_asset, confidence, seq_score, reasoning, action = predict_next_stage_and_asset(profile)
+    
+    # Call learned Kill Chain Classifier model
+    kc_stage, kc_probs, kc_conf, kc_risk = predict_kill_chain_stage(profile)
+    
+    # Blend Markov sequence transitions with the Kill Chain Classifier score
+    combined_seq_score = round(0.6 * seq_score + 0.4 * kc_risk, 1)
+    
     profile.predicted_next_stage = next_stage
     profile.predicted_target_asset = target_asset
-    profile.prediction_confidence = confidence
+    profile.prediction_confidence = confidence if confidence in ('HIGH', 'CRITICAL') else kc_conf
 
     # 5. LLM View
     llm_score = calculate_llm_view_score(profile)
 
-    # Multi-Layer Weighted Fusion
-    fused = (
-        WEIGHT_RULE * rule_score +
-        WEIGHT_ML * ml_score +
-        WEIGHT_ANOMALY * anomaly_score +
-        WEIGHT_SEQUENCE * seq_score +
-        WEIGHT_LLM * llm_score
+    # Calibrated Stacking Meta-Fusion across 5 Views
+    from .meta_fusion import predict_fused_risk
+    prob, fused_score, contributions = predict_fused_risk(
+        rule_score=rule_score,
+        ml_score=ml_score,
+        anomaly_score=anomaly_score,
+        sequence_score=combined_seq_score,
+        llm_score=llm_score
     )
-    fused_score = round(min(100.0, max(0.0, fused)), 1)
 
     # Assign scores to profile
     profile.rule_score = round(rule_score, 1)
     profile.ml_score = round(ml_score, 1)
     profile.anomaly_score = round(anomaly_score, 1)
-    profile.sequence_score = round(seq_score, 1)
+    profile.sequence_score = round(combined_seq_score, 1)
     profile.llm_score = round(llm_score, 1)
     profile.fused_score = fused_score
     profile.risk_score = int(round(fused_score))
