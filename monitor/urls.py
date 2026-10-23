@@ -28,6 +28,7 @@ urlpatterns = [
     path('api/retrain-model/', views.retrain_model_api, name='api_retrain_model'),
     path('api/export/<str:format_type>/', views.export_telemetry, name='api_export_telemetry'),
     path('api/threat-map/', views.threat_map_api, name='api_threat_map'),
+    path('api/threat-map/reset/', views.reset_threat_map_session_api, name='api_threat_map_reset'),
     path('api/graph/', views.entity_graph_api, name='api_graph_all'),
     path('api/graph/<str:ip>/', views.entity_graph_api, name='api_graph_entity'),
     path('api/feedback/', views.submit_feedback_api, name='api_submit_feedback'),

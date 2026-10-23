@@ -77,6 +77,8 @@ class RequestLoggingMiddleware:
                         inferred_intent=blocked_intent,
                         entropy_score=calculate_entropy(request.get_full_path()),
                         request_rate=1.0,
+                        event_source='LIVE_DETECTED',
+                        simulation_module='Live Quarantine Interception',
                     )
 
                     escaped_ip = escape(client_ip)
@@ -222,6 +224,8 @@ class RequestLoggingMiddleware:
                 inferred_intent=inferred_intent,
                 entropy_score=entropy,
                 request_rate=rate,
+                event_source='LIVE_DETECTED',
+                simulation_module='Live HTTP Middleware',
             )
 
             # Update Profile and run ICMF Multi-Layer Fusion

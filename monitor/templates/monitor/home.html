@@ -97,6 +97,182 @@
     font-size: 0.72rem;
     opacity: 0.85;
   }
+
+  /* Scoped Styles for Threat Map & Live Stream Cards */
+  .btn-demo-refresh {
+    background: rgba(56, 189, 248, 0.08);
+    border: 1px solid var(--border-color);
+    color: var(--accent-cyan);
+    border-radius: 6px;
+    padding: 0.28rem 0.55rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .btn-demo-refresh:hover:not(:disabled) {
+    background: rgba(56, 189, 248, 0.2);
+    border-color: var(--accent-cyan);
+    color: #fff;
+    transform: rotate(30deg);
+  }
+  .btn-demo-refresh:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .threat-map-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    transition: all 0.25s ease;
+    border: 1px solid transparent;
+  }
+  .threat-map-status-pill.status-live {
+    background: rgba(34, 197, 94, 0.12);
+    border-color: rgba(34, 197, 94, 0.45);
+    color: var(--accent-emerald);
+  }
+  .threat-map-status-pill.status-live .status-pulse-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent-emerald);
+    box-shadow: 0 0 8px var(--accent-emerald);
+    animation: pulseDotAnim 1.8s infinite;
+  }
+  .threat-map-status-pill.status-reconnecting {
+    background: rgba(245, 158, 11, 0.12);
+    border-color: rgba(245, 158, 11, 0.45);
+    color: #f59e0b;
+  }
+  .threat-map-status-pill.status-reconnecting .status-pulse-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #f59e0b;
+    animation: pulseDotAnim 1s infinite;
+  }
+  .threat-map-status-pill.status-disconnected {
+    background: rgba(239, 68, 68, 0.12);
+    border-color: rgba(239, 68, 68, 0.45);
+    color: var(--accent-red);
+  }
+  .threat-map-status-pill.status-disconnected .status-pulse-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent-red);
+  }
+
+  @keyframes pulseDotAnim {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.85); }
+  }
+
+  .threat-source-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  .threat-source-pill.source-simulated {
+    background: rgba(168, 85, 247, 0.15);
+    border: 1px solid rgba(168, 85, 247, 0.4);
+    color: #c084fc;
+  }
+  .threat-source-pill.source-live {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    color: #34d399;
+  }
+  .threat-source-pill.source-intel {
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    color: #fbbf24;
+  }
+
+  .threat-map-empty-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(6, 10, 22, 0.94);
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+
+  /* Scoped Threat Stream Horizontal Scroll */
+  .threat-stream-scroll-wrapper {
+    overflow-x: auto;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    outline: none;
+    border-radius: 6px;
+  }
+  .threat-stream-scroll-wrapper:focus-visible {
+    box-shadow: inset 0 0 0 1px var(--accent-cyan);
+  }
+  .threat-stream-scroll-wrapper::-webkit-scrollbar {
+    height: 7px;
+  }
+  .threat-stream-scroll-wrapper::-webkit-scrollbar-track {
+    background: rgba(13, 21, 39, 0.95);
+    border-radius: 4px;
+  }
+  .threat-stream-scroll-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(56, 189, 248, 0.25);
+    border-radius: 4px;
+    border: 1px solid rgba(56, 189, 248, 0.4);
+  }
+  .threat-stream-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+    background: rgba(56, 189, 248, 0.5);
+  }
+
+  /* Top Horizontal Scrollbar */
+  .stream-top-scrollbar-wrap {
+    overflow-x: scroll !important;
+    overflow-y: hidden;
+    width: 100%;
+    height: 16px;
+    background: rgba(6, 11, 24, 0.98);
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid rgba(0, 240, 255, 0.25);
+    box-sizing: border-box;
+    scroll-behavior: auto;
+    scrollbar-color: #00f0ff rgba(13, 21, 39, 0.95);
+    scrollbar-width: thin;
+    display: block !important;
+  }
+  .stream-top-scrollbar-wrap::-webkit-scrollbar {
+    height: 10px;
+  }
+  .stream-top-scrollbar-wrap::-webkit-scrollbar-track {
+    background: rgba(13, 21, 39, 0.95);
+    border-radius: 4px;
+  }
+  .stream-top-scrollbar-wrap::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, #00f0ff, #0284c7);
+    border-radius: 4px;
+    border: 1px solid rgba(0, 240, 255, 0.6);
+  }
+  .stream-top-scrollbar-wrap::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(90deg, #38bdf8, #3b82f6);
+  }
 </style>
 {% endblock %}
 
@@ -275,23 +451,106 @@
 </div>
 
 <!-- Interactive Global Cyber Threat Map -->
-<div class="cyber-card hud-card" style="margin-bottom: 2.25rem; border-top: 3px solid var(--accent-cyan);">
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
-    <div>
-      <h2 class="font-hud" style="font-size: 1.2rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
-        <i class="fa-solid fa-earth-americas" style="color: var(--accent-cyan);"></i> Global Adversary Threat Map & Geo-Intelligence
-      </h2>
-      <span style="font-size: 0.8rem; color: var(--text-muted);" class="font-mono">LIVE IP GEOLOCATION SENSOR GRID</span>
+<div class="cyber-card hud-card threat-map-card" style="margin-bottom: 2.25rem; border-top: 3px solid var(--accent-cyan); position: relative;">
+  <!-- Card Header -->
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; flex-wrap: wrap; gap: 0.75rem;">
+    <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+      <div>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <h2 class="font-hud" style="font-size: 1.2rem; font-weight: 700; color: var(--text-primary); margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+            <i class="fa-solid fa-earth-americas" style="color: var(--accent-cyan);"></i> Global Adversary Threat Map &amp; Geo-Intelligence
+          </h2>
+          <!-- Small Manual Refresh Button -->
+          <button type="button" id="btnRefreshDemo" class="btn-demo-refresh" title="Refresh my simulated attacks" aria-label="Refresh my simulated attacks">
+            <i class="fa-solid fa-arrows-rotate"></i>
+          </button>
+        </div>
+        <span style="font-size: 0.76rem; color: var(--text-muted); display: block; margin-top: 0.2rem;" class="font-mono">LIVE IP GEOLOCATION SENSOR GRID &bull; ZERO-FAKE TELEMETRY</span>
+      </div>
     </div>
-    <div style="display: flex; align-items: center; gap: 0.75rem;">
-      <div id="liveStreamBadge" class="system-status-pill" style="border-color: rgba(34, 197, 94, 0.4);">
-        <span class="pulse-dot" style="background: var(--accent-emerald);"></span>
-        <span style="color: var(--accent-emerald); font-weight: 700;">LIVE TELEMETRY STREAMING</span>
+
+    <!-- Header Status and Counters -->
+    <div style="display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap;">
+      <!-- Real-Time Connection Status Indicator -->
+      <div id="threatMapConnectionStatus" class="threat-map-status-pill status-live" title="Real-time telemetry synchronization state">
+        <span class="status-pulse-dot"></span>
+        <span id="threatMapConnectionText" class="status-text font-mono">LIVE</span>
+      </div>
+
+      <!-- Active Events Counter -->
+      <div class="hud-status-badge font-mono" style="background: rgba(13, 21, 39, 0.95); border: 1px solid var(--border-color); padding: 0.35rem 0.75rem; border-radius: 6px; font-size: 0.76rem; color: var(--accent-cyan); display: inline-flex; align-items: center; gap: 0.45rem;">
+        <i class="fa-solid fa-crosshairs" style="color: var(--accent-cyan); font-size: 0.75rem;"></i>
+        <span id="threatMapActiveCount">0 ACTIVE ATTACKS</span>
       </div>
     </div>
   </div>
 
-  <div id="threatMap" style="width: 100%; height: 380px; border-radius: 8px; border: 1px solid var(--border-color); overflow: hidden;"></div>
+  <!-- Map Toolbar & Source Legend -->
+  <div class="threat-map-toolbar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.6rem; font-size: 0.76rem; padding: 0.4rem 0.6rem; background: rgba(13, 21, 39, 0.65); border: 1px solid var(--border-color); border-radius: 6px;">
+    <!-- Source classification legend -->
+    <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+      <span style="color: var(--text-muted); font-family: monospace; font-weight: 700; font-size: 0.72rem; margin-right: 0.2rem;">
+        <i class="fa-solid fa-tag" style="color: var(--accent-cyan);"></i> SOURCE:
+      </span>
+      <span class="threat-source-pill source-simulated" title="Authorized attack simulation execution from Attack Studio / Custom Attack URL">
+        <i class="fa-solid fa-flask"></i> SIMULATED (<span id="simCount">0</span>)
+      </span>
+      <span class="threat-source-pill source-live" title="Live intercepted attack observed by telemetry middleware">
+        <i class="fa-solid fa-satellite-dish"></i> LIVE DETECTED (<span id="liveCount">0</span>)
+      </span>
+      <span class="threat-source-pill source-intel" title="Threat intelligence indicator or hunt finding">
+        <i class="fa-solid fa-shield-halved"></i> THREAT INTEL (<span id="intelCount">0</span>)
+      </span>
+    </div>
+
+    <!-- Active view info and Ledger toggle -->
+    <div style="display: flex; align-items: center; gap: 0.65rem; font-family: monospace; font-size: 0.72rem; color: var(--text-muted);">
+      <span id="threatMapLastUpdate"><i class="fa-regular fa-clock"></i> INITIALIZING...</span>
+      <button type="button" id="toggleLedgerBtn" class="btn-outline btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.72rem;">
+        <i class="fa-solid fa-list-ul"></i> <span id="ledgerBtnLabel">Event Ledger (<span id="unmappedCount">0</span> unmapped)</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Map Viewport -->
+  <div style="position: relative; width: 100%; height: 380px; border-radius: 8px; border: 1px solid var(--border-color); overflow: hidden;">
+    <div id="threatMap" style="width: 100%; height: 100%;"></div>
+
+    <!-- Strict No-Fake-Data Empty State Overlay -->
+    <div id="threatMapEmptyState" class="threat-map-empty-overlay" style="display: none;">
+      <div style="text-align: center; max-width: 460px; padding: 2rem 1.5rem; background: rgba(10, 15, 29, 0.94); border: 1px solid var(--border-color); border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); backdrop-filter: blur(6px);">
+        <i class="fa-solid fa-satellite-dish" style="font-size: 2.2rem; color: var(--accent-cyan); margin-bottom: 0.75rem; opacity: 0.85;"></i>
+        <div style="font-family: 'Orbitron', monospace; font-weight: 700; font-size: 1rem; color: var(--text-primary); margin-bottom: 0.4rem;">
+          No attack events recorded yet.
+        </div>
+        <p style="font-size: 0.82rem; color: var(--text-secondary); margin: 0 0 1.15rem 0; line-height: 1.55;">
+          Run an authorized simulation in Attack Studio or inject a Custom Attack URL to populate the threat map in real time.
+        </p>
+        <a href="{% url 'attack_simulator' %}" class="btn-primary btn-sm" style="display: inline-flex; align-items: center; gap: 0.45rem; text-decoration: none;">
+          <i class="fa-solid fa-flask"></i> <span>Open Attack Studio</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Collapsible Event Intelligence Ledger (for inspected events and unmapped events) -->
+  <div id="threatMapLedger" style="display: none; margin-top: 0.75rem; background: rgba(13, 21, 39, 0.95); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.85rem 1rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.4rem;">
+      <span style="font-size: 0.78rem; font-family: monospace; font-weight: 700; color: var(--accent-cyan); display: flex; align-items: center; gap: 0.4rem;">
+        <i class="fa-solid fa-table-list"></i> ACTIVE SESSION EVENT &amp; LOCATION LEDGER
+      </span>
+      <span style="font-size: 0.72rem; color: var(--text-muted); font-family: monospace;" id="ledgerSummaryText">0 events recorded</span>
+    </div>
+    <div id="threatMapLedgerList" style="max-height: 180px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.4rem;">
+      <!-- Populated via JS -->
+    </div>
+  </div>
+
+  <!-- Subtle Notification Toast for Demonstration Reset -->
+  <div id="demoResetToast" style="display: none; position: absolute; bottom: 1rem; right: 1rem; background: rgba(13, 21, 39, 0.96); border: 1px solid var(--accent-cyan); color: var(--text-primary); padding: 0.6rem 1rem; border-radius: 6px; font-size: 0.78rem; font-family: monospace; z-index: 1000; box-shadow: 0 4px 14px rgba(0,0,0,0.5);">
+    <i class="fa-solid fa-circle-check" style="color: var(--accent-emerald); margin-right: 0.4rem;"></i>
+    <span id="demoResetToastMsg">Demonstration session reset. Active threat map view cleared.</span>
+  </div>
 </div>
 
 <!-- Attack Vector Categorization Grid -->
@@ -359,24 +618,26 @@
 </div>
 
 <!-- Recent Security Incidents Feed Table -->
-<div style="margin-bottom: 2.5rem;">
+<div class="cyber-card hud-card" style="margin-bottom: 2.5rem; position: relative; border-top: 3px solid var(--accent-cyan);">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
     <div>
-      <h2 class="font-hud" style="font-size: 1.2rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+      <h2 class="font-hud" style="font-size: 1.2rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem; margin: 0;">
         <i class="fa-solid fa-bolt" style="color: var(--accent-cyan);"></i> Live Intercepted Threat Stream
       </h2>
-      <span style="font-size: 0.8rem; color: var(--text-muted);" class="font-mono">TELEMETRY INGESTION FEED</span>
+      <span style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-top: 0.2rem;" class="font-mono">TELEMETRY INGESTION FEED &bull; HORIZONTAL LIVE STREAM</span>
     </div>
-    <div style="display: flex; gap: 0.5rem;">
+
+    <!-- Header Actions -->
+    <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
       <a href="{% url 'api_export_telemetry' 'csv' %}" class="btn-outline btn-sm"><i class="fa-solid fa-file-csv"></i> Export CSV</a>
       <a href="{% url 'api_export_telemetry' 'json' %}" class="btn-outline btn-sm"><i class="fa-solid fa-file-code"></i> Export JSON</a>
     </div>
   </div>
 
-  <div class="table-container">
+  <div class="table-container" style="border: none; padding: 0;">
     
     <!-- Table Interactive Filter Buttons & Search Toolbar -->
-    <div style="padding: 1rem 1.25rem 0.5rem 1.25rem; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 0.85rem;">
+    <div style="padding: 0.85rem 1.25rem 0.65rem 1.25rem; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 0.85rem;">
       <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; justify-content: space-between;">
         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
           <span style="font-size: 0.78rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; font-weight: 700; margin-right: 0.25rem;">
@@ -415,13 +676,19 @@
       </div>
     </div>
 
-    <div class="table-responsive">
-      <table id="recentAttacksTable" style="min-width: 1050px;">
+    <!-- Horizontal Scroll Bar on Top -->
+    <div class="stream-top-scrollbar-wrap" id="streamTopScrollbarWrap" title="Horizontal Scroll Bar - drag to scroll threat stream columns" tabindex="-1" aria-hidden="true">
+      <div class="stream-top-scrollbar-dummy" id="streamTopScrollbarDummy" style="height: 1px; min-height: 1px; width: 1450px;"></div>
+    </div>
+
+    <!-- Horizontally Scrollable Stream Area -->
+    <div class="table-responsive threat-stream-scroll-wrapper" id="threatStreamScrollWrapper" tabindex="0" role="region" aria-label="Live Intercepted Threat Stream table">
+      <table id="recentAttacksTable" style="min-width: 1450px; width: max-content;">
         <thead>
           <tr>
             <th style="width: 140px;">Timestamp</th>
             <th style="width: 160px;">Attacker IP</th>
-            <th style="width: 220px;">Origin Device & Location</th>
+            <th style="width: 220px;">Origin Device &amp; Location</th>
             <th style="width: 230px;">Inferred Attacker Intent</th>
             <th>HTTP Target Path</th>
             <th style="width: 90px;">Status</th>
@@ -509,7 +776,7 @@
                 <i class="fa-solid fa-shield-check" style="font-size: 2.5rem; color: var(--accent-emerald);"></i>
                 <div style="font-weight: 700; font-size: 1.1rem; color: var(--text-primary);">All Systems Clean</div>
                 <p style="font-size: 0.88rem; color: var(--text-secondary); max-width: 400px;">
-                  No threat events recorded. Access the app or simulate attacks from other devices on your Wi-Fi network to observe live device & location detection!
+                  No threat events recorded yet. Access the app or simulate attacks from other devices on your Wi-Fi network to observe live device &amp; location detection!
                 </p>
               </div>
             </td>
@@ -517,6 +784,7 @@
           {% endfor %}
         </tbody>
       </table>
+    </div>
   </div>
 </div>
 {% endblock %}
@@ -524,12 +792,13 @@
 {% block extra_scripts %}
 <script>
   // =========================================================================
-  // 1. Rock-Solid Cyber Threat Map (Zero Zoom Glitch, Multi-Tier Markers)
+  // 1. Rock-Solid Cyber Threat Map & Geo-Intelligence Engine (Zero Fake Telemetry)
   // =========================================================================
   let map = null;
   let markersLayer = null;
   const markerMap = new Map(); // Store markers by IP to prevent rebuilding on zoom/update
   let hasAutoFitted = false;   // Only fit bounds on first load, never interrupt user zoom
+  let currentDemoSessionId = ''; // Active demonstration session identifier
 
   function initThreatMap() {
     const mapContainer = document.getElementById('threatMap');
@@ -547,7 +816,7 @@
       attributionControl: false
     });
 
-    // 100% Free Cyber Dark Map Tile Layer (No API Key, No Watermark)
+    // Free Cyber Dark Map Tile Layer (No API Key, No Watermark)
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
       maxZoom: 18,
       maxNativeZoom: 16,
@@ -563,47 +832,124 @@
     setInterval(() => {
       loadThreatMapData(false);
     }, 8000);
+
+    initDemoReset();
+    initLedgerToggle();
   }
 
   async function loadThreatMapData(isFirstLoad = false) {
     if (!map || !markersLayer) return;
     try {
-      const res = await fetch('/api/threat-map/');
+      const headers = {};
+      if (currentDemoSessionId) {
+        headers['X-Demo-Session-ID'] = currentDemoSessionId;
+      }
+      const url = currentDemoSessionId ? `/api/threat-map/?session_id=${encodeURIComponent(currentDemoSessionId)}` : '/api/threat-map/';
+      const res = await fetch(url, { headers });
       const data = await res.json();
-      if (!data || !data.markers) return;
+      if (!data) return;
+
+      if (data.session_id) {
+        currentDemoSessionId = data.session_id;
+      }
+
+      // Update Header Metrics
+      const countEl = document.getElementById('threatMapActiveCount');
+      if (countEl) {
+        countEl.innerText = `${data.total_eligible_events || 0} ACTIVE ATTACKS`;
+      }
+
+      const lastUpdateEl = document.getElementById('threatMapLastUpdate');
+      if (lastUpdateEl) {
+        lastUpdateEl.innerHTML = data.last_event_time ?
+          `<i class="fa-regular fa-clock" style="color: var(--accent-cyan);"></i> LATEST: ${data.last_event_time}` :
+          `<i class="fa-regular fa-clock"></i> NO ACTIVE ATTACKS`;
+      }
+
+      // Update Source Breakdown Counts
+      if (data.source_breakdown) {
+        const simEl = document.getElementById('simCount');
+        const liveEl = document.getElementById('liveCount');
+        const intelEl = document.getElementById('intelCount');
+        if (simEl) simEl.innerText = data.source_breakdown.SIMULATED || 0;
+        if (liveEl) liveEl.innerText = data.source_breakdown.LIVE_DETECTED || 0;
+        if (intelEl) intelEl.innerText = data.source_breakdown.THREAT_INTELLIGENCE || 0;
+      }
+
+      const unmappedEl = document.getElementById('unmappedCount');
+      if (unmappedEl) {
+        unmappedEl.innerText = data.unmapped_count || 0;
+      }
+
+      const emptyOverlay = document.getElementById('threatMapEmptyState');
+
+      // Strict NO-FAKE-DATA Policy: If 0 eligible events, show empty state
+      if ((!data.markers || data.markers.length === 0) && (!data.unmapped_events || data.unmapped_events.length === 0)) {
+        if (emptyOverlay) emptyOverlay.style.display = 'flex';
+        markersLayer.clearLayers();
+        markerMap.clear();
+        renderEventLedger([], []);
+        return;
+      }
+
+      if (emptyOverlay) emptyOverlay.style.display = 'none';
 
       const currentIpsInPayload = new Set();
 
-      data.markers.forEach(marker => {
+      (data.markers || []).forEach(marker => {
         currentIpsInPayload.add(marker.ip);
 
-        const tierClass = marker.risk_score >= 70 ? 'critical' : (marker.risk_score >= 40 ? 'high' : (marker.risk_score >= 15 ? 'medium' : 'low'));
-        const deviceBadge = marker.device_badge || '💻 Client Device';
+        const tierClass = marker.severity ? marker.severity.toLowerCase() :
+          (marker.risk_score >= 70 ? 'critical' : (marker.risk_score >= 40 ? 'high' : (marker.risk_score >= 15 ? 'medium' : 'low')));
+
+        const deviceBadge = marker.device_badge || 'Client Device';
         const deviceIcon = marker.device_icon || 'fa-solid fa-laptop';
-        const browser = marker.browser || 'Web Browser';
+        const browser = marker.browser || 'Browser';
+
+        // Source classification badge
+        let sourceBadgeHtml = '';
+        if (marker.source === 'SIMULATED') {
+          sourceBadgeHtml = `<span class="threat-source-pill source-simulated"><i class="fa-solid fa-flask"></i> SIMULATED</span>`;
+        } else if (marker.source === 'LIVE_DETECTED') {
+          sourceBadgeHtml = `<span class="threat-source-pill source-live"><i class="fa-solid fa-satellite-dish"></i> LIVE DETECTED</span>`;
+        } else {
+          sourceBadgeHtml = `<span class="threat-source-pill source-intel"><i class="fa-solid fa-shield-halved"></i> THREAT INTEL</span>`;
+        }
+
+        const simInfoHtml = marker.simulation_id ?
+          `<div style="font-size: 0.72rem; color: #a855f7; font-family: monospace; margin-top: 2px;">
+            <i class="fa-solid fa-barcode"></i> Sim ID: <strong>${marker.simulation_id}</strong> (${marker.simulation_module || 'Studio'})
+          </div>` : '';
 
         const popupContent = `
-          <div style="font-size: 0.85rem; line-height: 1.5; min-width: 210px;">
-            <div style="font-weight: 800; font-family: monospace; color: var(--accent-cyan); font-size: 0.95rem; margin-bottom: 0.2rem; display: flex; justify-content: space-between; align-items: center;">
+          <div style="font-size: 0.84rem; line-height: 1.5; min-width: 230px;">
+            <div style="font-weight: 800; font-family: monospace; color: var(--accent-cyan); font-size: 0.95rem; margin-bottom: 0.35rem; display: flex; justify-content: space-between; align-items: center;">
               <span><i class="fa-solid fa-network-wired"></i> ${marker.ip}</span>
-              <span style="font-size: 0.72rem; padding: 0.15rem 0.4rem; border-radius: 4px; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4);">LIVE</span>
+              ${sourceBadgeHtml}
             </div>
-            <div style="margin-bottom: 0.4rem; font-weight: 600; color: #f1f5f9; display: flex; align-items: center; gap: 0.4rem;">
+            <div style="margin-bottom: 0.35rem; font-weight: 600; color: #f1f5f9; display: flex; align-items: center; gap: 0.4rem;">
               <i class="${deviceIcon}" style="color: #38bdf8;"></i>
               <span>${deviceBadge} &bull; ${browser}</span>
             </div>
-            <div style="color: #94a3b8; font-size: 0.78rem; margin-bottom: 0.45rem;">
+            <div style="color: #94a3b8; font-size: 0.78rem; margin-bottom: 0.4rem;">
               <i class="fa-solid fa-location-dot" style="color: #ff4d6d;"></i> ${marker.city}, ${marker.country}
-              <div style="color: #64748b; font-size: 0.72rem; margin-top: 1px;">${marker.asn}</div>
+              ${marker.is_local ? `<span class="badge" style="background: rgba(14, 165, 233, 0.15); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.4); font-size: 0.65rem; margin-left: 4px;"><i class="fa-solid fa-laptop"></i> LOCAL TESTBED</span>` : ''}
+              <div style="color: #64748b; font-size: 0.72rem; margin-top: 1px;">${marker.asn || 'Autonomous System'}</div>
             </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-              <span>Threat Score:</span>
-              <strong style="color: ${marker.risk_score >= 70 ? '#ff4d6d' : '#fb923c'}; font-family: monospace;">${marker.fused_score}/100 (${marker.threat_level})</strong>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+              <span>Threat Level:</span>
+              <strong style="color: ${tierClass === 'critical' ? '#ff4d6d' : (tierClass === 'high' ? '#fb923c' : '#38bdf8')}; font-family: monospace;">
+                ${marker.fused_score}/100 (${marker.severity})
+              </strong>
             </div>
-            <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.5rem;">
-              Status: <span style="color: #38bdf8; font-weight: 600;">${marker.predicted_stage || 'Live Monitoring'}</span>
+            <div style="font-size: 0.75rem; color: #fb923c; margin-bottom: 0.35rem; font-weight: 600;">
+              Intent: <span>${marker.intent}</span>
             </div>
-            <div style="text-align: right; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.4rem;">
+            ${simInfoHtml}
+            <div style="font-size: 0.72rem; color: #64748b; font-family: monospace; margin-top: 0.35rem;">
+              <i class="fa-regular fa-clock"></i> ${marker.timestamp} &bull; ${marker.total_attacks || 1} hits
+            </div>
+            <div style="text-align: right; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.4rem; margin-top: 0.4rem;">
               <a href="/threats/${marker.ip}/" style="color: #38bdf8; text-decoration: underline; font-weight: 700; font-size: 0.8rem;">
                 Open IP Dossier &rarr;
               </a>
@@ -612,11 +958,9 @@
         `;
 
         if (markerMap.has(marker.ip)) {
-          // Smoothly update popup content without re-creating marker DOM element
           const existingMarker = markerMap.get(marker.ip);
           existingMarker.setPopupContent(popupContent);
-        } else {
-          // Create marker once
+        } else if (marker.lat != null && marker.lng != null) {
           const customIcon = L.divIcon({
             className: 'custom-pulse-icon',
             html: `<span class="pulse-marker ${tierClass}"></span>`,
@@ -624,13 +968,22 @@
             iconAnchor: [7, 7]
           });
 
-          const newMarker = L.marker([marker.lat, marker.lng], { icon: customIcon })
-            .bindPopup(popupContent);
-
+          const newMarker = L.marker([marker.lat, marker.lng], { icon: customIcon }).bindPopup(popupContent);
           markersLayer.addLayer(newMarker);
           markerMap.set(marker.ip, newMarker);
         }
       });
+
+      // Remove markers that are no longer in active dataset (e.g. after refresh or archiving)
+      for (const [ip, marker] of markerMap.entries()) {
+        if (!currentIpsInPayload.has(ip)) {
+          markersLayer.removeLayer(marker);
+          markerMap.delete(ip);
+        }
+      }
+
+      // Update Event Intelligence Ledger
+      renderEventLedger(data.markers || [], data.unmapped_events || []);
 
       // Fit bounds ONCE on initial page render only, never resetting user's zoom/pan
       if ((isFirstLoad || !hasAutoFitted) && markersLayer.getLayers().length > 0) {
@@ -643,8 +996,240 @@
     }
   }
 
+  function renderEventLedger(mappedMarkers, unmappedEvents) {
+    const listEl = document.getElementById('threatMapLedgerList');
+    const summaryEl = document.getElementById('ledgerSummaryText');
+    if (!listEl) return;
+
+    const totalCount = (mappedMarkers ? mappedMarkers.length : 0) + (unmappedEvents ? unmappedEvents.length : 0);
+    if (summaryEl) {
+      summaryEl.innerText = `${totalCount} eligible events in active view (${unmappedEvents ? unmappedEvents.length : 0} unmapped)`;
+    }
+
+    if (totalCount === 0) {
+      listEl.innerHTML = `<div style="color: var(--text-muted); font-size: 0.78rem; text-align: center; padding: 1rem 0;">No active demonstration events recorded.</div>`;
+      return;
+    }
+
+    let html = '';
+
+    // Unmapped events first (satisfies Part 5 Rule 8: Keep eligible events in list even if not mappable)
+    (unmappedEvents || []).forEach(ev => {
+      const sourceBadge = ev.source === 'SIMULATED' ?
+        `<span class="threat-source-pill source-simulated" style="font-size: 0.65rem;"><i class="fa-solid fa-flask"></i> SIM</span>` :
+        `<span class="threat-source-pill source-live" style="font-size: 0.65rem;"><i class="fa-solid fa-satellite-dish"></i> LIVE</span>`;
+
+      html += `
+        <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 6px; padding: 0.4rem 0.65rem; font-size: 0.76rem; gap: 0.5rem; flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 0.45rem;">
+            <span style="font-family: monospace; font-weight: 700; color: var(--accent-cyan);">${ev.ip}</span>
+            ${sourceBadge}
+            <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4); font-size: 0.68rem;">
+              <i class="fa-solid fa-location-crosshairs"></i> Location unavailable
+            </span>
+            <span style="color: #f1f5f9; font-weight: 600;">${ev.intent}</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.5rem; font-family: monospace; color: var(--text-muted); font-size: 0.72rem;">
+            <span><i class="fa-regular fa-clock"></i> ${ev.timestamp}</span>
+            <a href="/threats/${ev.ip}/" class="btn-outline btn-sm" style="padding: 0.15rem 0.4rem; font-size: 0.68rem;">Forensics</a>
+          </div>
+        </div>
+      `;
+    });
+
+    // Mapped events
+    (mappedMarkers || []).forEach(ev => {
+      const sourceBadge = ev.source === 'SIMULATED' ?
+        `<span class="threat-source-pill source-simulated" style="font-size: 0.65rem;"><i class="fa-solid fa-flask"></i> SIM</span>` :
+        `<span class="threat-source-pill source-live" style="font-size: 0.65rem;"><i class="fa-solid fa-satellite-dish"></i> LIVE</span>`;
+
+      html += `
+        <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 6px; padding: 0.4rem 0.65rem; font-size: 0.76rem; gap: 0.5rem; flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 0.45rem;">
+            <span style="font-family: monospace; font-weight: 700; color: var(--accent-cyan); cursor: pointer;" onclick="centerMapOnMarker('${ev.ip}')">${ev.ip}</span>
+            ${sourceBadge}
+            <span style="color: #94a3b8; font-size: 0.72rem;">
+              <i class="fa-solid fa-location-dot" style="color: #ff4d6d;"></i> ${ev.city}, ${ev.country}
+              ${ev.is_local ? `<span class="badge" style="background: rgba(14, 165, 233, 0.15); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.4); font-size: 0.62rem; margin-left: 3px;"><i class="fa-solid fa-laptop"></i> LOCAL</span>` : ''}
+            </span>
+            <span style="color: #f1f5f9; font-weight: 600;">${ev.intent}</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.5rem; font-family: monospace; color: var(--text-muted); font-size: 0.72rem;">
+            <span><i class="fa-regular fa-clock"></i> ${ev.timestamp}</span>
+            <a href="/threats/${ev.ip}/" class="btn-outline btn-sm" style="padding: 0.15rem 0.4rem; font-size: 0.68rem;">Forensics</a>
+          </div>
+        </div>
+      `;
+    });
+
+    listEl.innerHTML = html;
+  }
+
+  function centerMapOnMarker(ip) {
+    if (markerMap.has(ip) && map) {
+      const marker = markerMap.get(ip);
+      map.setView(marker.getLatLng(), Math.max(map.getZoom(), 6), { animate: true });
+      marker.openPopup();
+    }
+  }
+
+  function initLedgerToggle() {
+    const btn = document.getElementById('toggleLedgerBtn');
+    const ledger = document.getElementById('threatMapLedger');
+    if (!btn || !ledger) return;
+
+    btn.addEventListener('click', () => {
+      const isHidden = ledger.style.display === 'none' || !ledger.style.display;
+      ledger.style.display = isHidden ? 'block' : 'none';
+      const label = document.getElementById('ledgerBtnLabel');
+      const count = document.getElementById('unmappedCount') ? document.getElementById('unmappedCount').innerText : '0';
+      if (label) {
+        label.innerText = isHidden ? `Hide Ledger (${count} unmapped)` : `Event Ledger (${count} unmapped)`;
+      }
+    });
+  }
+
   // =========================================================================
-  // 2. Interactive Attack Stream Category Filters (Brute-Force & Multi-Vector)
+  // 2. Demonstration Session Reset (Idempotent & Isolated Refresh)
+  // =========================================================================
+  function initDemoReset() {
+    const refreshBtn = document.getElementById('btnRefreshDemo');
+    if (!refreshBtn) return;
+
+    refreshBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      if (refreshBtn.disabled) return;
+
+      const icon = refreshBtn.querySelector('i');
+      if (icon) icon.className = 'fa-solid fa-arrows-rotate fa-spin';
+      refreshBtn.disabled = true;
+
+      try {
+        const headers = { 'Content-Type': 'application/json' };
+        if (currentDemoSessionId) {
+          headers['X-Demo-Session-ID'] = currentDemoSessionId;
+        }
+
+        const res = await fetch('/api/threat-map/reset/', {
+          method: 'POST',
+          headers
+        });
+
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+
+        const data = await res.json();
+        if (data.new_session_id) {
+          currentDemoSessionId = data.new_session_id;
+        }
+
+        // Clear markers and render empty state immediately
+        markersLayer.clearLayers();
+        markerMap.clear();
+
+        const emptyOverlay = document.getElementById('threatMapEmptyState');
+        if (emptyOverlay) emptyOverlay.style.display = 'flex';
+
+        const countEl = document.getElementById('threatMapActiveCount');
+        if (countEl) countEl.innerText = '0 ACTIVE ATTACKS';
+
+        const lastUpdateEl = document.getElementById('threatMapLastUpdate');
+        if (lastUpdateEl) lastUpdateEl.innerHTML = '<i class="fa-regular fa-clock"></i> NO ACTIVE ATTACKS';
+
+        const simEl = document.getElementById('simCount');
+        const liveEl = document.getElementById('liveCount');
+        const intelEl = document.getElementById('intelCount');
+        const unmappedEl = document.getElementById('unmappedCount');
+        if (simEl) simEl.innerText = '0';
+        if (liveEl) liveEl.innerText = '0';
+        if (intelEl) intelEl.innerText = '0';
+        if (unmappedEl) unmappedEl.innerText = '0';
+
+        renderEventLedger([], []);
+
+        // Show toast confirmation
+        showResetToast('Demonstration session refreshed. Active threat map view reset.');
+      } catch (err) {
+        console.error('Demo reset failed:', err);
+        showResetToast('Failed to reset demonstration session. Please try again.');
+      } finally {
+        if (icon) icon.className = 'fa-solid fa-arrows-rotate';
+        refreshBtn.disabled = false;
+      }
+    });
+  }
+
+  function showResetToast(msg) {
+    const toast = document.getElementById('demoResetToast');
+    const msgEl = document.getElementById('demoResetToastMsg');
+    if (!toast) return;
+    if (msgEl) msgEl.innerText = msg;
+    toast.style.display = 'block';
+    setTimeout(() => {
+      toast.style.display = 'none';
+    }, 3500);
+  }
+
+  // =========================================================================
+  // 3. Live Threat Stream Synchronized Top Horizontal Scrollbar
+  // =========================================================================
+  function initStreamScroll() {
+    const tableWrapper = document.getElementById('threatStreamScrollWrapper');
+    const topBar = document.getElementById('streamTopScrollbarWrap');
+    const topDummy = document.getElementById('streamTopScrollbarDummy');
+    if (!tableWrapper || !topBar || !topDummy) return;
+
+    function syncDimensions() {
+      const scrollWidth = Math.max(tableWrapper.scrollWidth, 1450);
+      topDummy.style.width = scrollWidth + 'px';
+      topBar.style.display = 'block';
+    }
+
+    let isSyncingTop = false;
+    let isSyncingTable = false;
+
+    // Scroll table when user drags/scrolls top scrollbar
+    topBar.addEventListener('scroll', () => {
+      if (!isSyncingTop) {
+        isSyncingTable = true;
+        tableWrapper.scrollLeft = topBar.scrollLeft;
+      }
+      isSyncingTop = false;
+    }, { passive: true });
+
+    // Scroll top bar when user scrolls table (wheel, trackpad, touch, keyboard)
+    tableWrapper.addEventListener('scroll', () => {
+      if (!isSyncingTable) {
+        isSyncingTop = true;
+        topBar.scrollLeft = tableWrapper.scrollLeft;
+      }
+      isSyncingTable = false;
+    }, { passive: true });
+
+    // Keyboard navigation when table wrapper is focused
+    tableWrapper.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') {
+        tableWrapper.scrollBy({ left: -160, behavior: 'smooth' });
+        e.preventDefault();
+      } else if (e.key === 'ArrowRight') {
+        tableWrapper.scrollBy({ left: 160, behavior: 'smooth' });
+        e.preventDefault();
+      }
+    });
+
+    window.addEventListener('resize', syncDimensions, { passive: true });
+    if (window.ResizeObserver) {
+      new ResizeObserver(syncDimensions).observe(tableWrapper);
+    }
+
+    // Initial setup
+    setTimeout(syncDimensions, 100);
+    setTimeout(syncDimensions, 500);
+  }
+
+  // =========================================================================
+  // 4. Interactive Attack Stream Category Filters (Brute-Force & Multi-Vector)
   // =========================================================================
   let currentThreatFilter = 'all';
 
@@ -690,9 +1275,27 @@
   }
 
   // =========================================================================
-  // 3. Real-Time Server-Sent Events (SSE) Live Feed (Glitch-Free & Deduplicated)
+  // 5. Real-Time Server-Sent Events (SSE) Live Feed (Glitch-Free & Deduplicated)
   // =========================================================================
   const renderedLogIds = new Set();
+
+  function setConnectionStatus(status) {
+    const statusEl = document.getElementById('threatMapConnectionStatus');
+    const textEl = document.getElementById('threatMapConnectionText');
+    if (!statusEl || !textEl) return;
+
+    statusEl.className = `threat-map-status-pill status-${status}`;
+    if (status === 'live') {
+      textEl.innerText = 'LIVE';
+      statusEl.title = 'Real-time telemetry stream connected';
+    } else if (status === 'reconnecting') {
+      textEl.innerText = 'RECONNECTING';
+      statusEl.title = 'Connection lost, attempting automatic reconnect...';
+    } else {
+      textEl.innerText = 'DISCONNECTED';
+      statusEl.title = 'Real-time telemetry disconnected';
+    }
+  }
 
   function initLiveStream() {
     if (typeof EventSource === 'undefined') return;
@@ -709,7 +1312,14 @@
         evtSource.close();
       }
 
+      setConnectionStatus('reconnecting');
       evtSource = new EventSource('/api/live-stream/');
+
+      evtSource.onopen = function() {
+        setConnectionStatus('live');
+        // Synchronize missed events gracefully
+        loadThreatMapData(false);
+      };
 
       evtSource.onmessage = function(e) {
         if (!e.data || e.data.startsWith(':')) return;
@@ -722,6 +1332,7 @@
       };
 
       evtSource.onerror = function() {
+        setConnectionStatus('reconnecting');
         evtSource.close();
         setTimeout(connect, 4000); // Reconnect gracefully
       };
@@ -783,7 +1394,12 @@
       renderedLogIds.add(log.id);
 
       const tableBody = document.querySelector('#recentAttacksTable tbody');
+      const streamWrapper = document.getElementById('threatStreamScrollWrapper');
+
       if (tableBody) {
+        // Record current horizontal scroll position to prevent unexpected jumps
+        const prevScrollLeft = streamWrapper ? streamWrapper.scrollLeft : 0;
+
         // Remove empty state placeholder
         const emptyRow = tableBody.querySelector('.no-filter');
         if (emptyRow) emptyRow.remove();
@@ -808,7 +1424,7 @@
 
         const statusStyle = log.status_code >= 400 ? 'background: rgba(255, 77, 109, 0.12); color: var(--accent-red); border: 1px solid rgba(255,77,109,0.3);' : 'background: rgba(16, 185, 129, 0.12); color: var(--accent-emerald); border: 1px solid rgba(16,185,129,0.3);';
 
-        const deviceBadge = log.device_badge || '📱 Mobile Device';
+        const deviceBadge = log.device_badge || 'Mobile Device';
         const deviceIcon = log.device_icon || 'fa-solid fa-mobile-screen-button';
         const browser = log.browser || 'Browser';
         const city = log.city || 'Local Area';
@@ -896,57 +1512,39 @@
         // Apply active filter to newly added row
         applyThreatFilter();
 
-        // Real-Time Threat Map: Instantly place/update device pin on cyber map
-        if (map && markersLayer && log.lat && log.lng) {
-          const tierClass = (log.intent.includes('SQL') || log.intent.includes('Injection') || log.intent.includes('Path')) ? 'critical' : (log.is_brute ? 'high' : 'medium');
-          const popupContent = `
-            <div style="font-size: 0.85rem; line-height: 1.5; min-width: 210px;">
-              <div style="font-weight: 800; font-family: monospace; color: var(--accent-cyan); font-size: 0.95rem; margin-bottom: 0.2rem; display: flex; justify-content: space-between; align-items: center;">
-                <span><i class="fa-solid fa-network-wired"></i> ${log.ip}</span>
-                <span style="font-size: 0.72rem; padding: 0.15rem 0.4rem; border-radius: 4px; background: rgba(255, 77, 109, 0.2); color: #ff4d6d; border: 1px solid rgba(255, 77, 109, 0.5);">LIVE ATTACK</span>
-              </div>
-              <div style="margin-bottom: 0.4rem; font-weight: 600; color: #f1f5f9; display: flex; align-items: center; gap: 0.4rem;">
-                <i class="${deviceIcon}" style="color: #38bdf8;"></i>
-                <span>${deviceBadge} &bull; ${browser}</span>
-              </div>
-              <div style="color: #94a3b8; font-size: 0.78rem; margin-bottom: 0.45rem;">
-                <i class="fa-solid fa-location-dot" style="color: #ff4d6d;"></i> ${city}, ${country}
-                <div style="color: #64748b; font-size: 0.72rem; margin-top: 1px;">${log.asn || 'Live Ingested Telemetry'}</div>
-              </div>
-              <div style="font-size: 0.78rem; color: #fb923c; margin-bottom: 0.4rem; font-weight: 700;">
-                Intent: <span>${log.intent}</span>
-              </div>
-              <div style="text-align: right; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.4rem;">
-                <a href="/threats/${log.ip}/" style="color: #38bdf8; text-decoration: underline; font-weight: 700; font-size: 0.8rem;">
-                  Open IP Dossier &rarr;
-                </a>
-              </div>
-            </div>
-          `;
-
-          if (markerMap.has(log.ip)) {
-            markerMap.get(log.ip).setPopupContent(popupContent);
-          } else {
-            const customIcon = L.divIcon({
-              className: 'custom-pulse-icon',
-              html: `<span class="pulse-marker ${tierClass}"></span>`,
-              iconSize: [14, 14],
-              iconAnchor: [7, 7]
-            });
-            const newMarker = L.marker([log.lat, log.lng], { icon: customIcon }).bindPopup(popupContent);
-            markersLayer.addLayer(newMarker);
-            markerMap.set(log.ip, newMarker);
-          }
+        // Preserve horizontal scroll position without disruption
+        if (streamWrapper) {
+          streamWrapper.scrollLeft = prevScrollLeft;
         }
 
-        // Soft sync threat map marker without snapping viewport
-        loadThreatMapData(false);
+        // Synchronize top horizontal scrollbar
+        const topBar = document.getElementById('streamTopScrollbarWrap');
+        const topDummy = document.getElementById('streamTopScrollbarDummy');
+        if (streamWrapper && topDummy) {
+          topDummy.style.width = streamWrapper.scrollWidth + 'px';
+          if (topBar) {
+            topBar.scrollLeft = prevScrollLeft;
+          }
+        }
       }
+
+      // Check demonstration session match for Threat Map
+      if (log.demo_session_id && currentDemoSessionId && log.demo_session_id !== currentDemoSessionId) {
+        return; // Belongs to a different or previous demonstration session
+      }
+
+      // Hide empty state overlay on threat map
+      const emptyOverlay = document.getElementById('threatMapEmptyState');
+      if (emptyOverlay) emptyOverlay.style.display = 'none';
+
+      // Soft sync threat map data to include new event in markers and ledger
+      loadThreatMapData(false);
     }
   }
 
   document.addEventListener('DOMContentLoaded', () => {
     initThreatMap();
+    initStreamScroll();
     initThreatFilters();
     initLiveStream();
   });

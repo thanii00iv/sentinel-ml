@@ -1,7 +1,30 @@
 from django.db import models
+from django.conf import settings
+
+
+class DemonstrationSession(models.Model):
+    session_id = models.CharField(max_length=64, unique=True, db_index=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    closed_at = models.DateTimeField(null=True, blank=True)
+    is_active = models.BooleanField(default=True, db_index=True)
+    description = models.CharField(max_length=255, blank=True, default="Attack Simulation Demonstration")
+
+    def __str__(self):
+        status = "ACTIVE" if self.is_active else "CLOSED"
+        return f"DemoSession {self.session_id[:12]} ({status})"
+
+    class Meta:
+        ordering = ['-created_at']
 
 
 class RequestLog(models.Model):
+    EVENT_SOURCE_CHOICES = [
+        ('SIMULATED', 'Simulated Event'),
+        ('LIVE_DETECTED', 'Live Detected Event'),
+        ('THREAT_INTELLIGENCE', 'Threat Intelligence Indicator'),
+    ]
+
     ip_address = models.GenericIPAddressField()
     method = models.CharField(max_length=10)
     path = models.CharField(max_length=500)
@@ -24,6 +47,24 @@ class RequestLog(models.Model):
     inferred_intent = models.CharField(max_length=100, default="Legitimate Traffic")
     entropy_score = models.FloatField(default=0.0)
     request_rate = models.FloatField(default=0.0)
+
+    # Event classification and demonstration session isolation
+    event_source = models.CharField(
+        max_length=30,
+        default='LIVE_DETECTED',
+        choices=EVENT_SOURCE_CHOICES,
+        db_index=True
+    )
+    simulation_id = models.CharField(max_length=100, blank=True, default='')
+    simulation_module = models.CharField(max_length=100, blank=True, default='')
+    demo_session = models.ForeignKey(
+        DemonstrationSession,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='request_logs'
+    )
+    demo_active = models.BooleanField(default=True, db_index=True)
     
     timestamp = models.DateTimeField(auto_now_add=True)
 

@@ -1088,3 +1088,224 @@ class CyberOracleIntelligenceComprehensiveTests(TestCase):
 
         # 4. Unified 7-Stage Kill-Chain
         self.assertEqual(EVENT_VOCAB, ['NORMAL', 'RECON', 'BRUTE', 'SQLI', 'XSS', 'LFI', 'EXFIL'])
+
+    # -------------------------------------------------------------
+    # 7. Threat Map & Horizontal Threat Stream Verification Suite
+    # (Tests A through M)
+    # -------------------------------------------------------------
+    def test_threat_map_empty_state_and_no_fake_data(self):
+        """Test A: Ensure Threat Map shows empty state and 0 markers when active session is empty, adhering to NO-FAKE-DATA policy."""
+        from monitor.demo_service import get_or_create_demo_session, reset_demo_session
+        from monitor.geoip import resolve_ip_geo
+
+        # Reset demonstration session to ensure empty active state
+        new_session, _ = reset_demo_session(user=self.user)
+
+        self.client.login(username=self.username, password=self.password)
+        response = self.client.get(reverse('api_threat_map'), HTTP_X_DEMO_SESSION_ID=new_session.session_id)
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+
+        self.assertEqual(data['status'], 'SUCCESS')
+        self.assertEqual(len(data['markers']), 0)
+        self.assertEqual(data['total_eligible_events'], 0)
+        self.assertIsNone(data['last_event_time'])
+
+        # Verify no random or fake coordinates are generated for unresolvable IPs
+        geo_unresolvable = resolve_ip_geo('192.0.2.254') # Documentation RFC test net with no geo
+        self.assertFalse(geo_unresolvable['has_geo'])
+        self.assertIsNone(geo_unresolvable['lat'])
+        self.assertIsNone(geo_unresolvable['lng'])
+        self.assertIn('unavailable', geo_unresolvable['geo_status'].lower())
+
+    def test_threat_map_attack_studio_simulation_ingestion(self):
+        """Test B & D: Ensure Attack Studio simulations create eligible structured events and appear on Threat Map."""
+        from monitor.demo_service import get_or_create_demo_session
+
+        self.client.login(username=self.username, password=self.password)
+        session = get_or_create_demo_session(user=self.user)
+
+        # Launch Attack Studio simulation with known Tor node
+        sim_payload = {
+            'type': 'sqli',
+            'ip': '185.220.101.5',
+            'count': 3
+        }
+        sim_resp = self.client.post(
+            reverse('api_simulate'),
+            data=json.dumps(sim_payload),
+            content_type='application/json',
+            HTTP_X_DEMO_SESSION_ID=session.session_id
+        )
+        self.assertEqual(sim_resp.status_code, 200)
+        sim_data = sim_resp.json()
+        self.assertEqual(sim_data['status'], 'SUCCESS')
+        self.assertTrue(sim_data['detected'])
+
+        # Verify Threat Map received and mapped the eligible simulation event
+        map_resp = self.client.get(reverse('api_threat_map'), HTTP_X_DEMO_SESSION_ID=session.session_id)
+        map_data = map_resp.json()
+        self.assertGreaterEqual(len(map_data['markers']), 1)
+
+        marker = next((m for m in map_data['markers'] if m['ip'] == '185.220.101.5'), None)
+        self.assertIsNotNone(marker)
+        self.assertEqual(marker['source'], 'SIMULATED')
+        self.assertEqual(marker['country'], 'Germany')
+        self.assertEqual(marker['city'], 'Frankfurt')
+        self.assertAlmostEqual(marker['lat'], 50.1109, places=2)
+        self.assertAlmostEqual(marker['lng'], 8.6821, places=2)
+        self.assertEqual(marker['detection_status'], 'DETECTED')
+
+    def test_threat_map_custom_attack_url_execution(self):
+        """Test C & G: Test Custom Attack URL execution through the real detection pipeline."""
+        from monitor.demo_service import get_or_create_demo_session
+
+        self.client.login(username=self.username, password=self.password)
+        session = get_or_create_demo_session(user=self.user)
+
+        # 1. Custom Attack URL with genuine SQLi
+        custom_sqli_payload = {
+            'type': 'custom_url',
+            'url': "/api/search/?q=' UNION SELECT id, username, password FROM users --",
+            'method': 'GET',
+            'ip': '198.51.100.45',
+            'count': 1
+        }
+        res_attack = self.client.post(
+            reverse('api_simulate'),
+            data=json.dumps(custom_sqli_payload),
+            content_type='application/json',
+            HTTP_X_DEMO_SESSION_ID=session.session_id
+        )
+        self.assertEqual(res_attack.status_code, 200)
+        data_attack = res_attack.json()
+        self.assertTrue(data_attack['detected'])
+        self.assertEqual(data_attack['category'], 'sqli')
+
+        # 2. Custom clean request (no attack behavior detected)
+        custom_clean_payload = {
+            'type': 'custom_url',
+            'url': "/products/view/?item_id=42&sort=asc",
+            'method': 'GET',
+            'ip': '198.51.100.77',
+            'count': 1
+        }
+        res_clean = self.client.post(
+            reverse('api_simulate'),
+            data=json.dumps(custom_clean_payload),
+            content_type='application/json',
+            HTTP_X_DEMO_SESSION_ID=session.session_id
+        )
+        self.assertEqual(res_clean.status_code, 200)
+        data_clean = res_clean.json()
+        self.assertFalse(data_clean['detected'])
+
+        # Verify clean simulation is NOT mapped as an attack marker
+        map_resp = self.client.get(reverse('api_threat_map'), HTTP_X_DEMO_SESSION_ID=session.session_id)
+        map_data = map_resp.json()
+        clean_marker = next((m for m in map_data['markers'] if m['ip'] == '198.51.100.77'), None)
+        self.assertIsNone(clean_marker)
+
+    def test_threat_map_manual_refresh_and_session_isolation(self):
+        """Test E, F, J & K: Verify manual refresh button resets active demonstration view and preserves historical records."""
+        from monitor.demo_service import get_or_create_demo_session
+        from django.contrib.auth.models import User
+
+        self.client.login(username=self.username, password=self.password)
+        session_1 = get_or_create_demo_session(user=self.user)
+
+        # Run simulation in session 1
+        self.client.post(
+            reverse('api_simulate'),
+            data=json.dumps({'type': 'sqli', 'ip': '185.220.101.5', 'count': 2}),
+            content_type='application/json',
+            HTTP_X_DEMO_SESSION_ID=session_1.session_id
+        )
+
+        initial_count = RequestLog.objects.filter(demo_session=session_1).count()
+        self.assertGreaterEqual(initial_count, 1)
+
+        # Click manual refresh button (call reset endpoint)
+        reset_resp = self.client.post(
+            reverse('api_threat_map_reset'),
+            HTTP_X_DEMO_SESSION_ID=session_1.session_id
+        )
+        self.assertEqual(reset_resp.status_code, 200)
+        reset_data = reset_resp.json()
+        self.assertEqual(reset_data['status'], 'SUCCESS')
+        new_session_id = reset_data['new_session_id']
+        self.assertNotEqual(new_session_id, session_1.session_id)
+
+        # Historical records remain completely intact in DB
+        self.assertEqual(RequestLog.objects.filter(demo_session=session_1).count(), initial_count)
+        # But they are deactivated for the active demonstration view
+        self.assertFalse(RequestLog.objects.filter(demo_session=session_1, demo_active=True).exists())
+
+        # Map is now empty for the new demonstration session
+        map_resp = self.client.get(reverse('api_threat_map'), HTTP_X_DEMO_SESSION_ID=new_session_id)
+        map_data = map_resp.json()
+        self.assertEqual(len(map_data['markers']), 0)
+        self.assertEqual(map_data['total_eligible_events'], 0)
+
+        # Subsequent simulation appears in the new session cleanly
+        self.client.post(
+            reverse('api_simulate'),
+            data=json.dumps({'type': 'xss', 'ip': '198.51.100.99', 'count': 1}),
+            content_type='application/json',
+            HTTP_X_DEMO_SESSION_ID=new_session_id
+        )
+        map_resp_2 = self.client.get(reverse('api_threat_map'), HTTP_X_DEMO_SESSION_ID=new_session_id)
+        map_data_2 = map_resp_2.json()
+        self.assertEqual(len(map_data_2['markers']), 1)
+        self.assertEqual(map_data_2['markers'][0]['ip'], '198.51.100.99')
+
+    def test_missing_geographical_information_handling(self):
+        """Test H: Local, private, or unresolvable IP addresses must not have fake coordinates placed on map but remain in ledger."""
+        from monitor.demo_service import get_or_create_demo_session
+
+        self.client.login(username=self.username, password=self.password)
+        session = get_or_create_demo_session(user=self.user)
+
+        # Simulate attack from local private LAN IP (e.g. 192.168.1.150)
+        self.client.post(
+            reverse('api_simulate'),
+            data=json.dumps({'type': 'sqli', 'ip': '192.168.1.150', 'count': 1}),
+            content_type='application/json',
+            HTTP_X_DEMO_SESSION_ID=session.session_id
+        )
+
+        map_resp = self.client.get(reverse('api_threat_map'), HTTP_X_DEMO_SESSION_ID=session.session_id)
+        map_data = map_resp.json()
+
+        # No marker placed on map for private IP without valid coordinates
+        local_marker = next((m for m in map_data['markers'] if m['ip'] == '192.168.1.150'), None)
+        self.assertIsNone(local_marker)
+
+        # Event remains available in unmapped_events ledger with Location unavailable
+        unmapped = next((u for u in map_data['unmapped_events'] if u['ip'] == '192.168.1.150'), None)
+        self.assertIsNotNone(unmapped)
+        self.assertFalse(unmapped['has_geo'])
+        self.assertIsNone(unmapped['lat'])
+        self.assertIsNone(unmapped['lng'])
+        self.assertIn('Location unavailable', unmapped['geo_status'])
+
+    def test_horizontal_threat_stream_and_dashboard_elements(self):
+        """Test L & M: Verify Live Intercepted Threat Stream contains horizontal scroll controls and dashboard retains structural integrity."""
+        self.client.login(username=self.username, password=self.password)
+        response = self.client.get(reverse('home'))
+        self.assertEqual(response.status_code, 200)
+
+        # Verify horizontal scroll controls and wrapper
+        self.assertContains(response, 'threat-stream-scroll-wrapper')
+        self.assertContains(response, 'streamTopScrollbarWrap')
+        self.assertContains(response, 'streamTopScrollbarDummy')
+
+        # Verify Threat Map Card elements
+        self.assertContains(response, 'btnRefreshDemo')
+        self.assertContains(response, 'threatMapConnectionStatus')
+        self.assertContains(response, 'threatMapEmptyState')
+        self.assertContains(response, 'threatMapLedger')
+        self.assertContains(response, 'threat-source-pill source-simulated')
+        self.assertContains(response, 'threat-source-pill source-live')
+        self.assertContains(response, 'threat-source-pill source-intel')
+
